@@ -15,7 +15,6 @@ import android.util.Log
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
-import io.flutter.view.FlutterLoader
 import io.flutter.plugin.common.MethodChannel
 
 /**
@@ -72,43 +71,45 @@ class MessageSocketService : Service() {
             // A Handler rather than Context.getMainExecutor(), which needs API 28
             // and would raise the service's minSdk.
             Handler(Looper.getMainLooper()),
-            object : FlutterLoader.Callback {
-                override fun onSuccess() {
+            // The fourth argument is a plain Runnable: it runs once the loader
+            // has finished, and there is no failure callback, so a start that
+            // goes wrong is caught around the engine creation instead.
+            object : Runnable {
+                override fun run() {
                     starting = false
-                    val created = FlutterEngine(applicationContext)
-                    engine = created
+                    try {
+                        val created = FlutterEngine(applicationContext)
+                        engine = created
 
-                    // The isolate runs headless with no activity behind it, so
-                    // it cannot reach MainActivity's channel. Registering the
-                    // same channel on this engine lets the isolate shut its own
-                    // service down when it decides it has nothing to listen to,
-                    // rather than leaving a foreground notification behind a
-                    // connection that already went away.
-                    MethodChannel(
-                        created.dartExecutor.binaryMessenger,
-                        BACKGROUND_SOCKET_CHANNEL,
-                    ).setMethodCallHandler { call, _ ->
-                        when (call.method) {
-                            "stop" -> stopSelf()
-                            "start" -> Unit
-                            else -> Unit
+                        // The isolate runs headless with no activity behind it, so
+                        // it cannot reach MainActivity's channel. Registering the
+                        // same channel on this engine lets the isolate shut its own
+                        // service down when it decides it has nothing to listen to,
+                        // rather than leaving a foreground notification behind a
+                        // connection that already went away.
+                        MethodChannel(
+                            created.dartExecutor.binaryMessenger,
+                            BACKGROUND_SOCKET_CHANNEL,
+                        ).setMethodCallHandler { call, _ ->
+                            when (call.method) {
+                                "stop" -> stopSelf()
+                                "start" -> Unit
+                                else -> Unit
+                            }
                         }
+
+                        created.dartExecutor.executeDartEntrypoint(
+                            DartExecutor.DartEntrypoint(
+                                loader.findAppBundlePath(),
+                                BACKGROUND_ENTRYPOINT,
+                            ),
+                        )
+                    } catch (t: Throwable) {
+                        Log.e(TAG, "could not start the background isolate: ${t.message}")
+                        // Nothing will ever arrive on a connection that could not
+                        // start, so do not keep a foreground notification for it.
+                        stopSelf()
                     }
-
-                    created.dartExecutor.executeDartEntrypoint(
-                        DartExecutor.DartEntrypoint(
-                            loader.findAppBundlePath(),
-                            BACKGROUND_ENTRYPOINT,
-                        ),
-                    )
-                }
-
-                override fun onError(code: String, message: String?) {
-                    starting = false
-                    Log.e(TAG, "could not start the background isolate: $message")
-                    // Nothing will ever arrive on a connection that could not
-                    // start, so do not keep a foreground notification for it.
-                    stopSelf()
                 }
             },
         )
