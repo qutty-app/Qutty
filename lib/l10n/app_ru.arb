@@ -1,0 +1,734 @@
+{
+  "@@locale": "ru",
+  "appName": "Qutty",
+  "commonCancel": "Отмена",
+  "commonSave": "Сохранить",
+  "commonSaveChanges": "Сохранить изменения",
+  "commonClose": "Закрыть",
+  "commonCopy": "Копировать",
+  "commonApply": "Применить",
+  "commonDelete": "Удалить",
+  "commonRemove": "Убрать",
+  "commonRevoke": "Отозвать",
+  "commonContinue": "Продолжить",
+  "commonDismiss": "Скрыть",
+  "commonTryAgain": "Повторить",
+  "commonOpen": "Открыть",
+  "commonOk": "ОК",
+  "commonSaving": "Сохранение…",
+  "commonNotAvailable": "Н/Д",
+  "commonLoading": "загрузка",
+  "commonDetails": "Подробности",
+  "commonName": "Название",
+  "commonHandle": "Никнейм",
+  "commonDescription": "Описание",
+  "commonSettings": "Настройки",
+  "username": "Имя пользователя",
+  "password": "Пароль",
+  "optionalEmail": "Эл. почта (необязательно)",
+  "usernamePasswordRequired": "Имя пользователя и пароль обязательны.",
+  "loginCreateAccountTitle": "Создайте аккаунт",
+  "loginWelcomeBackTitle": "С возвращением",
+  "loginJoinConversation": "Присоединяйтесь к беседе.",
+  "loginSignInConversations": "Войдите в свои беседы.",
+  "createAccount": "Создать аккаунт",
+  "signIn": "Войти",
+  "alreadyHaveAccount": "Уже есть аккаунт? Войти",
+  "newToQutty": "Впервые в Qutty? Создайте аккаунт",
+  "couldNotConnect": "Не удалось подключиться к Qutty: {error}",
+  "@couldNotConnect": {
+    "description": "Could not connect to Qutty: {error}",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "quttyApiServiceDebugging": "Отладка ApiService в Qutty",
+  "developerOptions": "Настройки разработчика",
+  "apiUrl": "URL API",
+  "jwtToken": "JWT-токен",
+  "cancel": "Отмена",
+  "loginByToken": "Войти по токену",
+  "enterJwtToken": "Введите JWT-токен.",
+  "couldNotValidateToken": "Не удалось проверить токен.",
+  "selectChat": "Выберите чат",
+  "home": "Главная",
+  "pageNotFound": "Страница не найдена",
+  "pageNotFoundDescription": "Это означает, что по ошибке была открыта недопустимая страница.",
+  "chatsSearchHint": "Поиск чатов, каналов, пользователей",
+  "chatsProfileTooltip": "Профиль",
+  "chatsNewChannel": "Новый канал",
+  "chatsNewChat": "Новый чат",
+  "chatsEmptyTitle": "Пока нет бесед",
+  "chatsEmptySubtitle": "Создайте чат, чтобы начать.",
+  "chatsNoMatches": "Ничего не найдено",
+  "chatsPreviewAndJoin": "Посмотреть и присоединиться",
+  "chatsMessageUser": "Написать сообщение",
+  "chatBackToChats": "Назад к чатам",
+  "chatConversation": "Беседа",
+  "chatStartCall": "Начать звонок",
+  "chatEndCall": "Завершить звонок",
+  "chatIncomingCall": "{name} звонит",
+  "@chatIncomingCall": {"placeholders": {"name": {"type": "String"}}},
+  "chatOpenCall": "Открыть звонок",
+  "chatDismissCall": "Отклонить звонок",
+  "chatJoinCall": "Присоединиться к звонку",
+  "chatLeaveCall": "Покинуть звонок",
+  "chatMuteMicrophone": "Выключить микрофон",
+  "chatUnmuteMicrophone": "Включить микрофон",
+  "chatInCall": "Звонок активен",
+  "chatCalling": "Звоним…",
+  "chatMinimizeCall": "Свернуть звонок",
+  "chatConnectingCall": "Подключение…",
+  "chatEnableWebcam": "Включить камеру",
+  "chatDisableWebcam": "Выключить камеру",
+  "chatEnableScreenShare": "Поделиться экраном",
+  "chatDisableScreenShare": "Остановить показ",
+  "chatEnableSpeaker": "Динамик включён",
+  "chatDisableSpeaker": "Динамик выключен",
+  "chatCallsUnsupported": "Сервер не поддерживает звонки",
+  "chatUnableToOpenAttachment": "Не удалось открыть вложение",
+  "chatUnableToOpenLink": "Не удалось открыть ссылку",
+  "chatJoined": "Вы присоединились к чату",
+  "chatNoJoinLink": "У этого чата нет ссылки для присоединения",
+  "chatSendFirstMessage": "Отправьте первое сообщение",
+  "chatNoWritePermission": "Нет прав на отправку сообщений",
+  "chatJoin": "Присоединиться к чату",
+  "chatAttachFile": "Прикрепить файл",
+  "chatEmojiSelectButton": "Выбрать эмодзи, GIF и стикеры",
+  "mediaPickerStickerTab": "Стикер",
+  "mediaPickerEmojiTab": "Эмодзи",
+  "mediaPickerGifTab": "GIF",
+  "mediaPickerGifSearchHint": "Поиск GIF",
+  "mediaPickerGifFavorite": "Сохранить в избранное",
+  "mediaPickerGifUnfavorite": "Убрать из избранного",
+  "mediaPickerGifClearSearch": "Очистить поиск",
+  "mediaPickerGifNoFavorites": "Сохранённых GIF пока нет. Найдите и нажмите, чтобы сохранить.",
+  "mediaPickerGifEmpty": "GIF не найдены",
+  "mediaPickerGifLoadFailed": "Не удалось загрузить GIF",
+  "mediaPickerGifPoweredBy": "GIF от Klipy",
+  "mediaPickerGifSend": "Отправить GIF",
+  "mediaPickerEmojiLoadFailed": "Не удалось загрузить эмодзи.",
+  "mediaPickerGroupSmileysEmotion": "Смайлы и эмоции",
+  "mediaPickerGroupPeopleBody": "Люди и части тела",
+  "mediaPickerGroupAnimalsNature": "Животные и природа",
+  "mediaPickerGroupFoodDrink": "Еда и напитки",
+  "mediaPickerGroupTravelPlaces": "Путешествия и места",
+  "mediaPickerGroupActivities": "Активности",
+  "mediaPickerGroupObjects": "Объекты",
+  "mediaPickerGroupSymbols": "Символы",
+  "mediaPickerGroupFlags": "Флаги",
+  "mediaPickerSkinTone": "Тон кожи",
+  "mediaPickerSkinToneDefault": "По умолчанию",
+  "mediaPickerSkinToneLight": "Светлый",
+  "mediaPickerSkinToneMediumLight": "Умеренно светлый",
+  "mediaPickerSkinToneMedium": "Средний",
+  "mediaPickerSkinToneMediumDark": "Умеренно тёмный",
+  "mediaPickerSkinToneDark": "Тёмный",
+  "chatWriteMessage": "Написать сообщение",
+  "chatSend": "Отправить",
+  "chatMessageId": "ID сообщения: {id}",
+  "@chatMessageId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    },
+    "description": "Message ID: {id}"
+  },
+  "chatMessageRead": "Прочитано",
+  "chatMessageSent": "Отправлено",
+  "chatReadBy": "Прочитано: {count}",
+  "@chatReadBy": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSelectionCount": "Выбрано: {count}",
+  "@chatSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSelectionStop": "Прекратить выбор",
+  "chatMenuReply": "Ответить",
+  "chatReplyUnavailable": "Исходное сообщение",
+  "chatMenuForward": "Переслать",
+  "chatMenuSelect": "Выбрать",
+  "chatMenuMore": "Ещё",
+  "chatMessageCopied": "Сообщение скопировано",
+  "chatActionUnavailable": "Пока недоступно",
+  "chatForwardTitle": "Переслать в",
+  "chatForwardSearch": "Поиск чатов",
+  "chatForwardNoChats": "Нет чатов для пересылки",
+  "chatForwarded": "Переслано",
+  "chatForwardedFrom": "Переслано от {author}",
+  "chatForwardedOpen": "Открыть оригинал",
+  "chatForwardedTo": "Переслано в {chat}",
+  "settingsChats": "Чаты",
+  "settingsReadCount": "Показывать число прочитавших вместо галочек",
+  "settingsReadCountSubtitle": "В личных чатах показывать, сколько человек прочитали сообщение, вместо галочки",
+  "settingsTitle": "Настройки",
+  "settingsCustomization": "Оформление",
+  "settingsCustomizationSubtitle": "Тема и акцентный цвет",
+  "settingsConnectivity": "Подключение",
+  "settingsNotifications": "Уведомления",
+  "settingsAccount": "Аккаунт",
+  "settingsAccounts": "Аккаунты",
+  "settingsAccountDefaultLabel": "Аккаунт",
+  "settingsAccountSafety": "Безопасность аккаунта",
+  "settingsAbout": "О приложении",
+  "settingsEditProfile": "Изменить профиль",
+  "settingsChangePassword": "Сменить пароль",
+  "settingsChangePasswordSubtitle": "Обновите пароль от аккаунта",
+  "settingsChangeEmail": "Сменить эл. почту",
+  "settingsNoEmailOnFile": "Эл. почта не указана",
+  "settingsActiveSessions": "Активные сеансы",
+  "settingsActiveSessionsSubtitle": "Управляйте устройствами, выполнившими вход в аккаунт",
+  "settingsRemoveAccount": "Убрать аккаунт",
+  "settingsAddAccount": "Добавить аккаунт",
+  "settingsAddAccountSubtitle": "Войдите на другой сервер или в другой аккаунт",
+  "settingsDeleteAccount": "Удалить аккаунт",
+  "settingsDeleteAccountSubtitle": "Навсегда удалит ваш аккаунт Qutty",
+  "settingsVersionPlaceholder": "Placeholder#424738",
+  "settingsLogOut": "Выйти",
+  "settingsPasswordUpdated": "Пароль обновлён",
+  "settingsEmailUpdated": "Эл. почта обновлена",
+  "settingsLogOutTitle": "Выйти?",
+  "settingsLogOutBody": "Чтобы войти снова, нужно будет заново ввести пароль.",
+  "settingsDeleteAccountTitle": "Удалить аккаунт?",
+  "settingsDeleteAccountBody": "Введите имя пользователя и пароль, чтобы навсегда удалить аккаунт и все данные.",
+  "settingsEditProfileTooltip": "Изменить профиль",
+  "settingsCalls": "Звонки",
+  "settingsCallWebcam": "Веб-камера",
+  "settingsCallWebcamSubtitle": "Начинать звонки со включённой камерой",
+  "settingsCallCamera": "Камера",
+  "settingsCallCameraFront": "Фронтальная",
+  "settingsCallCameraBack": "Задняя",
+  "settingsCallLoudspeaker": "Громкая связь",
+  "settingsCallLoudspeakerSubtitle": "Воспроизводить звук звонка через динамик",
+  "settingsCallMic": "Микрофон",
+  "settingsCallMicSubtitle": "Начинать звонки со включённым микрофоном",
+  "settingsCallScreenShare": "Скрейнкаст",
+  "settingsCallScreenShareSubtitle": "Разрешить демонстрацию экрана во время звонков",
+  "settingsAudio": "Звук",
+  "settingsAudioInput": "Микрофон",
+  "settingsAudioOutput": "Динамики",
+  "settingsAudioCamera": "Камера",
+  "settingsAudioSystemDefault": "Системное по умолчанию",
+  "settingsAudioNoDevices": "Устройства не найдены",
+  "settingsAudioNoiseReduction": "Шумоподавление",
+  "settingsAudioNoiseReductionSubtitle": "Подавлять фоновый шум во время звонков",
+  "settingsAudioMicVolume": "Громкость микрофона",
+  "settingsAudioSpeakerVolume": "Громкость динамиков",
+  "screenSharePickTitle": "Выберите, чем поделиться",
+  "screenSharePickScreens": "Экраны",
+  "screenSharePickWindows": "Окна",
+  "screenSharePickEmpty": "Экраны и окна не найдены",
+  "screenSharePickError": "Не удалось загрузить экраны и окна",
+  "screenSharePickRetry": "Повторить",
+  "notificationsToggle": "Уведомления о сообщениях",
+  "notificationsOffForDevice": "Отключены на этом устройстве",
+  "notificationsOpenWithBackground": "Оповещения, пока приложение открыто и в фоне",
+  "notificationsOpenOnly": "Оповещения, пока приложение открыто",
+  "notificationsOpenBackgroundConnection": "Оповещения, пока приложение открыто (фоновое подключение)",
+  "notificationsPermissionHint": "Разрешите уведомления Qutty в системных настройках, чтобы получать оповещения в фоне.",
+  "connectionStatus": "Состояние подключения",
+  "connectionLiveWebsocket": "Состояние активного вебсокета",
+  "connectionReconnect": "Переподключиться",
+  "connectionConnected": "Подключено",
+  "connectionConnecting": "Подключение…",
+  "connectionDisconnected": "Отключено",
+  "sessionsRevokeTitle": "Отозвать сеанс {name}?",
+  "@sessionsRevokeTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Revoke {name}?"
+  },
+  "sessionsRevokeBody": "Другие устройства, использующие этот сеанс, будут отключены.",
+  "sessionsRevoked": "Сеанс отозван",
+  "sessionsLoadFailed": "Не удалось загрузить сеансы",
+  "sessionsNone": "Нет активных сеансов",
+  "sessionsThisDevice": "Это устройство",
+  "sessionsLastActive": "Активность {time}",
+  "@sessionsLastActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    },
+    "description": "Last active {time}"
+  },
+  "sessionsCurrentBadge": "Текущий",
+  "timeJustNow": "только что",
+  "timeMinutesAgo": "{count} мин назад",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}m ago"
+  },
+  "timeHoursAgo": "{count} ч назад",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}h ago"
+  },
+  "timeDaysAgo": "{count} дн назад",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}d ago"
+  },
+  "languageTitle": "Язык",
+  "languageSubtitle": "Язык приложения",
+  "languageSystemDefault": "Как в системе",
+  "themeLabel": "Тема",
+  "accentColorLabel": "Акцентный цвет",
+  "themeSystem": "Системная",
+  "themeDark": "Тёмная",
+  "themeLight": "Светлая",
+  "accentQuttyBlue": "Синий Qutty",
+  "accentCustom": "Свой",
+  "customAccentColor": "Свой акцентный цвет",
+  "hexColor": "HEX-код цвета",
+  "roleOwner": "Владелец",
+  "roleAdmin": "Администратор",
+  "roleRestricted": "Ограниченный",
+  "roleMember": "Участник",
+  "accountNewEmail": "Новая эл. почта",
+  "accountCurrentPassword": "Текущий пароль",
+  "accountConfirmPassword": "Подтвердите пароль",
+  "accountNewPassword": "Новый пароль",
+  "chatSettingsTitle": "Настройки чата",
+  "chatSettingsLeaveTitle": "Покинуть чат?",
+  "chatSettingsLeaveBody": "Вы потеряете доступ к этому чату, пока вас снова не пригласит администратор.",
+  "chatSettingsLeave": "Покинуть",
+  "chatSettingsDeleteTitle": "Удалить {name}?",
+  "@chatSettingsDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Delete {name}?"
+  },
+  "chatSettingsDeleteBody": "Все сообщения и участники будут удалены навсегда. Отменить это нельзя.",
+  "chatSettingsLoadFailed": "Не удалось загрузить настройки",
+  "chatSettingsProfileSection": "Профиль",
+  "chatSettingsEditProfileSubtitle": "Название, никнейм, описание и картинка",
+  "chatSettingsCreateInvite": "Создать ссылку-приглашение",
+  "chatSettingsCreateInviteSubtitle": "Создайте приглашение, которым можно поделиться",
+  "chatSettingsPermissions": "Права доступа",
+  "chatSettingsMembers": "Участники",
+  "chatSettingsMembersSubtitle": "Просмотр и управление участниками",
+  "chatSettingsAccessControl": "Контроль доступа",
+  "chatSettingsAccessControlSubtitle": "Права участников по умолчанию",
+  "chatSettingsDirectMessage": "Личное сообщение",
+  "chatSettingsOpenContactProfile": "Открыть профиль контакта",
+  "chatSettingsDangerZone": "Опасная зона",
+  "chatSettingsLeaveTile": "Покинуть чат",
+  "chatSettingsDeleteTile": "Удалить чат",
+  "chatSettingsDeleteTileSubtitle": "Удалить этот чат может только создатель",
+  "chatSettingsInviteTitle": "Ссылка-приглашение",
+  "chatSettingsInviteBody": "Поделитесь этой ссылкой с теми, кого хотите пригласить. Она скопирована в буфер обмена.",
+  "chatSettingsInviteCopied": "Ссылка-приглашение скопирована",
+  "aclDefaultPermissions": "Права участников по умолчанию",
+  "aclDescription": "Эти права действуют для обычных участников. У администраторов всегда есть доступ к управлению.",
+  "aclSavePermissions": "Сохранить права",
+  "aclEditMessages": "Редактировать сообщения",
+  "aclEditMessagesDescription": "Разрешает участникам редактировать сообщения.",
+  "permissionWriteMessages": "Отправлять сообщения",
+  "permissionWriteMessagesDescription": "Разрешает участникам отправлять новые сообщения.",
+  "permissionDeleteOthersMessages": "Удалять чужие сообщения",
+  "permissionDeleteOthersMessagesDescription": "Разрешает участникам удалять сообщения других людей.",
+  "permissionEditOthersMessages": "Редактировать чужие сообщения",
+  "permissionEditOthersMessagesDescription": "Разрешает участникам редактировать сообщения других людей.",
+  "permissionRestrictUsers": "Управлять участниками",
+  "permissionRestrictUsersDescription": "Разрешает участникам убирать или ограничивать других участников.",
+  "permissionEditProfile": "Редактировать профиль чата",
+  "permissionEditProfileDescription": "Разрешает участникам менять название и описание чата.",
+  "permissionAddAdmins": "Управлять администраторами",
+  "permissionAddAdminsDescription": "Разрешает участникам повышать других участников.",
+  "membersTitle": "Участники",
+  "membersLoadFailed": "Не удалось загрузить участников",
+  "membersYou": "Вы",
+  "membersMore": "Ещё",
+  "membersViewProfile": "Открыть профиль",
+  "membersGiveChat": "Передать {name} этому пользователю",
+  "@membersGiveChat": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Give {name} to this user"
+  },
+  "membersManagePermissions": "Управлять правами",
+  "membersRemoveFromChat": "Убрать из чата",
+  "membersRemoveTitle": "Убрать {name}?",
+  "@membersRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Remove {name}?"
+  },
+  "membersRemoveBody": "Этот человек сразу потеряет доступ к чату.",
+  "membersOwnershipGiven": "Владение чатом передано пользователю {name}",
+  "@membersOwnershipGiven": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Chat ownership given to {name}"
+  },
+  "membersTransferTitle": "Данные будущего владельца",
+  "membersTransferAttention": "ВНИМАНИЕ!",
+  "membersTransferUsername": "ИМЯ ПОЛЬЗОВАТЕЛЯ: {username}",
+  "@membersTransferUsername": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    },
+    "description": "USERNAME: {username}"
+  },
+  "membersTransferAcknowledge": "Я понимаю, что потеряю владение {chat}, а {username} получит {chat}.",
+  "@membersTransferAcknowledge": {
+    "placeholders": {
+      "chat": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    },
+    "description": "I acknowledge that I will lose ownership of {chat}, and {username} will get {chat}."
+  },
+  "membersEnterPassword": "Введите пароль",
+  "membersGiveConfirm": "Передать {chat} пользователю {username}",
+  "@membersGiveConfirm": {
+    "placeholders": {
+      "chat": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    },
+    "description": "Give {chat} to {username}"
+  },
+  "membersOwnerLocked": "Владельца чата нельзя изменить.",
+  "createChatNewChannel": "Новый канал",
+  "createChatNewChat": "Новый чат",
+  "createChatClose": "Закрыть",
+  "createChatCreateChannel": "Создать канал",
+  "createChatCreateChat": "Создать чат",
+  "createChatChooseAvatar": "Выбрать аватар",
+  "createChatDisplayName": "Отображаемое имя",
+  "createChatUsernameOptional": "Имя пользователя (необязательно)",
+  "createChatUsernameOptionalHelper": "Можно оставить пустым и добавить позже.",
+  "createChatNameRequired": "Отображаемое имя обязательно.",
+  "joinPreviewTitle": "Присоединиться к чату",
+  "joinPreviewInvalidLink": "Некорректная ссылка-приглашение",
+  "joinPreviewJoining": "Подключение…",
+  "joinPreviewJoin": "Присоединиться",
+  "editProfileChangeAvatar": "Сменить аватар",
+  "editProfileRemoveAvatar": "Убрать аватар",
+  "editProfileBio": "О себе",
+  "editProfileNameEmpty": "Отображаемое имя не может быть пустым",
+  "editProfileHandleReserved": "Никнейм не может быть _, этот никнейм зарезервирован для сброса никнейма",
+  "editChatChannelSettings": "Настройки канала",
+  "editChatTapForPicture": "Нажмите, чтобы сменить картинку чата",
+  "editChatUpload": "Загрузить",
+  "editChatReplace": "Заменить",
+  "editChatHandleHelper": "Используется, чтобы поделиться чатом как @никнейм",
+  "profileUnableToOpen": "Не удалось открыть",
+  "profileError": "Ошибка: {error}",
+  "@profileError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    },
+    "description": "Error: {error}"
+  },
+  "profileNotFound": "Профиль не найден",
+  "profileChatId": "ID чата: {id}",
+  "@profileChatId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    },
+    "description": "Chat ID: {id}"
+  },
+  "profileUserId": "ID пользователя: {id}",
+  "@profileUserId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    },
+    "description": "User ID: {id}"
+  },
+  "profileTabMedia": "Медиа ({count})",
+  "@profileTabMedia": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Media ({count})"
+  },
+  "profileTabGifs": "Гифки ({count})",
+  "@profileTabGifs": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Gifs ({count})"
+  },
+  "profileTabLinks": "Ссылки ({count})",
+  "@profileTabLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Links ({count})"
+  },
+  "profileTabFiles": "Файлы ({count})",
+  "@profileTabFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Files ({count})"
+  },
+  "profileNoMedia": "Медиа пока нет",
+  "profileNoGifs": "Гифок пока нет",
+  "profileNoLinks": "Ссылок пока нет",
+  "profileNoFiles": "Файлов пока нет",
+  "aboutTerms": "Условия использования и политика конфиденциальности",
+  "aboutLicenses": "Лицензии открытого кода",
+  "aboutBuild": "Сборка: {build}",
+  "@aboutBuild": {
+    "placeholders": {
+      "build": {
+        "type": "String"
+      }
+    },
+    "description": "Build: {build}"
+  },
+  "aboutCopyright": "Qutty - RdProjects 2026 © Все права защищены\nВерсия: {version}",
+  "@aboutCopyright": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Qutty - RdProjects 2026 © All rights reserved\nVersion: {version}"
+  },
+  "debugTitle": "Quttycaka",
+  "debugWarning": "Эти настройки нужны только для разработки и отладки. \nИх изменение может привести к непредсказуемому поведению.\nПродолжайте, только если точно знаете, что делаете.\n - QuttyTeam в RdProjects",
+  "debugSubtitle": "Настройки разработки/отладки, он же Quttycaka",
+  "debugApiEndpoint": "Адрес API",
+  "debugDeveloperInfo": "Данные для разработчика",
+  "debugDeveloperInfoSubtitle": "Показывать ID профилей и сообщений",
+  "debugFallbackSelectorCast": "FallBackSelectorCast",
+  "debugFallbackSelectorCastSubtitle": "Всегда использовать собственный выбор экрана приложения вместо системного",
+  "debugForceGroupCall": "Принудительный макет группового звонка",
+  "debugForceGroupCallSubtitle": "Использовать макет группового звонка даже в личных звонках",
+  "debugJumpTo": "Перейти",
+  "debugJumpToSubtitle": "Открыть страницу по URL или маршруту",
+  "debugJumpToTitle": "Перейти к странице",
+  "debugPageUrlOrRoute": "URL или маршрут страницы",
+  "debugBaseUrl": "Базовый URL",
+  "debugApiEndpointUpdated": "Адрес API обновлён",
+  "debugTransport": "Канал доставки уведомлений",
+  "debugTransportNotSelected": "Не выбран",
+  "debugTransportUnavailable": "Недоступно в этой сборке",
+  "debugTransportNowUsing": "Уведомления теперь отправляются через {label}",
+  "@debugTransportNowUsing": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    },
+    "description": "Notifications now use {label}"
+  },
+  "transportApns": "Служба push-уведомлений Apple",
+  "transportFcm": "Firebase Cloud Messaging",
+  "transportWebsocket": "Фоновое подключение к вашему серверу",
+  "errorShowDetails": "Показать подробности ошибки API",
+  "errorHttpStatus": "HTTP {code}",
+  "@errorHttpStatus": {
+    "placeholders": {
+      "code": {
+        "type": "int"
+      }
+    },
+    "description": "HTTP {code}"
+  },
+  "notificationChannelMessages": "Сообщения",
+  "notificationChannelDescription": "Новые сообщения и оповещения",
+  "notificationSentAttachment": "Отправил вложение",
+  "notificationNewMessage": "Новое сообщение",
+  "unnamedChat": "Чат без названия",
+  "unnamedSession": "Сеанс без названия",
+  "tokenMissing": "Отсутствует токен",
+  "avatarFormatError": "Аватар должен быть изображением JPEG, JPG или PNG",
+  "unableToReadImage": "Не удалось прочитать изображение",
+  "avatarUploadFailed": "Не удалось загрузить аватар",
+  "unableToReadFile": "Не удалось прочитать файл",
+  "fileUploadFailed": "Не удалось загрузить файл",
+  "requestFailed": "Запрос не выполнен",
+  "settingsFont": "Шрифт",
+  "fontSystemDefault": "Системный шрифт",
+  "fontDownload": "Скачать",
+  "fontDownloading": "Скачивание…",
+  "fontChooseFromFile": "Выбрать файл",
+  "fontDownloadFailed": "Не удалось скачать шрифт",
+  "fontFileUnreadable": "Это не файл шрифта",
+  "fontSample": "Съешь же ещё этих мягких французских булок да выпей чаю",
+  "fontSubtitle": "Шрифт приложения",
+  "fontNotLoaded": "Шрифт не загружен",
+  "fontDelete": "Удалить",
+  "@fontDelete": {
+    "description": "fontDelete"
+  },
+  "fontSource": "Источник",
+  "@fontSource": {
+    "description": "fontSource"
+  },
+  "fontDownloadTitle": "Скачать {font}?",
+  "@fontDownloadTitle": {
+    "description": "fontDownloadTitle",
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDownloadBody": "Шрифт загружается с {url} и сохраняется на этом устройстве.",
+  "@fontDownloadBody": {
+    "description": "fontDownloadBody",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteTitle": "Удалить {font}?",
+  "@fontDeleteTitle": {
+    "description": "fontDeleteTitle",
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteBody": "Он будет удалён с этого устройства. Его можно снова скачать с {url}.",
+  "@fontDeleteBody": {
+    "description": "fontDeleteBody",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDownloadingLabel": "Скачивание {font}…",
+  "@fontDownloadingLabel": {
+    "description": "fontDownloadingLabel",
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteFailed": "Не удалось удалить шрифт",
+  "@fontDeleteFailed": {
+    "description": "fontDeleteFailed"
+  },
+  "fontSourceFailed": "Не удалось открыть ссылку",
+  "@fontSourceFailed": {
+    "description": "fontSourceFailed"
+  },
+  "developerPortal": "Портал разработчика",
+  "developerPortalSubtitle": "Инструменты для разработчиков Qutty",
+  "ugcTitle": "Стикеры и эмодзи",
+  "ugcSubtitle": "Создавайте свои стикеры и эмодзи и управляйте ими",
+  "ugcPortalTitle": "Стикеры и эмодзи",
+  "ugcCreatePack": "Новый набор",
+  "ugcCreatePackAction": "Создать набор",
+  "ugcPackNameRequired": "Имя набора обязательно.",
+  "ugcNameRequired": "Имя обязательно.",
+  "ugcItemImageRequired": "Сначала выберите изображение.",
+  "ugcChooseImage": "Выбрать изображение",
+  "ugcPackName": "Название набора",
+  "ugcAddItem": "Добавить элемент",
+  "ugcItemsTitle": "Элементы",
+  "ugcFavoritesTitle": "Избранное",
+  "ugcNoPacks": "Наборов пока нет. Создайте набор, чтобы добавлять стикеры и эмодзи.",
+  "ugcNoItems": "В этом наборе пока нет элементов.",
+  "ugcNoFavorites": "В избранном пока ничего нет.",
+  "ugcDeletePackTitle": "Удалить набор?",
+  "ugcDeletePackBody": "Удалить «{name}» и все его элементы?",
+  "@ugcDeletePackBody": {
+    "description": "ugcDeletePackBody",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ugcDeleteItemTitle": "Удалить элемент?",
+  "ugcDeleteItemBody": "Удалить «{name}»?",
+  "@ugcDeleteItemBody": {
+    "description": "ugcDeleteItemBody",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ugcCreated": "Создано",
+  "ugcDeleted": "Удалено",
+  "ugcCreateFailed": "Не удалось создать",
+  "ugcPickerAll": "Все",
+  "ugcPickerFavorites": "Избранное",
+  "ugcPickerEmpty": "Стикеров пока нет. Создайте их в Портале разработчика.",
+  "ugcPickerNoPacks": "Сохранённых паков пока нет. Сохраните пак, чтобы увидеть его стикеры здесь.",
+  "ugcPickerLoadFailed": "Не удалось загрузить стикеры",
+  "ugcPickerManage": "Управление в Портале разработчика",
+  "ugcPickerSaved": "Добавлено в избранное",
+  "ugcPickerRemoved": "Удалено из избранного",
+  "ugcStickerInsert": "Вставить",
+  "ugcSavePack": "Сохранить пак",
+  "ugcUnsavePack": "Убрать сохранённый пак",
+  "ugcSharePack": "Поделиться паком",
+  "ugcLinkCopied": "Ссылка скопирована",
+  "ugcPackTitle": "Набор стикеров",
+  "ugcPackUnavailable": "Этот набор стикеров недоступен.",
+  "ugcStickerPreview": "Стикер"
+}

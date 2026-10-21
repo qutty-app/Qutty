@@ -1,0 +1,734 @@
+{
+  "@@locale": "es",
+  "appName": "Qutty",
+  "commonCancel": "Cancelar",
+  "commonSave": "Guardar",
+  "commonSaveChanges": "Guardar cambios",
+  "commonClose": "Cerrar",
+  "commonCopy": "Copiar",
+  "commonApply": "Aplicar",
+  "commonDelete": "Eliminar",
+  "commonRemove": "Quitar",
+  "commonRevoke": "Revocar",
+  "commonContinue": "Continuar",
+  "commonDismiss": "Descartar",
+  "commonTryAgain": "Reintentar",
+  "commonOpen": "Abrir",
+  "commonOk": "Aceptar",
+  "commonSaving": "Guardando…",
+  "commonNotAvailable": "N/D",
+  "commonLoading": "cargando",
+  "commonDetails": "Detalles",
+  "commonName": "Nombre",
+  "commonHandle": "Alias",
+  "commonDescription": "Descripción",
+  "commonSettings": "Ajustes",
+  "username": "Nombre de usuario",
+  "password": "Contraseña",
+  "optionalEmail": "Correo electrónico (opcional)",
+  "usernamePasswordRequired": "El nombre de usuario y la contraseña son obligatorios.",
+  "loginCreateAccountTitle": "Crea tu cuenta",
+  "loginWelcomeBackTitle": "Te damos la bienvenida de nuevo",
+  "loginJoinConversation": "Únete a la conversación.",
+  "loginSignInConversations": "Inicia sesión en tus conversaciones.",
+  "createAccount": "Crear cuenta",
+  "signIn": "Iniciar sesión",
+  "alreadyHaveAccount": "¿Ya tienes cuenta? Inicia sesión",
+  "newToQutty": "¿Nuevo en Qutty? Crea una cuenta",
+  "couldNotConnect": "No se pudo conectar con Qutty: {error}",
+  "@couldNotConnect": {
+    "description": "Could not connect to Qutty: {error}",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "quttyApiServiceDebugging": "Depuración del ApiService de Qutty",
+  "developerOptions": "Opciones para desarrolladores",
+  "apiUrl": "URL de la API",
+  "jwtToken": "Token JWT",
+  "cancel": "Cancelar",
+  "loginByToken": "Iniciar sesión con token",
+  "enterJwtToken": "Introduce un token JWT.",
+  "couldNotValidateToken": "No se pudo validar el token.",
+  "selectChat": "Selecciona un chat",
+  "home": "Inicio",
+  "pageNotFound": "Página no encontrada",
+  "pageNotFoundDescription": "Esto indica que se ha abierto una página no válida por algún error.",
+  "chatsSearchHint": "Buscar chats, canales, usuarios",
+  "chatsProfileTooltip": "Perfil",
+  "chatsNewChannel": "Nuevo canal",
+  "chatsNewChat": "Nuevo chat",
+  "chatsEmptyTitle": "Todavía no hay conversaciones",
+  "chatsEmptySubtitle": "Crea un chat para empezar.",
+  "chatsNoMatches": "No se han encontrado coincidencias",
+  "chatsPreviewAndJoin": "Ver y unirse",
+  "chatsMessageUser": "Enviar mensaje",
+  "chatBackToChats": "Volver a los chats",
+  "chatConversation": "Conversación",
+  "chatStartCall": "Iniciar llamada",
+  "chatEndCall": "Finalizar llamada",
+  "chatIncomingCall": "{name} está llamando",
+  "@chatIncomingCall": {"placeholders": {"name": {"type": "String"}}},
+  "chatOpenCall": "Abrir llamada",
+  "chatDismissCall": "Descartar llamada",
+  "chatJoinCall": "Unirse a la llamada",
+  "chatLeaveCall": "Salir de la llamada",
+  "chatMuteMicrophone": "Silenciar micrófono",
+  "chatUnmuteMicrophone": "Activar micrófono",
+  "chatInCall": "En llamada",
+  "chatCalling": "Llamando…",
+  "chatMinimizeCall": "Minimizar llamada",
+  "chatConnectingCall": "Conectando…",
+  "chatEnableWebcam": "Activar cámara",
+  "chatDisableWebcam": "Desactivar cámara",
+  "chatEnableScreenShare": "Compartir pantalla",
+  "chatDisableScreenShare": "Dejar de compartir",
+  "chatEnableSpeaker": "Altavoz activado",
+  "chatDisableSpeaker": "Altavoz desactivado",
+  "chatCallsUnsupported": "El servidor no admite llamadas",
+  "chatUnableToOpenAttachment": "No se pudo abrir el archivo adjunto",
+  "chatUnableToOpenLink": "No se pudo abrir el enlace",
+  "chatJoined": "Te has unido al chat",
+  "chatNoJoinLink": "Este chat no tiene enlace de invitación",
+  "chatSendFirstMessage": "Envía tu primer mensaje",
+  "chatNoWritePermission": "No tienes permiso para escribir mensajes",
+  "chatJoin": "Unirse al chat",
+  "chatAttachFile": "Adjuntar archivo",
+  "chatEmojiSelectButton": "Elegir emojis, GIF y pegatinas",
+  "mediaPickerStickerTab": "Sticker",
+  "mediaPickerEmojiTab": "Emoji",
+  "mediaPickerGifTab": "GIF",
+  "mediaPickerGifSearchHint": "Buscar GIFs",
+  "mediaPickerGifFavorite": "Guardar en favoritos",
+  "mediaPickerGifUnfavorite": "Quitar de favoritos",
+  "mediaPickerGifClearSearch": "Borrar búsqueda",
+  "mediaPickerGifNoFavorites": "Aún no hay GIF guardados. Busca uno y mantén pulsado para guardarlo.",
+  "mediaPickerGifEmpty": "No se encontraron GIFs",
+  "mediaPickerGifLoadFailed": "No se pudieron cargar los GIFs",
+  "mediaPickerGifPoweredBy": "GIFs de Klipy",
+  "mediaPickerGifSend": "Enviar GIF",
+  "mediaPickerEmojiLoadFailed": "No se pudieron cargar los emojis.",
+  "mediaPickerGroupSmileysEmotion": "Emoticonos y sentimientos",
+  "mediaPickerGroupPeopleBody": "Personas y cuerpos",
+  "mediaPickerGroupAnimalsNature": "Animales y naturaleza",
+  "mediaPickerGroupFoodDrink": "Comida y bebida",
+  "mediaPickerGroupTravelPlaces": "Viajes y lugares",
+  "mediaPickerGroupActivities": "Actividades",
+  "mediaPickerGroupObjects": "Objetos",
+  "mediaPickerGroupSymbols": "Símbolos",
+  "mediaPickerGroupFlags": "Banderas",
+  "mediaPickerSkinTone": "Tono de piel",
+  "mediaPickerSkinToneDefault": "Predeterminado",
+  "mediaPickerSkinToneLight": "Claro",
+  "mediaPickerSkinToneMediumLight": "Medio claro",
+  "mediaPickerSkinToneMedium": "Medio",
+  "mediaPickerSkinToneMediumDark": "Medio oscuro",
+  "mediaPickerSkinToneDark": "Oscuro",
+  "chatWriteMessage": "Escribe un mensaje",
+  "chatSend": "Enviar",
+  "chatMessageId": "ID del mensaje: {id}",
+  "@chatMessageId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    },
+    "description": "Message ID: {id}"
+  },
+  "chatMessageRead": "Leído",
+  "chatMessageSent": "Enviado",
+  "chatReadBy": "Leído por {count}",
+  "@chatReadBy": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSelectionCount": "{count} seleccionados",
+  "@chatSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSelectionStop": "Dejar de seleccionar",
+  "chatMenuReply": "Responder",
+  "chatReplyUnavailable": "Mensaje original",
+  "chatMenuForward": "Reenviar",
+  "chatMenuSelect": "Seleccionar",
+  "chatMenuMore": "Más",
+  "chatMessageCopied": "Mensaje copiado",
+  "chatActionUnavailable": "Aún no disponible",
+  "chatForwardTitle": "Reenviar a",
+  "chatForwardSearch": "Buscar chats",
+  "chatForwardNoChats": "No hay chats a los que reenviar",
+  "chatForwarded": "Reenviado",
+  "chatForwardedFrom": "Reenviado de {author}",
+  "chatForwardedOpen": "Abrir original",
+  "chatForwardedTo": "Reenviado a {chat}",
+  "settingsChats": "Chats",
+  "settingsReadCount": "Mostrar el número de lecturas en vez de marcas",
+  "settingsReadCountSubtitle": "En los chats directos, mostrar cuántas personas han leído cada mensaje en vez de una marca",
+  "settingsTitle": "Ajustes",
+  "settingsCustomization": "Personalización",
+  "settingsCustomizationSubtitle": "Tema y color de acento",
+  "settingsConnectivity": "Conectividad",
+  "settingsNotifications": "Notificaciones",
+  "settingsAccount": "Cuenta",
+  "settingsAccounts": "Cuentas",
+  "settingsAccountDefaultLabel": "Cuenta",
+  "settingsAccountSafety": "Seguridad de la cuenta",
+  "settingsAbout": "Acerca de",
+  "settingsEditProfile": "Editar perfil",
+  "settingsChangePassword": "Cambiar contraseña",
+  "settingsChangePasswordSubtitle": "Actualiza la contraseña de tu cuenta",
+  "settingsChangeEmail": "Cambiar correo electrónico",
+  "settingsNoEmailOnFile": "No hay correo electrónico guardado",
+  "settingsActiveSessions": "Sesiones activas",
+  "settingsActiveSessionsSubtitle": "Gestiona los dispositivos con sesión iniciada en tu cuenta",
+  "settingsRemoveAccount": "Quitar cuenta",
+  "settingsAddAccount": "Añadir cuenta",
+  "settingsAddAccountSubtitle": "Inicia sesión en otro servidor o cuenta",
+  "settingsDeleteAccount": "Eliminar cuenta",
+  "settingsDeleteAccountSubtitle": "Elimina permanentemente tu cuenta de Qutty",
+  "settingsVersionPlaceholder": "Placeholder#424738",
+  "settingsLogOut": "Cerrar sesión",
+  "settingsPasswordUpdated": "Contraseña actualizada",
+  "settingsEmailUpdated": "Correo electrónico actualizado",
+  "settingsLogOutTitle": "¿Cerrar sesión?",
+  "settingsLogOutBody": "Tendrás que introducir tu contraseña otra vez para volver a iniciar sesión.",
+  "settingsDeleteAccountTitle": "¿Eliminar la cuenta?",
+  "settingsDeleteAccountBody": "Introduce tu nombre de usuario y contraseña para eliminar permanentemente tu cuenta y todos tus datos.",
+  "settingsEditProfileTooltip": "Editar perfil",
+  "settingsCalls": "Llamadas",
+  "settingsCallWebcam": "Webcam",
+  "settingsCallWebcamSubtitle": "Empezar llamadas con la cámara encendida",
+  "settingsCallCamera": "Cámara",
+  "settingsCallCameraFront": "Frontal",
+  "settingsCallCameraBack": "Trasera",
+  "settingsCallLoudspeaker": "Altavoz",
+  "settingsCallLoudspeakerSubtitle": "Reproducir el audio de la llamada por el altavoz",
+  "settingsCallMic": "Micrófono",
+  "settingsCallMicSubtitle": "Empezar llamadas con el micrófono encendido",
+  "settingsCallScreenShare": "Screencast",
+  "settingsCallScreenShareSubtitle": "Permitir compartir la pantalla durante las llamadas",
+  "settingsAudio": "Audio",
+  "settingsAudioInput": "Micrófono",
+  "settingsAudioOutput": "Altavoces",
+  "settingsAudioCamera": "Cámara",
+  "settingsAudioSystemDefault": "Predeterminado del sistema",
+  "settingsAudioNoDevices": "No se encontraron dispositivos",
+  "settingsAudioNoiseReduction": "Reducción de ruido",
+  "settingsAudioNoiseReductionSubtitle": "Suprime el ruido de fondo durante las llamadas",
+  "settingsAudioMicVolume": "Volumen del micrófono",
+  "settingsAudioSpeakerVolume": "Volumen de los altavoces",
+  "screenSharePickTitle": "Elige qué compartir",
+  "screenSharePickScreens": "Pantallas",
+  "screenSharePickWindows": "Ventanas",
+  "screenSharePickEmpty": "No se encontraron pantallas ni ventanas",
+  "screenSharePickError": "No se pudieron cargar las pantallas y ventanas",
+  "screenSharePickRetry": "Reintentar",
+  "notificationsToggle": "Notificaciones de mensajes",
+  "notificationsOffForDevice": "Desactivadas en este dispositivo",
+  "notificationsOpenWithBackground": "Alertas con la app abierta y en segundo plano",
+  "notificationsOpenOnly": "Alertas con la app abierta",
+  "notificationsOpenBackgroundConnection": "Alertas con la app abierta (conexión en segundo plano)",
+  "notificationsPermissionHint": "Permite las notificaciones de Qutty en los ajustes del sistema para recibir alertas en segundo plano.",
+  "connectionStatus": "Estado de la conexión",
+  "connectionLiveWebsocket": "Estado del websocket en vivo",
+  "connectionReconnect": "Reconectar",
+  "connectionConnected": "Conectado",
+  "connectionConnecting": "Conectando…",
+  "connectionDisconnected": "Desconectado",
+  "sessionsRevokeTitle": "¿Revocar la sesión de {name}?",
+  "@sessionsRevokeTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Revoke {name}?"
+  },
+  "sessionsRevokeBody": "Se cerrará la sesión de los demás dispositivos que usen esta sesión.",
+  "sessionsRevoked": "Sesión revocada",
+  "sessionsLoadFailed": "No se pudieron cargar las sesiones",
+  "sessionsNone": "No hay sesiones activas",
+  "sessionsThisDevice": "Este dispositivo",
+  "sessionsLastActive": "Última actividad {time}",
+  "@sessionsLastActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    },
+    "description": "Last active {time}"
+  },
+  "sessionsCurrentBadge": "Actual",
+  "timeJustNow": "ahora mismo",
+  "timeMinutesAgo": "hace {count} min",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}m ago"
+  },
+  "timeHoursAgo": "hace {count} h",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}h ago"
+  },
+  "timeDaysAgo": "hace {count} d",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}d ago"
+  },
+  "languageTitle": "Idioma",
+  "languageSubtitle": "Idioma de la app",
+  "languageSystemDefault": "Predeterminado del sistema",
+  "themeLabel": "Tema",
+  "accentColorLabel": "Color de acento",
+  "themeSystem": "Sistema",
+  "themeDark": "Oscuro",
+  "themeLight": "Blanco",
+  "accentQuttyBlue": "Azul Qutty",
+  "accentCustom": "Personalizado",
+  "customAccentColor": "Color de acento personalizado",
+  "hexColor": "Color hexadecimal",
+  "roleOwner": "Propietario",
+  "roleAdmin": "Administrador",
+  "roleRestricted": "Restringido",
+  "roleMember": "Miembro",
+  "accountNewEmail": "Nuevo correo electrónico",
+  "accountCurrentPassword": "Contraseña actual",
+  "accountConfirmPassword": "Confirmar contraseña",
+  "accountNewPassword": "Nueva contraseña",
+  "chatSettingsTitle": "Ajustes del chat",
+  "chatSettingsLeaveTitle": "¿Salir del chat?",
+  "chatSettingsLeaveBody": "Perderás el acceso a este chat salvo que un administrador te invite de nuevo.",
+  "chatSettingsLeave": "Salir",
+  "chatSettingsDeleteTitle": "¿Eliminar {name}?",
+  "@chatSettingsDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Delete {name}?"
+  },
+  "chatSettingsDeleteBody": "Todos los mensajes y miembros se eliminarán permanentemente. Esto no se puede deshacer.",
+  "chatSettingsLoadFailed": "No se pudieron cargar los ajustes",
+  "chatSettingsProfileSection": "Perfil",
+  "chatSettingsEditProfileSubtitle": "Nombre, alias, descripción e imagen",
+  "chatSettingsCreateInvite": "Crear enlace de invitación",
+  "chatSettingsCreateInviteSubtitle": "Genera una invitación para compartir",
+  "chatSettingsPermissions": "Permisos",
+  "chatSettingsMembers": "Miembros",
+  "chatSettingsMembersSubtitle": "Consulta y gestiona los participantes",
+  "chatSettingsAccessControl": "Control de acceso",
+  "chatSettingsAccessControlSubtitle": "Permisos predeterminados de los miembros",
+  "chatSettingsDirectMessage": "Mensaje directo",
+  "chatSettingsOpenContactProfile": "Abrir el perfil del contacto",
+  "chatSettingsDangerZone": "Zona de peligro",
+  "chatSettingsLeaveTile": "Salir del chat",
+  "chatSettingsDeleteTile": "Eliminar chat",
+  "chatSettingsDeleteTileSubtitle": "Solo el creador puede eliminar este chat",
+  "chatSettingsInviteTitle": "Enlace de invitación",
+  "chatSettingsInviteBody": "Comparte este enlace con quien quieras invitar. Se ha copiado al portapapeles.",
+  "chatSettingsInviteCopied": "Enlace de invitación copiado",
+  "aclDefaultPermissions": "Permisos predeterminados de los miembros",
+  "aclDescription": "Estos permisos se aplican a los miembros normales. Los administradores siempre tienen acceso de gestión.",
+  "aclSavePermissions": "Guardar permisos",
+  "aclEditMessages": "Editar mensajes",
+  "aclEditMessagesDescription": "Permite que los miembros editen mensajes.",
+  "permissionWriteMessages": "Enviar mensajes",
+  "permissionWriteMessagesDescription": "Permite que los miembros envíen mensajes nuevos.",
+  "permissionDeleteOthersMessages": "Eliminar mensajes ajenos",
+  "permissionDeleteOthersMessagesDescription": "Permite que los miembros eliminen mensajes de otras personas.",
+  "permissionEditOthersMessages": "Editar mensajes ajenos",
+  "permissionEditOthersMessagesDescription": "Permite que los miembros editen mensajes de otras personas.",
+  "permissionRestrictUsers": "Gestionar miembros",
+  "permissionRestrictUsersDescription": "Permite que los miembros quiten o restrinjan a otros miembros.",
+  "permissionEditProfile": "Editar el perfil del chat",
+  "permissionEditProfileDescription": "Permite que los miembros actualicen el nombre y la descripción del chat.",
+  "permissionAddAdmins": "Gestionar administradores",
+  "permissionAddAdminsDescription": "Permite que los miembros promocionen a otros miembros.",
+  "membersTitle": "Miembros",
+  "membersLoadFailed": "No se pudieron cargar los miembros",
+  "membersYou": "Tú",
+  "membersMore": "Más",
+  "membersViewProfile": "Ver perfil",
+  "membersGiveChat": "Dar {name} a este usuario",
+  "@membersGiveChat": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Give {name} to this user"
+  },
+  "membersManagePermissions": "Gestionar permisos",
+  "membersRemoveFromChat": "Quitar del chat",
+  "membersRemoveTitle": "¿Quitar a {name}?",
+  "@membersRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Remove {name}?"
+  },
+  "membersRemoveBody": "Perderá el acceso a este chat de inmediato.",
+  "membersOwnershipGiven": "La propiedad del chat se ha dado a {name}",
+  "@membersOwnershipGiven": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Chat ownership given to {name}"
+  },
+  "membersTransferTitle": "Datos del usuario destinatario",
+  "membersTransferAttention": "¡ATENCIÓN!",
+  "membersTransferUsername": "NOMBRE DE USUARIO: {username}",
+  "@membersTransferUsername": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    },
+    "description": "USERNAME: {username}"
+  },
+  "membersTransferAcknowledge": "Reconozco que perderé la propiedad de {chat} y {username} recibirá {chat}.",
+  "@membersTransferAcknowledge": {
+    "placeholders": {
+      "chat": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    },
+    "description": "I acknowledge that I will lose ownership of {chat}, and {username} will get {chat}."
+  },
+  "membersEnterPassword": "Introduce tu contraseña",
+  "membersGiveConfirm": "Dar {chat} a {username}",
+  "@membersGiveConfirm": {
+    "placeholders": {
+      "chat": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    },
+    "description": "Give {chat} to {username}"
+  },
+  "membersOwnerLocked": "El propietario del chat no se puede modificar.",
+  "createChatNewChannel": "Nuevo canal",
+  "createChatNewChat": "Nuevo chat",
+  "createChatClose": "Cerrar",
+  "createChatCreateChannel": "Crear canal",
+  "createChatCreateChat": "Crear chat",
+  "createChatChooseAvatar": "Elegir avatar",
+  "createChatDisplayName": "Nombre visible",
+  "createChatUsernameOptional": "Nombre de usuario (opcional)",
+  "createChatUsernameOptionalHelper": "Puedes dejarlo vacío y añadirlo más tarde.",
+  "createChatNameRequired": "El nombre visible es obligatorio.",
+  "joinPreviewTitle": "Unirse al chat",
+  "joinPreviewInvalidLink": "Enlace de invitación no válido",
+  "joinPreviewJoining": "Uniéndose…",
+  "joinPreviewJoin": "Unirse",
+  "editProfileChangeAvatar": "Cambiar avatar",
+  "editProfileRemoveAvatar": "Quitar avatar",
+  "editProfileBio": "Biografía",
+  "editProfileNameEmpty": "El nombre visible no puede estar vacío",
+  "editProfileHandleReserved": "El alias no puede ser _, este alias está reservado para restablecer el alias",
+  "editChatChannelSettings": "Ajustes del canal",
+  "editChatTapForPicture": "Toca para cambiar la imagen del chat",
+  "editChatUpload": "Subir",
+  "editChatReplace": "Reemplazar",
+  "editChatHandleHelper": "Se usa para compartir el chat como @alias",
+  "profileUnableToOpen": "No se pudo abrir",
+  "profileError": "Error: {error}",
+  "@profileError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    },
+    "description": "Error: {error}"
+  },
+  "profileNotFound": "Perfil no encontrado",
+  "profileChatId": "ID del chat: {id}",
+  "@profileChatId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    },
+    "description": "Chat ID: {id}"
+  },
+  "profileUserId": "ID de usuario: {id}",
+  "@profileUserId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    },
+    "description": "User ID: {id}"
+  },
+  "profileTabMedia": "Medios ({count})",
+  "@profileTabMedia": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Media ({count})"
+  },
+  "profileTabGifs": "GIF ({count})",
+  "@profileTabGifs": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Gifs ({count})"
+  },
+  "profileTabLinks": "Enlaces ({count})",
+  "@profileTabLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Links ({count})"
+  },
+  "profileTabFiles": "Archivos ({count})",
+  "@profileTabFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Files ({count})"
+  },
+  "profileNoMedia": "Todavía no hay medios",
+  "profileNoGifs": "Todavía no hay GIF",
+  "profileNoLinks": "Todavía no hay enlaces",
+  "profileNoFiles": "Todavía no hay archivos",
+  "aboutTerms": "Términos del servicio y política de privacidad",
+  "aboutLicenses": "Licencias de código abierto",
+  "aboutBuild": "Compilación: {build}",
+  "@aboutBuild": {
+    "placeholders": {
+      "build": {
+        "type": "String"
+      }
+    },
+    "description": "Build: {build}"
+  },
+  "aboutCopyright": "Qutty - RdProjects 2026 © Todos los derechos reservados\nVersión: {version}",
+  "@aboutCopyright": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Qutty - RdProjects 2026 © All rights reserved\nVersion: {version}"
+  },
+  "debugTitle": "Quttycaka",
+  "debugWarning": "Estos ajustes son solo para desarrollo y depuración. \nCambiarlos puede provocar comportamientos inesperados.\nContinúa solo si sabes lo que haces.\n - QuttyTeam en RdProjects",
+  "debugSubtitle": "Ajustes de desarrollo/depuración, aka Quttycaka",
+  "debugApiEndpoint": "Endpoint de la API",
+  "debugDeveloperInfo": "Información para desarrolladores",
+  "debugDeveloperInfoSubtitle": "Mostrar los ID de perfiles y mensajes",
+  "debugFallbackSelectorCast": "FallBackSelectorCast",
+  "debugFallbackSelectorCastSubtitle": "Usar siempre el selector de pantalla de la app en lugar del del sistema",
+  "debugForceGroupCall": "Forzar diseño de llamada grupal",
+  "debugForceGroupCallSubtitle": "Usar el diseño de llamada grupal incluso en llamadas directas",
+  "debugJumpTo": "Ir a",
+  "debugJumpToSubtitle": "Abre una página por URL o ruta",
+  "debugJumpToTitle": "Ir a la página",
+  "debugPageUrlOrRoute": "URL o ruta de la página",
+  "debugBaseUrl": "URL base",
+  "debugApiEndpointUpdated": "Endpoint de la API actualizado",
+  "debugTransport": "Transporte de notificaciones",
+  "debugTransportNotSelected": "Sin seleccionar",
+  "debugTransportUnavailable": "No disponible en esta versión",
+  "debugTransportNowUsing": "Las notificaciones usan ahora {label}",
+  "@debugTransportNowUsing": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    },
+    "description": "Notifications now use {label}"
+  },
+  "transportApns": "Servicio de notificaciones push de Apple",
+  "transportFcm": "Firebase Cloud Messaging",
+  "transportWebsocket": "Conexión en segundo plano con tu servidor",
+  "errorShowDetails": "Mostrar detalles del error de la API",
+  "errorHttpStatus": "HTTP {code}",
+  "@errorHttpStatus": {
+    "placeholders": {
+      "code": {
+        "type": "int"
+      }
+    },
+    "description": "HTTP {code}"
+  },
+  "notificationChannelMessages": "Mensajes",
+  "notificationChannelDescription": "Mensajes y alertas nuevos",
+  "notificationSentAttachment": "Envió un archivo adjunto",
+  "notificationNewMessage": "Mensaje nuevo",
+  "unnamedChat": "Chat sin nombre",
+  "unnamedSession": "Sesión sin nombre",
+  "tokenMissing": "Falta el token",
+  "avatarFormatError": "El avatar debe ser una imagen JPEG, JPG o PNG",
+  "unableToReadImage": "No se pudo leer la imagen",
+  "avatarUploadFailed": "Falló la subida del avatar",
+  "unableToReadFile": "No se pudo leer el archivo",
+  "fileUploadFailed": "Falló la subida del archivo",
+  "requestFailed": "La solicitud ha fallado",
+  "settingsFont": "Fuente",
+  "fontSystemDefault": "Predeterminada del sistema",
+  "fontDownload": "Descargar",
+  "fontDownloading": "Descargando…",
+  "fontChooseFromFile": "Elegir desde archivo",
+  "fontDownloadFailed": "No se pudo descargar la fuente",
+  "fontFileUnreadable": "Ese archivo no es una fuente",
+  "fontSample": "El veloz murciélago hindú comía feliz cardillo y kiwi",
+  "fontSubtitle": "Tipografía de la app",
+  "fontNotLoaded": "Fuente no cargada",
+  "fontDelete": "Eliminar",
+  "@fontDelete": {
+    "description": "fontDelete"
+  },
+  "fontSource": "Fuente",
+  "@fontSource": {
+    "description": "fontSource"
+  },
+  "fontDownloadTitle": "¿Descargar {font}?",
+  "@fontDownloadTitle": {
+    "description": "fontDownloadTitle",
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDownloadBody": "La fuente se obtiene de {url} y se guarda en este dispositivo.",
+  "@fontDownloadBody": {
+    "description": "fontDownloadBody",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteTitle": "¿Eliminar {font}?",
+  "@fontDeleteTitle": {
+    "description": "fontDeleteTitle",
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteBody": "Se elimina de este dispositivo. Puedes volver a descargarla de {url}.",
+  "@fontDeleteBody": {
+    "description": "fontDeleteBody",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDownloadingLabel": "Descargando {font}…",
+  "@fontDownloadingLabel": {
+    "description": "fontDownloadingLabel",
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteFailed": "No se pudo eliminar la fuente",
+  "@fontDeleteFailed": {
+    "description": "fontDeleteFailed"
+  },
+  "fontSourceFailed": "No se pudo abrir el enlace",
+  "@fontSourceFailed": {
+    "description": "fontSourceFailed"
+  },
+  "developerPortal": "Portal para desarrolladores",
+  "developerPortalSubtitle": "Herramientas para desarrolladores de Qutty",
+  "ugcTitle": "Stickers y emojis",
+  "ugcSubtitle": "Crea y gestiona tus propios stickers y emojis",
+  "ugcPortalTitle": "Stickers y emojis",
+  "ugcCreatePack": "Nuevo paquete",
+  "ugcCreatePackAction": "Crear paquete",
+  "ugcPackNameRequired": "El nombre del paquete es obligatorio.",
+  "ugcNameRequired": "El nombre es obligatorio.",
+  "ugcItemImageRequired": "Elige una imagen primero.",
+  "ugcChooseImage": "Elegir imagen",
+  "ugcPackName": "Nombre del paquete",
+  "ugcAddItem": "Añadir elemento",
+  "ugcItemsTitle": "Elementos",
+  "ugcFavoritesTitle": "Favoritos",
+  "ugcNoPacks": "Aún no hay paquetes. Crea uno para añadir stickers y emojis.",
+  "ugcNoItems": "Este paquete aún no tiene elementos.",
+  "ugcNoFavorites": "Aún no hay favoritos.",
+  "ugcDeletePackTitle": "¿Eliminar paquete?",
+  "ugcDeletePackBody": "¿Eliminar «{name}» y todos sus elementos?",
+  "@ugcDeletePackBody": {
+    "description": "ugcDeletePackBody",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ugcDeleteItemTitle": "¿Eliminar elemento?",
+  "ugcDeleteItemBody": "¿Eliminar «{name}»?",
+  "@ugcDeleteItemBody": {
+    "description": "ugcDeleteItemBody",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ugcCreated": "Creado",
+  "ugcDeleted": "Eliminado",
+  "ugcCreateFailed": "No se pudo crear",
+  "ugcPickerAll": "Todos",
+  "ugcPickerFavorites": "Favoritos",
+  "ugcPickerEmpty": "Aún no hay stickers. Créalos en el Portal para desarrolladores.",
+  "ugcPickerNoPacks": "Aún no hay paquetes guardados. Guarda un paquete para ver sus stickers aquí.",
+  "ugcPickerLoadFailed": "No se pudieron cargar los stickers",
+  "ugcPickerManage": "Gestionar en el Portal para desarrolladores",
+  "ugcPickerSaved": "Guardado en favoritos",
+  "ugcPickerRemoved": "Eliminado de favoritos",
+  "ugcStickerInsert": "Insertar",
+  "ugcSavePack": "Guardar paquete",
+  "ugcUnsavePack": "Quitar paquete guardado",
+  "ugcSharePack": "Compartir paquete",
+  "ugcLinkCopied": "Enlace copiado",
+  "ugcPackTitle": "Paquete de stickers",
+  "ugcPackUnavailable": "Este paquete de stickers no está disponible.",
+  "ugcStickerPreview": "Sticker"
+}

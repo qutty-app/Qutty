@@ -1,0 +1,734 @@
+{
+  "@@locale": "uk",
+  "appName": "Qutty",
+  "commonCancel": "Скасувати",
+  "commonSave": "Зберегти",
+  "commonSaveChanges": "Зберегти зміни",
+  "commonClose": "Закрити",
+  "commonCopy": "Копіювати",
+  "commonApply": "Застосувати",
+  "commonDelete": "Видалити",
+  "commonRemove": "Прибрати",
+  "commonRevoke": "Відкликати",
+  "commonContinue": "Продовжити",
+  "commonDismiss": "Сховати",
+  "commonTryAgain": "Повторити",
+  "commonOpen": "Відкрити",
+  "commonOk": "OK",
+  "commonSaving": "Збереження…",
+  "commonNotAvailable": "Н/Д",
+  "commonLoading": "завантаження",
+  "commonDetails": "Подробиці",
+  "commonName": "Назва",
+  "commonHandle": "Нікнейм",
+  "commonDescription": "Опис",
+  "commonSettings": "Налаштування",
+  "username": "Ім'я користувача",
+  "password": "Пароль",
+  "optionalEmail": "Ел. пошта (необов'язково)",
+  "usernamePasswordRequired": "Ім'я користувача та пароль обов'язкові.",
+  "loginCreateAccountTitle": "Створіть обліковий запис",
+  "loginWelcomeBackTitle": "З поверненням",
+  "loginJoinConversation": "Приєднуйтеся до бесіди.",
+  "loginSignInConversations": "Увійдіть у свої бесіди.",
+  "createAccount": "Створити обліковий запис",
+  "signIn": "Увійти",
+  "alreadyHaveAccount": "Вже маєте обліковий запис? Увійти",
+  "newToQutty": "Вперше в Qutty? Створіть обліковий запис",
+  "couldNotConnect": "Не вдалося підключитися до Qutty: {error}",
+  "@couldNotConnect": {
+    "description": "Could not connect to Qutty: {error}",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "quttyApiServiceDebugging": "Налагодження ApiService у Qutty",
+  "developerOptions": "Налаштування розробника",
+  "apiUrl": "URL API",
+  "jwtToken": "JWT-токен",
+  "cancel": "Скасувати",
+  "loginByToken": "Увійти за токеном",
+  "enterJwtToken": "Введіть JWT-токен.",
+  "couldNotValidateToken": "Не вдалося перевірити токен.",
+  "selectChat": "Виберіть чат",
+  "home": "Головна",
+  "pageNotFound": "Сторінку не знайдено",
+  "pageNotFoundDescription": "Це означає, що помилково було відкрито недійсну сторінку.",
+  "chatsSearchHint": "Пошук чатів, каналів, користувачів",
+  "chatsProfileTooltip": "Профіль",
+  "chatsNewChannel": "Новий канал",
+  "chatsNewChat": "Новий чат",
+  "chatsEmptyTitle": "Бесід ще немає",
+  "chatsEmptySubtitle": "Створіть чат, щоб почати.",
+  "chatsNoMatches": "Нічого не знайдено",
+  "chatsPreviewAndJoin": "Переглянути й приєднатися",
+  "chatsMessageUser": "Написати повідомлення",
+  "chatBackToChats": "Назад до чатів",
+  "chatConversation": "Бесіда",
+  "chatStartCall": "Почати дзвінок",
+  "chatEndCall": "Завершити дзвінок",
+  "chatIncomingCall": "{name} телефонує",
+  "@chatIncomingCall": {"placeholders": {"name": {"type": "String"}}},
+  "chatOpenCall": "Відкрити дзвінок",
+  "chatDismissCall": "Відхилити дзвінок",
+  "chatJoinCall": "Приєднатися до дзвінка",
+  "chatLeaveCall": "Вийти з дзвінка",
+  "chatMuteMicrophone": "Вимкнути мікрофон",
+  "chatUnmuteMicrophone": "Увімкнути мікрофон",
+  "chatInCall": "Дзвінок активний",
+  "chatCalling": "Виклик…",
+  "chatMinimizeCall": "Згорнути дзвінок",
+  "chatConnectingCall": "Підключення…",
+  "chatEnableWebcam": "Увімкнути камеру",
+  "chatDisableWebcam": "Вимкнути камеру",
+  "chatEnableScreenShare": "Поділитися екраном",
+  "chatDisableScreenShare": "Зупинити показ",
+  "chatEnableSpeaker": "Динамік увімкнено",
+  "chatDisableSpeaker": "Динамік вимкнено",
+  "chatCallsUnsupported": "Сервер не підтримує дзвінки",
+  "chatUnableToOpenAttachment": "Не вдалося відкрити вкладення",
+  "chatUnableToOpenLink": "Не вдалося відкрити посилання",
+  "chatJoined": "Ви приєдналися до чату",
+  "chatNoJoinLink": "У цього чату немає посилання для приєднання",
+  "chatSendFirstMessage": "Надішліть перше повідомлення",
+  "chatNoWritePermission": "Немає прав на надсилання повідомлень",
+  "chatJoin": "Приєднатися до чату",
+  "chatAttachFile": "Прикріпити файл",
+  "chatEmojiSelectButton": "Вибрати емодзі, GIF і стікери",
+  "mediaPickerStickerTab": "Стікер",
+  "mediaPickerEmojiTab": "Емодзі",
+  "mediaPickerGifTab": "GIF",
+  "mediaPickerGifSearchHint": "Пошук GIF",
+  "mediaPickerGifFavorite": "Зберегти в обране",
+  "mediaPickerGifUnfavorite": "Видалити з обраного",
+  "mediaPickerGifClearSearch": "Очистити пошук",
+  "mediaPickerGifNoFavorites": "Збережених GIF ще немає. Знайдіть і натисніть, щоб зберегти.",
+  "mediaPickerGifEmpty": "GIF не знайдено",
+  "mediaPickerGifLoadFailed": "Не вдалося завантажити GIF",
+  "mediaPickerGifPoweredBy": "GIF від Klipy",
+  "mediaPickerGifSend": "Надіслати GIF",
+  "mediaPickerEmojiLoadFailed": "Не вдалося завантажити емодзі.",
+  "mediaPickerGroupSmileysEmotion": "Смайли та емоції",
+  "mediaPickerGroupPeopleBody": "Люди й частини тіла",
+  "mediaPickerGroupAnimalsNature": "Тварини й природа",
+  "mediaPickerGroupFoodDrink": "Їжа та напиї",
+  "mediaPickerGroupTravelPlaces": "Подорожі й місця",
+  "mediaPickerGroupActivities": "Активності",
+  "mediaPickerGroupObjects": "Об'єкти",
+  "mediaPickerGroupSymbols": "Символи",
+  "mediaPickerGroupFlags": "Прапори",
+  "mediaPickerSkinTone": "Відтінок шкіри",
+  "mediaPickerSkinToneDefault": "Типово",
+  "mediaPickerSkinToneLight": "Світлий",
+  "mediaPickerSkinToneMediumLight": "Помірно світлий",
+  "mediaPickerSkinToneMedium": "Середній",
+  "mediaPickerSkinToneMediumDark": "Помірно темний",
+  "mediaPickerSkinToneDark": "Темний",
+  "chatWriteMessage": "Написати повідомлення",
+  "chatSend": "Надіслати",
+  "chatMessageId": "ID повідомлення: {id}",
+  "@chatMessageId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    },
+    "description": "Message ID: {id}"
+  },
+  "chatMessageRead": "Прочитано",
+  "chatMessageSent": "Надіслано",
+  "chatReadBy": "Прочитано: {count}",
+  "@chatReadBy": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSelectionCount": "Вибрано: {count}",
+  "@chatSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSelectionStop": "Припинити вибір",
+  "chatMenuReply": "Відповісти",
+  "chatReplyUnavailable": "Початкове повідомлення",
+  "chatMenuForward": "Переслати",
+  "chatMenuSelect": "Вибрати",
+  "chatMenuMore": "Ще",
+  "chatMessageCopied": "Повідомлення скопійовано",
+  "chatActionUnavailable": "Ще недоступно",
+  "chatForwardTitle": "Переслати в",
+  "chatForwardSearch": "Пошук чатів",
+  "chatForwardNoChats": "Немає чатів для пересилання",
+  "chatForwarded": "Переслано",
+  "chatForwardedFrom": "Переслано від {author}",
+  "chatForwardedOpen": "Відкрити оригінал",
+  "chatForwardedTo": "Переслано в {chat}",
+  "settingsChats": "Чати",
+  "settingsReadCount": "Показувати кількість прочитаних замість галочок",
+  "settingsReadCountSubtitle": "У приватних чатах показувати, скільки людей прочитали повідомлення, замість галочки",
+  "settingsTitle": "Налаштування",
+  "settingsCustomization": "Оформлення",
+  "settingsCustomizationSubtitle": "Тема та акцентний колір",
+  "settingsConnectivity": "Підключення",
+  "settingsNotifications": "Сповіщення",
+  "settingsAccount": "Обліковий запис",
+  "settingsAccounts": "Облікові записи",
+  "settingsAccountDefaultLabel": "Обліковий запис",
+  "settingsAccountSafety": "Безпека облікового запису",
+  "settingsAbout": "Про застосунок",
+  "settingsEditProfile": "Змінити профіль",
+  "settingsChangePassword": "Змінити пароль",
+  "settingsChangePasswordSubtitle": "Оновіть пароль від облікового запису",
+  "settingsChangeEmail": "Змінити ел. пошту",
+  "settingsNoEmailOnFile": "Ел. пошту не вказано",
+  "settingsActiveSessions": "Активні сеанси",
+  "settingsActiveSessionsSubtitle": "Керуйте пристроями, які виконали вхід до облікового запису",
+  "settingsRemoveAccount": "Прибрати обліковий запис",
+  "settingsAddAccount": "Додати обліковий запис",
+  "settingsAddAccountSubtitle": "Увійдіть на інший сервер або в інший обліковий запис",
+  "settingsDeleteAccount": "Видалити обліковий запис",
+  "settingsDeleteAccountSubtitle": "Назавжди видалить ваш обліковий запис Qutty",
+  "settingsVersionPlaceholder": "Placeholder#424738",
+  "settingsLogOut": "Вийти",
+  "settingsPasswordUpdated": "Пароль оновлено",
+  "settingsEmailUpdated": "Ел. пошту оновлено",
+  "settingsLogOutTitle": "Вийти?",
+  "settingsLogOutBody": "Щоб увійти знову, доведеться ще раз ввести пароль.",
+  "settingsDeleteAccountTitle": "Видалити обліковий запис?",
+  "settingsDeleteAccountBody": "Введіть ім'я користувача та пароль, щоб назавжди видалити обліковий запис і всі дані.",
+  "settingsEditProfileTooltip": "Змінити профіль",
+  "settingsCalls": "Дзвінки",
+  "settingsCallWebcam": "Веб-камера",
+  "settingsCallWebcamSubtitle": "Починати дзвінки з увімкненою камерою",
+  "settingsCallCamera": "Камера",
+  "settingsCallCameraFront": "Фронтальна",
+  "settingsCallCameraBack": "Задня",
+  "settingsCallLoudspeaker": "Гучний зв'язок",
+  "settingsCallLoudspeakerSubtitle": "Відтворювати звук дзвінка через динамік",
+  "settingsCallMic": "Мікрофон",
+  "settingsCallMicSubtitle": "Починати дзвінки з увімкненим мікрофоном",
+  "settingsCallScreenShare": "Скринкаст",
+  "settingsCallScreenShareSubtitle": "Дозволити демонстрацію екрана під час дзвінків",
+  "settingsAudio": "Звук",
+  "settingsAudioInput": "Мікрофон",
+  "settingsAudioOutput": "Динаміки",
+  "settingsAudioCamera": "Камера",
+  "settingsAudioSystemDefault": "Системний за замовчуванням",
+  "settingsAudioNoDevices": "Пристрої не знайдено",
+  "settingsAudioNoiseReduction": "Шумозаглушення",
+  "settingsAudioNoiseReductionSubtitle": "Пригнічувати фоновий шум під час дзвінків",
+  "settingsAudioMicVolume": "Гучність мікрофона",
+  "settingsAudioSpeakerVolume": "Гучність динаміків",
+  "screenSharePickTitle": "Виберіть, чим поділитися",
+  "screenSharePickScreens": "Екрани",
+  "screenSharePickWindows": "Вікна",
+  "screenSharePickEmpty": "Екрани та вікна не знайдено",
+  "screenSharePickError": "Не вдалося завантажити екрани та вікна",
+  "screenSharePickRetry": "Спробувати знову",
+  "notificationsToggle": "Сповіщення про повідомлення",
+  "notificationsOffForDevice": "Вимкнено на цьому пристрої",
+  "notificationsOpenWithBackground": "Сигнали, поки застосунок відкритий і у фоні",
+  "notificationsOpenOnly": "Сигнали, поки застосунок відкритий",
+  "notificationsOpenBackgroundConnection": "Сигнали, поки застосунок відкритий (фонове підключення)",
+  "notificationsPermissionHint": "Дозвольте сповіщення Qutty в системних налаштуваннях, щоб отримувати сигнали у фоні.",
+  "connectionStatus": "Стан підключення",
+  "connectionLiveWebsocket": "Стан активного вебсокета",
+  "connectionReconnect": "Перепідключити",
+  "connectionConnected": "Підключено",
+  "connectionConnecting": "Підключення…",
+  "connectionDisconnected": "Від'єднано",
+  "sessionsRevokeTitle": "Відкликати сеанс {name}?",
+  "@sessionsRevokeTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Revoke {name}?"
+  },
+  "sessionsRevokeBody": "Інші пристрої, які використовують цей сеанс, буде від'єднано.",
+  "sessionsRevoked": "Сеанс відкликано",
+  "sessionsLoadFailed": "Не вдалося завантажити сеанси",
+  "sessionsNone": "Немає активних сеансів",
+  "sessionsThisDevice": "Цей пристрій",
+  "sessionsLastActive": "Активність {time}",
+  "@sessionsLastActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    },
+    "description": "Last active {time}"
+  },
+  "sessionsCurrentBadge": "Поточний",
+  "timeJustNow": "щойно",
+  "timeMinutesAgo": "{count} хв тому",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}m ago"
+  },
+  "timeHoursAgo": "{count} год тому",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}h ago"
+  },
+  "timeDaysAgo": "{count} дн тому",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}d ago"
+  },
+  "languageTitle": "Мова",
+  "languageSubtitle": "Мова застосунку",
+  "languageSystemDefault": "Як у системі",
+  "themeLabel": "Тема",
+  "accentColorLabel": "Акцентний колір",
+  "themeSystem": "Системна",
+  "themeDark": "Темна",
+  "themeLight": "Світла",
+  "accentQuttyBlue": "Синій Qutty",
+  "accentCustom": "Власний",
+  "customAccentColor": "Власний акцентний колір",
+  "hexColor": "HEX-кольор",
+  "roleOwner": "Власник",
+  "roleAdmin": "Адміністратор",
+  "roleRestricted": "Обмежений",
+  "roleMember": "Учасник",
+  "accountNewEmail": "Нова ел. пошта",
+  "accountCurrentPassword": "Поточний пароль",
+  "accountConfirmPassword": "Підтвердьте пароль",
+  "accountNewPassword": "Новий пароль",
+  "chatSettingsTitle": "Налаштування чату",
+  "chatSettingsLeaveTitle": "Покинути чат?",
+  "chatSettingsLeaveBody": "Ви втратите доступ до цього чату, доки вас знову не запросить адміністратор.",
+  "chatSettingsLeave": "Покинути",
+  "chatSettingsDeleteTitle": "Видалити {name}?",
+  "@chatSettingsDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Delete {name}?"
+  },
+  "chatSettingsDeleteBody": "Усі повідомлення та учасники буде видалено назавжди. Це не можна скасувати.",
+  "chatSettingsLoadFailed": "Не вдалося завантажити налаштування",
+  "chatSettingsProfileSection": "Профіль",
+  "chatSettingsEditProfileSubtitle": "Назва, нікнейм, опис і зображення",
+  "chatSettingsCreateInvite": "Створити посилання-запрошення",
+  "chatSettingsCreateInviteSubtitle": "Створіть запрошення, яким можна поділитися",
+  "chatSettingsPermissions": "Права доступу",
+  "chatSettingsMembers": "Учасники",
+  "chatSettingsMembersSubtitle": "Перегляд і керування учасниками",
+  "chatSettingsAccessControl": "Контроль доступу",
+  "chatSettingsAccessControlSubtitle": "Права учасників за замовчуванням",
+  "chatSettingsDirectMessage": "Особисте повідомлення",
+  "chatSettingsOpenContactProfile": "Відкрити профіль контакту",
+  "chatSettingsDangerZone": "Небезпечна зона",
+  "chatSettingsLeaveTile": "Покинути чат",
+  "chatSettingsDeleteTile": "Видалити чат",
+  "chatSettingsDeleteTileSubtitle": "Видалити цей чат може лише його творець",
+  "chatSettingsInviteTitle": "Посилання-запрошення",
+  "chatSettingsInviteBody": "Поділіться цим посиланням із тими, кого хочете запросити. Його скопійовано в буфер обміну.",
+  "chatSettingsInviteCopied": "Посилання-запрошення скопійовано",
+  "aclDefaultPermissions": "Права учасників за замовчуванням",
+  "aclDescription": "Ці права діють для звичайних учасників. Адміністратори завжди мають доступ до керування.",
+  "aclSavePermissions": "Зберегти права",
+  "aclEditMessages": "Редагувати повідомлення",
+  "aclEditMessagesDescription": "Дозволяє учасникам редагувати повідомлення.",
+  "permissionWriteMessages": "Надсилати повідомлення",
+  "permissionWriteMessagesDescription": "Дозволяє учасникам надсилати нові повідомлення.",
+  "permissionDeleteOthersMessages": "Видаляти чужі повідомлення",
+  "permissionDeleteOthersMessagesDescription": "Дозволяє учасникам видаляти повідомлення інших людей.",
+  "permissionEditOthersMessages": "Редагувати чужі повідомлення",
+  "permissionEditOthersMessagesDescription": "Дозволяє учасникам редагувати повідомлення інших людей.",
+  "permissionRestrictUsers": "Керувати учасниками",
+  "permissionRestrictUsersDescription": "Дозволяє учасникам прибирати або обмежувати інших учасників.",
+  "permissionEditProfile": "Редагувати профіль чату",
+  "permissionEditProfileDescription": "Дозволяє учасникам змінювати назву та опис чату.",
+  "permissionAddAdmins": "Керувати адміністраторами",
+  "permissionAddAdminsDescription": "Дозволяє учасникам підвищувати інших учасників.",
+  "membersTitle": "Учасники",
+  "membersLoadFailed": "Не вдалося завантажити учасників",
+  "membersYou": "Ви",
+  "membersMore": "Ще",
+  "membersViewProfile": "Переглянути профіль",
+  "membersGiveChat": "Передати {name} цьому користувачеві",
+  "@membersGiveChat": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Give {name} to this user"
+  },
+  "membersManagePermissions": "Керувати правами",
+  "membersRemoveFromChat": "Прибрати з чату",
+  "membersRemoveTitle": "Прибрати {name}?",
+  "@membersRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Remove {name}?"
+  },
+  "membersRemoveBody": "Ця людина одразу втратить доступ до чату.",
+  "membersOwnershipGiven": "Власність чатом передано користувачеві {name}",
+  "@membersOwnershipGiven": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Chat ownership given to {name}"
+  },
+  "membersTransferTitle": "Дані майбутнього власника",
+  "membersTransferAttention": "УВАГА!",
+  "membersTransferUsername": "ІМ'Я КОРИСТУВАЧА: {username}",
+  "@membersTransferUsername": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    },
+    "description": "USERNAME: {username}"
+  },
+  "membersTransferAcknowledge": "Я розумію, що втрачу власність {chat}, а {username} отримає {chat}.",
+  "@membersTransferAcknowledge": {
+    "placeholders": {
+      "chat": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    },
+    "description": "I acknowledge that I will lose ownership of {chat}, and {username} will get {chat}."
+  },
+  "membersEnterPassword": "Введіть пароль",
+  "membersGiveConfirm": "Передати {chat} користувачеві {username}",
+  "@membersGiveConfirm": {
+    "placeholders": {
+      "chat": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    },
+    "description": "Give {chat} to {username}"
+  },
+  "membersOwnerLocked": "Власника чату не можна змінити.",
+  "createChatNewChannel": "Новий канал",
+  "createChatNewChat": "Новий чат",
+  "createChatClose": "Закрити",
+  "createChatCreateChannel": "Створити канал",
+  "createChatCreateChat": "Створити чат",
+  "createChatChooseAvatar": "Вибрати аватар",
+  "createChatDisplayName": "Відображуване ім'я",
+  "createChatUsernameOptional": "Ім'я користувача (необов'язково)",
+  "createChatUsernameOptionalHelper": "Можна залишити порожнім і додати пізніше.",
+  "createChatNameRequired": "Відображуване ім'я обов'язкове.",
+  "joinPreviewTitle": "Приєднатися до чату",
+  "joinPreviewInvalidLink": "Некоректне посилання-запрошення",
+  "joinPreviewJoining": "Підключення…",
+  "joinPreviewJoin": "Приєднатися",
+  "editProfileChangeAvatar": "Змінити аватар",
+  "editProfileRemoveAvatar": "Прибрати аватар",
+  "editProfileBio": "Про себе",
+  "editProfileNameEmpty": "Відображуване ім'я не може бути порожнім",
+  "editProfileHandleReserved": "Нікнейм не може бути _, цей нікнейм зарезервовано для скидання нікнейма",
+  "editChatChannelSettings": "Налаштування каналу",
+  "editChatTapForPicture": "Натисніть, щоб змінити зображення чату",
+  "editChatUpload": "Завантажити",
+  "editChatReplace": "Замінити",
+  "editChatHandleHelper": "Використовується, щоб поділитися чатом як @нікнейм",
+  "profileUnableToOpen": "Не вдалося відкрити",
+  "profileError": "Помилка: {error}",
+  "@profileError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    },
+    "description": "Error: {error}"
+  },
+  "profileNotFound": "Профіль не знайдено",
+  "profileChatId": "ID чату: {id}",
+  "@profileChatId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    },
+    "description": "Chat ID: {id}"
+  },
+  "profileUserId": "ID користувача: {id}",
+  "@profileUserId": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    },
+    "description": "User ID: {id}"
+  },
+  "profileTabMedia": "Медіа ({count})",
+  "@profileTabMedia": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Media ({count})"
+  },
+  "profileTabGifs": "Гіфки ({count})",
+  "@profileTabGifs": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Gifs ({count})"
+  },
+  "profileTabLinks": "Посилання ({count})",
+  "@profileTabLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Links ({count})"
+  },
+  "profileTabFiles": "Файли ({count})",
+  "@profileTabFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Files ({count})"
+  },
+  "profileNoMedia": "Медіа ще немає",
+  "profileNoGifs": "Гіфок ще немає",
+  "profileNoLinks": "Посилань ще немає",
+  "profileNoFiles": "Файлів ще немає",
+  "aboutTerms": "Умови використання та політика конфіденційності",
+  "aboutLicenses": "Ліцензії відкритого коду",
+  "aboutBuild": "Збірка: {build}",
+  "@aboutBuild": {
+    "placeholders": {
+      "build": {
+        "type": "String"
+      }
+    },
+    "description": "Build: {build}"
+  },
+  "aboutCopyright": "Qutty - RdProjects 2026 © Усі права захищено\nВерсія: {version}",
+  "@aboutCopyright": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Qutty - RdProjects 2026 © All rights reserved\nVersion: {version}"
+  },
+  "debugTitle": "Quttycaka",
+  "debugWarning": "Ці налаштування потрібні лише для розробки та налагодження. \nЇхня зміна може призвести до непередбачуваної поведінки.\nПродовжуйте, лише якщо точно знаєте, що робите.\n - QuttyTeam у RdProjects",
+  "debugSubtitle": "Налаштування розробки/налагодження, він же Quttycaka",
+  "debugApiEndpoint": "Адреса API",
+  "debugDeveloperInfo": "Дані для розробника",
+  "debugDeveloperInfoSubtitle": "Показувати ID профілів і повідомлень",
+  "debugFallbackSelectorCast": "FallBackSelectorCast",
+  "debugFallbackSelectorCastSubtitle": "Завжди використовувати власний вибір екрана застосунку замість системного",
+  "debugForceGroupCall": "Примусовий макет групового дзвінка",
+  "debugForceGroupCallSubtitle": "Використовувати макет групового дзвінка навіть в особистих дзвінках",
+  "debugJumpTo": "Перейти",
+  "debugJumpToSubtitle": "Відкрити сторінку за URL або маршрутом",
+  "debugJumpToTitle": "Перейти до сторінки",
+  "debugPageUrlOrRoute": "URL або маршрут сторінки",
+  "debugBaseUrl": "Базовий URL",
+  "debugApiEndpointUpdated": "Адресу API оновлено",
+  "debugTransport": "Канал доставки сповіщень",
+  "debugTransportNotSelected": "Не вибрано",
+  "debugTransportUnavailable": "Недоступно в цій збірці",
+  "debugTransportNowUsing": "Сповіщення тепер надсилаються через {label}",
+  "@debugTransportNowUsing": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    },
+    "description": "Notifications now use {label}"
+  },
+  "transportApns": "Служба push-сповіщень Apple",
+  "transportFcm": "Firebase Cloud Messaging",
+  "transportWebsocket": "Фонове підключення до вашого сервера",
+  "errorShowDetails": "Показати подробиці помилки API",
+  "errorHttpStatus": "HTTP {code}",
+  "@errorHttpStatus": {
+    "placeholders": {
+      "code": {
+        "type": "int"
+      }
+    },
+    "description": "HTTP {code}"
+  },
+  "notificationChannelMessages": "Повідомлення",
+  "notificationChannelDescription": "Нові повідомлення та сигнали",
+  "notificationSentAttachment": "Надіслав вкладення",
+  "notificationNewMessage": "Нове повідомлення",
+  "unnamedChat": "Чат без назви",
+  "unnamedSession": "Сеанс без назви",
+  "tokenMissing": "Відсутній токен",
+  "avatarFormatError": "Аватар має бути зображенням JPEG, JPG або PNG",
+  "unableToReadImage": "Не вдалося прочитати зображення",
+  "avatarUploadFailed": "Не вдалося завантажити аватар",
+  "unableToReadFile": "Не вдалося прочитати файл",
+  "fileUploadFailed": "Не вдалося завантажити файл",
+  "requestFailed": "Запит не виконано",
+  "settingsFont": "Шрифт",
+  "fontSystemDefault": "Системний шрифт",
+  "fontDownload": "Завантажити",
+  "fontDownloading": "Завантаження…",
+  "fontChooseFromFile": "Вибрати файл",
+  "fontDownloadFailed": "Не вдалося завантажити шрифт",
+  "fontFileUnreadable": "Це не файл шрифту",
+  "fontSample": "Чуєш їх доцю га? Кумедна ж ти, прощайся без ґольфів!",
+  "fontSubtitle": "Шрифт застосунку",
+  "fontNotLoaded": "Шрифт не завантажено",
+  "fontDelete": "Видалити",
+  "@fontDelete": {
+    "description": "fontDelete"
+  },
+  "fontSource": "Джерело",
+  "@fontSource": {
+    "description": "fontSource"
+  },
+  "fontDownloadTitle": "Завантажити {font}?",
+  "@fontDownloadTitle": {
+    "description": "fontDownloadTitle",
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDownloadBody": "Шрифт завантажується з {url} і зберігається на цьому пристрої.",
+  "@fontDownloadBody": {
+    "description": "fontDownloadBody",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteTitle": "Видалити {font}?",
+  "@fontDeleteTitle": {
+    "description": "fontDeleteTitle",
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteBody": "Він буде видалено з цього пристрою. Його можна знову завантажити з {url}.",
+  "@fontDeleteBody": {
+    "description": "fontDeleteBody",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDownloadingLabel": "Завантаження {font}…",
+  "@fontDownloadingLabel": {
+    "description": "fontDownloadingLabel",
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
+  "fontDeleteFailed": "Не вдалося видалити шрифт",
+  "@fontDeleteFailed": {
+    "description": "fontDeleteFailed"
+  },
+  "fontSourceFailed": "Не вдалося відкрити посилання",
+  "@fontSourceFailed": {
+    "description": "fontSourceFailed"
+  },
+  "developerPortal": "Портал розробника",
+  "developerPortalSubtitle": "Інструменти для розробників Qutty",
+  "ugcTitle": "Стикери та емодзі",
+  "ugcSubtitle": "Створюйте власні стікери та емодзі й керуйте ними",
+  "ugcPortalTitle": "Стикери та емодзі",
+  "ugcCreatePack": "Новий набір",
+  "ugcCreatePackAction": "Створити набір",
+  "ugcPackNameRequired": "Назва набору обов'язкова.",
+  "ugcNameRequired": "Ім'я обов'язкове.",
+  "ugcItemImageRequired": "Спочатку виберіть зображення.",
+  "ugcChooseImage": "Вибрати зображення",
+  "ugcPackName": "Назва набору",
+  "ugcAddItem": "Додати елемент",
+  "ugcItemsTitle": "Елементи",
+  "ugcFavoritesTitle": "Обране",
+  "ugcNoPacks": "Наборів ще немає. Створіть набір, щоб додавати стікери та емодзі.",
+  "ugcNoItems": "У цьому наборі ще немає елементів.",
+  "ugcNoFavorites": "В обраному ще нічого немає.",
+  "ugcDeletePackTitle": "Видалити набір?",
+  "ugcDeletePackBody": "Видалити «{name}» та всі його елементи?",
+  "@ugcDeletePackBody": {
+    "description": "ugcDeletePackBody",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ugcDeleteItemTitle": "Видалити елемент?",
+  "ugcDeleteItemBody": "Видалити «{name}»?",
+  "@ugcDeleteItemBody": {
+    "description": "ugcDeleteItemBody",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ugcCreated": "Створено",
+  "ugcDeleted": "Видалено",
+  "ugcCreateFailed": "Не вдалося створити",
+  "ugcPickerAll": "Усі",
+  "ugcPickerFavorites": "Обране",
+  "ugcPickerEmpty": "Стікерів ще немає. Створіть їх у Порталі розробника.",
+  "ugcPickerNoPacks": "Збережених паків ще немає. Збережіть пак, щоб побачити його стікери тут.",
+  "ugcPickerLoadFailed": "Не вдалося завантажити стікери",
+  "ugcPickerManage": "Керувати в Порталі розробника",
+  "ugcPickerSaved": "Додано в обране",
+  "ugcPickerRemoved": "Видалено з обраного",
+  "ugcStickerInsert": "Вставити",
+  "ugcSavePack": "Зберегти пак",
+  "ugcUnsavePack": "Видалити збережений пак",
+  "ugcSharePack": "Поділитися паком",
+  "ugcLinkCopied": "Посилання скопійовано",
+  "ugcPackTitle": "Набір стікерів",
+  "ugcPackUnavailable": "Цей набір стікерів недоступний.",
+  "ugcStickerPreview": "Стікер"
+}
