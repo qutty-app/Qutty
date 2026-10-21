@@ -55,6 +55,21 @@ Configure Firebase in `ios/Runner/GoogleService-Info.plist` and enable push noti
 
 Configure Firebase in `web/firebase-config.json` and update `web/index.html`.
 
+### Linux
+
+Install the native build dependencies (Debian/Ubuntu):
+
+```bash
+sudo apt-get install -y \
+  clang cmake ninja-build pkg-config \
+  libgtk-3-dev liblzma-dev \
+  libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+  libpulse-dev
+```
+
+The GStreamer packages are required by `audioplayers`; without them CMake
+fails with `The following required packages were not found: gstreamer-1.0`.
+
 ## CI/CD
 
 Every push and pull request builds test-checked artifacts in GitHub Actions:

@@ -177,9 +177,21 @@ jobs:
 
       - name: Set up Linux build dependencies
         if: matrix.setup == 'linux'
+        # audioplayers_linux needs the GStreamer development files
+        # (gstreamer-1.0, gstreamer-app-1.0, gstreamer-audio-1.0) and
+        # flutter_webrtc optionally uses libpulse for system audio capture.
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+          sudo apt-get install -y \
+            clang \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libgtk-3-dev \
+            liblzma-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libpulse-dev
 
       - name: Prepare Darwin build directories
         if: matrix.setup == 'apple'

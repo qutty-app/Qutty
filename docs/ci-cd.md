@@ -30,6 +30,24 @@ then update the pin.
 - **CocoaPods**: `~/Library/Caches/CocoaPods` and `ios/Pods`, keyed on
   `ios/Podfile.lock`, on the Apple jobs.
 
+## Linux build dependencies
+
+The Linux job installs the native libraries the plugins need:
+
+```bash
+sudo apt-get install -y \
+  clang cmake ninja-build pkg-config \
+  libgtk-3-dev liblzma-dev \
+  libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+  libpulse-dev
+```
+
+- `libgtk-3-dev` — required by the runner and most plugins.
+- `libgstreamer1.0-dev` + `libgstreamer-plugins-base1.0-dev` — required by
+  `audioplayers`. Missing them fails the build with
+  `The following required packages were not found: gstreamer-1.0`.
+- `libpulse-dev` — optional, enables `flutter_webrtc` system audio capture.
+
 ## Android build variants
 
 Both variants are **release-mode** and both are **signed**; they differ in
