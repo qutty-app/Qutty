@@ -74,9 +74,10 @@ fails with `The following required packages were not found: gstreamer-1.0`.
 
 Every push and pull request builds test-checked artifacts in GitHub Actions:
 a **StoreBuild** (Play-Store-signed AAB + APK, once the signing secrets are
-configured) and a **NotStoreBuild** (sideload APK), plus unsigned iOS/macOS
-builds for compile verification. Setup steps, secrets and the keystore
-instructions live in [docs/ci-cd.md](docs/ci-cd.md).
+configured) and a **NotStoreBuild** (sideload APK), plus iOS/macOS builds for
+compile verification (iOS unsigned, macOS ad-hoc signed). Setup steps, secrets
+and the keystore instructions live in
+[docs/ci-cd.md](docs/ci-cd.md).
 
 ## Code Generation
 

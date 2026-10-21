@@ -140,10 +140,17 @@ the release key. Without the file, release builds fall back to the debug key.
 
 ## Apple builds: unsigned for now
 
-There is no Apple Developer account yet, so the iOS and macOS jobs build with
-`--no-codesign`. Those artifacts prove the build compiles — they **cannot be
-installed on a device** (iOS refuses unsigned apps; macOS Gatekeeper blocks
-unsigned apps).
+There is no Apple Developer account yet, so the artifacts are not distributable
+signed builds:
+
+- **iOS** builds with `--no-codesign`. It cannot be installed on a device
+  (iOS refuses unsigned apps).
+- **macOS** has no `--no-codesign` flag — `flutter build macos` does not accept
+  it (only the iOS build does). The Xcode project sets
+  `CODE_SIGN_IDENTITY = "-"`, so Xcode **ad-hoc signs** the app: it builds
+  without an account, but Gatekeeper blocks it on another machine.
+
+Both jobs therefore only prove that the build compiles.
 
 Once you have an Apple Developer account ($99/year), the upgrade path:
 
@@ -160,7 +167,9 @@ Once you have an Apple Developer account ($99/year), the upgrade path:
 4. In `build.yml`: add a step that writes the certificate into the runner's
    keychain and installs the profile (or add `fastlane sigh`/`match`), drop
    `--no-codesign` from the iOS build, and pass
-   `FLUTTER_IOS_SIGNING_IDENTITY`/`DEVELOPMENT_TEAM`.
+   `FLUTTER_IOS_SIGNING_IDENTITY`/`DEVELOPMENT_TEAM`. For macOS, set
+   `CODE_SIGN_IDENTITY` and `DEVELOPMENT_TEAM` in
+   `macos/Runner.xcodeproj/project.pbxproj` (currently `"-"`).
 5. For App Store submission you will also want notarization for macOS and
    `fastlane deliver`/Xcode Cloud for uploading — none of that exists yet.
 

@@ -145,7 +145,10 @@ jobs:
           - name: macOS
             runner: macos-latest
             setup: apple
-            command: flutter build macos --release --no-codesign
+            # No --no-codesign here: `flutter build macos` has no such option
+            # (only the iOS build does). The Xcode project signs ad-hoc
+            # (CODE_SIGN_IDENTITY = "-"), so no developer account is needed.
+            command: flutter build macos --release
             artifact: build/macos/Build/Products/Release/*.app
           - name: Linux
             runner: ubuntu-latest
