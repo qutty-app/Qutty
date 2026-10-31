@@ -2616,8 +2616,9 @@ class AppManager extends ChangeNotifier {
   /// arrive through the same OS hook, so both are stored here and told apart
   /// when the router is ready.
   void receiveDeepLink(String value) {
-    if (parseJoinLink(value) == null && parseUgcShareLink(value) == null)
+    if (parseJoinLink(value) == null && parseUgcShareLink(value) == null) {
       return;
+    }
     pendingDeepLink = value;
     notifyListeners();
   }
