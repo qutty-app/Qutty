@@ -1276,6 +1276,198 @@ abstract class AppLocalizations {
   /// **'Speaker volume'**
   String get settingsAudioSpeakerVolume;
 
+  /// No description provided for @cacheTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline cache'**
+  String get cacheTitle;
+
+  /// No description provided for @cacheTitleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep conversations and media on this device'**
+  String get cacheTitleSubtitle;
+
+  /// No description provided for @cacheOfflineSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get cacheOfflineSection;
+
+  /// No description provided for @cacheStorageSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get cacheStorageSection;
+
+  /// No description provided for @cacheContentsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Contents'**
+  String get cacheContentsSection;
+
+  /// No description provided for @cacheClearSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cache'**
+  String get cacheClearSection;
+
+  /// No description provided for @cacheMessagesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get cacheMessagesLabel;
+
+  /// No description provided for @cacheProfilesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get cacheProfilesLabel;
+
+  /// No description provided for @cacheMediaToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache media'**
+  String get cacheMediaToggle;
+
+  /// No description provided for @cacheMediaToggleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep pictures and attachments on the device'**
+  String get cacheMediaToggleSubtitle;
+
+  /// No description provided for @cacheChatsToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache conversations'**
+  String get cacheChatsToggle;
+
+  /// No description provided for @cacheChatsToggleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep conversations, messages and profiles on the device'**
+  String get cacheChatsToggleSubtitle;
+
+  /// No description provided for @cacheMediaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Media'**
+  String get cacheMediaLabel;
+
+  /// No description provided for @cacheChatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations'**
+  String get cacheChatsLabel;
+
+  /// No description provided for @cacheTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get cacheTotalLabel;
+
+  /// No description provided for @cacheMediaFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} files'**
+  String cacheMediaFiles(int count);
+
+  /// No description provided for @cacheChatCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} conversations'**
+  String cacheChatCount(int count);
+
+  /// No description provided for @cacheMessageCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} messages'**
+  String cacheMessageCount(int count);
+
+  /// No description provided for @cacheProfileCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} profiles'**
+  String cacheProfileCount(int count);
+
+  /// No description provided for @cacheLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Media limit'**
+  String get cacheLimitLabel;
+
+  /// No description provided for @cacheLimitSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How much space media may take on this device'**
+  String get cacheLimitSubtitle;
+
+  /// No description provided for @cacheClearMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear media cache'**
+  String get cacheClearMedia;
+
+  /// No description provided for @cacheClearChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear conversation cache'**
+  String get cacheClearChats;
+
+  /// No description provided for @cacheClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all cache'**
+  String get cacheClearAll;
+
+  /// No description provided for @cacheClearMediaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear media cache?'**
+  String get cacheClearMediaTitle;
+
+  /// No description provided for @cacheClearMediaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures and attachments on this device will be downloaded again when they are needed.'**
+  String get cacheClearMediaBody;
+
+  /// No description provided for @cacheClearChatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear conversation cache?'**
+  String get cacheClearChatsTitle;
+
+  /// No description provided for @cacheClearChatsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved conversations, messages and profiles will be removed from this device.'**
+  String get cacheClearChatsBody;
+
+  /// No description provided for @cacheClearAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all cache?'**
+  String get cacheClearAllTitle;
+
+  /// No description provided for @cacheClearAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything Qutty keeps on this device for offline use will be removed.'**
+  String get cacheClearAllBody;
+
+  /// No description provided for @cacheCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache cleared'**
+  String get cacheCleared;
+
+  /// No description provided for @chatOfflineMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved messages — you are offline'**
+  String get chatOfflineMessages;
+
   /// No description provided for @screenSharePickTitle.
   ///
   /// In en, this message translates to:
@@ -2230,6 +2422,30 @@ abstract class AppLocalizations {
   /// **'Always use the app\'s own screen picker instead of the system one'**
   String get debugFallbackSelectorCastSubtitle;
 
+  /// No description provided for @debugKeepWebsocketAlive.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep websocket alive in background'**
+  String get debugKeepWebsocketAlive;
+
+  /// No description provided for @debugKeepWebsocketAliveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the websocket connected while the app is backgrounded'**
+  String get debugKeepWebsocketAliveSubtitle;
+
+  /// No description provided for @debugBackgroundAllowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow background without limits?'**
+  String get debugBackgroundAllowTitle;
+
+  /// No description provided for @debugBackgroundAllowMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This lets the app keep the websocket open while it is not in the foreground. On Android it asks for permission to run in the background without limits. Continue?'**
+  String get debugBackgroundAllowMessage;
+
   /// No description provided for @debugForceGroupCall.
   ///
   /// In en, this message translates to:
@@ -2536,6 +2752,138 @@ abstract class AppLocalizations {
   /// **'Tools for developers on Qutty'**
   String get developerPortalSubtitle;
 
+  /// No description provided for @botsPortalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bots'**
+  String get botsPortalTitle;
+
+  /// No description provided for @botsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bots'**
+  String get botsTitle;
+
+  /// No description provided for @botsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and manage your own bots'**
+  String get botsSubtitle;
+
+  /// No description provided for @botsCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'New bot'**
+  String get botsCreate;
+
+  /// No description provided for @botsCreateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create bot'**
+  String get botsCreateAction;
+
+  /// No description provided for @botsNoBots.
+  ///
+  /// In en, this message translates to:
+  /// **'No bots yet. Create one to get started.'**
+  String get botsNoBots;
+
+  /// No description provided for @botsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load bots'**
+  String get botsLoadFailed;
+
+  /// No description provided for @botsCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t create it'**
+  String get botsCreateFailed;
+
+  /// No description provided for @botsUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot updated'**
+  String get botsUpdated;
+
+  /// No description provided for @botsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get botsDeleted;
+
+  /// No description provided for @botsCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot created'**
+  String get botsCreated;
+
+  /// No description provided for @botsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete bot?'**
+  String get botsDeleteTitle;
+
+  /// No description provided for @botsDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"? The bot and its token will be gone.'**
+  String botsDeleteBody(String name);
+
+  /// No description provided for @botsResetTokenTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset token'**
+  String get botsResetTokenTooltip;
+
+  /// No description provided for @botsResetTokenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset bot token?'**
+  String get botsResetTokenTitle;
+
+  /// No description provided for @botsResetTokenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The current token will stop working immediately. The new token is shown once, so copy it now.'**
+  String get botsResetTokenBody;
+
+  /// No description provided for @botsResetTokenAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset token'**
+  String get botsResetTokenAction;
+
+  /// No description provided for @botsTokenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot token'**
+  String get botsTokenTitle;
+
+  /// No description provided for @botsTokenCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get botsTokenCopy;
+
+  /// No description provided for @botsTokenCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get botsTokenCopied;
+
+  /// No description provided for @botsTokenMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Token missing'**
+  String get botsTokenMissing;
+
+  /// No description provided for @botsActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong with the bot'**
+  String get botsActionFailed;
+
   /// No description provided for @ugcTitle.
   ///
   /// In en, this message translates to:
@@ -2769,6 +3117,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sticker'**
   String get ugcStickerPreview;
+
+  /// No description provided for @debugPushServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Push server'**
+  String get debugPushServer;
+
+  /// No description provided for @debugPushProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Push provider'**
+  String get debugPushProvider;
+
+  /// No description provided for @debugPushRegistrationStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Push registration status'**
+  String get debugPushRegistrationStatus;
+
+  /// No description provided for @debugPushNotRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Not registered'**
+  String get debugPushNotRegistered;
+
+  /// No description provided for @debugPushRegisteredId.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered (id: {id})'**
+  String debugPushRegisteredId(String id);
+
+  /// No description provided for @debugUnregisterPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Unregister push'**
+  String get debugUnregisterPush;
+
+  /// No description provided for @debugUnregisterPushSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manually unregister this device'**
+  String get debugUnregisterPushSubtitle;
+
+  /// No description provided for @debugPushUnregistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Push unregistered'**
+  String get debugPushUnregistered;
 }
 
 class _AppLocalizationsDelegate

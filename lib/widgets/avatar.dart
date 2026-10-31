@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
+import 'package:qutty/widgets/cached_image.dart';
 
 class Avatar extends StatelessWidget {
   final String displayName;
@@ -24,38 +25,33 @@ class Avatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final image = imageUrl.trim();
+    if (image.isEmpty) return _fallback(context);
     final resolvedUrl = image.startsWith('http')
         ? image
         : '${baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl}$image';
-    if (image.isEmpty || !resolvedUrl.toLowerCase().endsWith('.svg')) {
-      final imageProvider = image.isEmpty ? null : NetworkImage(resolvedUrl);
-      return CircleAvatar(
-        radius: radius,
-        backgroundImage: imageProvider,
-        child: imageProvider == null
-            ? (_initial.isEmpty
-                  ? Icon(fallbackIcon, size: radius)
-                  : Text(_initial))
-            : null,
-      );
-    }
-    Widget fallback() => CircleAvatar(
-      radius: radius,
-      child: _initial.isEmpty
-          ? Icon(fallbackIcon, size: radius)
-          : Text(_initial),
-    );
-    return SizedBox(
-      width: radius * 2,
-      height: radius * 2,
-      child: ClipOval(
-        child: SvgPicture.network(
-          resolvedUrl,
+    final scheme = Theme.of(context).colorScheme;
+    return ClipOval(
+      child: ColoredBox(
+        // The colour a circle avatar draws behind its picture, so a
+        // transparent image does not show the page through it.
+        color: scheme.surfaceContainerHighest,
+        child: CachedImage(
+          url: resolvedUrl,
+          baseUrl: baseUrl,
+          width: radius * 2,
+          height: radius * 2,
           fit: BoxFit.cover,
-          placeholderBuilder: (_) => fallback(),
-          errorBuilder: (_, _, _) => fallback(),
+          placeholder: _fallback(context),
+          errorBuilder: (context, error, stack) => _fallback(context),
         ),
       ),
     );
   }
+
+  Widget _fallback(BuildContext context) => CircleAvatar(
+    radius: radius,
+    child: _initial.isEmpty
+        ? Icon(fallbackIcon, size: radius)
+        : Text(_initial),
+  );
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:qutty/api/api_service.dart';
 import 'package:qutty/api/app_manager.dart';
+import 'package:qutty/widgets/cached_image.dart';
 
 export 'package:qutty/api/ugc_tags.dart';
 
@@ -85,27 +85,14 @@ class _UgcViewState extends State<UgcView> {
 
   Widget _image(BuildContext context, UgcItem item) {
     final url = AppManager.instance.api.absoluteUrl(item.url);
-    final name = item.name.toLowerCase();
-    final isSvg =
-        item.contentType == 'image/svg+xml' ||
-        name.endsWith('.svg');
-    if (isSvg) {
-      return SvgPicture.network(
-        url,
-        width: widget.size,
-        height: widget.size,
-        fit: BoxFit.contain,
-        placeholderBuilder: (_) => _placeholder(context),
-      );
-    }
-    return Image.network(
-      url,
+    return CachedImage(
+      url: url,
+      baseUrl: AppManager.instance.api.baseUrl,
       width: widget.size,
       height: widget.size,
       fit: BoxFit.contain,
-      errorBuilder: (_, _, _) => _placeholder(context),
-      loadingBuilder: (context, child, progress) =>
-          progress == null ? child : _placeholder(context),
+      placeholder: _placeholder(context),
+      errorBuilder: (context, error, stack) => _placeholder(context),
     );
   }
 }
@@ -120,31 +107,19 @@ class UgcThumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = AppManager.instance.api.absoluteUrl(item.url);
-    final name = item.name.toLowerCase();
-    final isSvg =
-        item.contentType == 'image/svg+xml' || name.endsWith('.svg');
     final placeholder = Icon(
       Icons.image_outlined,
       size: size * 0.5,
       color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
-    if (isSvg) {
-      return SvgPicture.network(
-        url,
-        width: size,
-        height: size,
-        fit: BoxFit.contain,
-        placeholderBuilder: (_) => placeholder,
-      );
-    }
-    return Image.network(
-      url,
+    return CachedImage(
+      url: url,
+      baseUrl: AppManager.instance.api.baseUrl,
       width: size,
       height: size,
       fit: BoxFit.contain,
-      errorBuilder: (_, _, _) => placeholder,
-      loadingBuilder: (context, child, progress) =>
-          progress == null ? child : placeholder,
+      placeholder: placeholder,
+      errorBuilder: (context, error, stack) => placeholder,
     );
   }
 }

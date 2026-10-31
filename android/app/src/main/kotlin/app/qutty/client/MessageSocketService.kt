@@ -36,6 +36,10 @@ import io.flutter.plugin.common.MethodChannel
  * Android 15 caps dataSync foreground services at roughly six hours per day, so
  * this is a best-effort transport, not a guarantee -- the same class of
  * guarantee FCM gives, which is why the picker defaults to FCM when it exists.
+ *
+ * The debug "keep websocket alive" switch asks for the background allowance the
+ * service needs through the same channel; that is what
+ * `requestBackgroundUnlimited` on the Dart side is for.
  */
 class MessageSocketService : Service() {
     private var engine: FlutterEngine? = null

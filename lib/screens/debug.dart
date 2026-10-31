@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:qutty/api/app_manager.dart';
 import 'package:qutty/api/web_socket_service.dart';
 import 'package:qutty/l10n/l10n.dart';
+import 'package:qutty/services/background_socket_controller.dart';
 import 'package:qutty/services/notification_service.dart';
 import 'package:qutty/widgets/logo/logo.dart';
 import 'package:qutty/widgets/settings_ui.dart';
@@ -58,7 +59,43 @@ class DebugSettings extends StatelessWidget {
               ),
               SettingsSection(
                 title: l10n.settingsNotifications,
-                children: const [_TransportTile()],
+                children: [
+                  const _TransportTile(),
+                  SettingsTile(
+                    leading: const Icon(Icons.dns_outlined),
+                    title: l10n.debugPushServer,
+                    subtitle: manager.pushServer,
+                    onTap: () => _showPushServerDialog(context),
+                  ),
+                  SettingsTile(
+                    leading: const Icon(Icons.cloud_outlined),
+                    title: l10n.debugPushProvider,
+                    subtitle: manager.pushProvider,
+                    onTap: () => _showPushProviderDialog(context),
+                  ),
+                  SettingsTile(
+                    leading: const Icon(Icons.app_registration_outlined),
+                    title: l10n.debugPushRegistrationStatus,
+                    subtitle: manager.deviceId == null
+                        ? l10n.debugPushNotRegistered
+                        : l10n.debugPushRegisteredId(
+                            manager.deviceId.toString(),
+                          ),
+                  ),
+                  SettingsTile(
+                    leading: const Icon(Icons.notifications_off_outlined),
+                    title: l10n.debugUnregisterPush,
+                    subtitle: l10n.debugUnregisterPushSubtitle,
+                    onTap: () async {
+                      await manager.unregisterThisDevice();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.debugPushUnregistered)),
+                        );
+                      }
+                    },
+                  ),
+                ],
               ),
               SettingsSection(
                 title: l10n.developerOptions,
@@ -82,15 +119,29 @@ class DebugSettings extends StatelessWidget {
                       value: manager.forceGroupCall,
                       onChanged: manager.setForceGroupCall,
                     ),
-                    onTap: () => manager.setForceGroupCall(
-                      !manager.forceGroupCall,
-                    ),
+                    onTap: () =>
+                        manager.setForceGroupCall(!manager.forceGroupCall),
                   ),
                   SettingsTile(
                     leading: const Icon(Icons.navigation_outlined),
                     title: l10n.debugJumpTo,
                     subtitle: l10n.debugJumpToSubtitle,
                     onTap: () => _showJumpToDialog(context),
+                  ),
+                  SettingsTile(
+                    leading: const Icon(Icons.wifi_tethering_outlined),
+                    title: l10n.debugKeepWebsocketAlive,
+                    subtitle: l10n.debugKeepWebsocketAliveSubtitle,
+                    trailing: Switch(
+                      value: manager.keepWebsocketAliveInBackground,
+                      onChanged: (value) {
+                        if (value) {
+                          _confirmBackgroundUnlimited(context);
+                        } else {
+                          manager.setKeepWebsocketAliveInBackground(false);
+                        }
+                      },
+                    ),
                   ),
                   SettingsTile(
                     leading: const Icon(Icons.done_all_outlined),
@@ -122,6 +173,39 @@ class DebugSettings extends StatelessWidget {
         },
       ),
     );
+  }
+
+  /// Asks the user before enabling the background keep-alive, then hands the
+  /// "run in background without limits" request to the platform before turning
+  /// the switch on.
+  ///
+  /// Nothing happens when the answer is no: the switch stays off and the
+  /// background socket is not started.
+  Future<void> _confirmBackgroundUnlimited(BuildContext context) async {
+    final l10n = context.l10n;
+    final allowed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.debugBackgroundAllowTitle),
+        content: Text(l10n.debugBackgroundAllowMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.commonContinue),
+          ),
+        ],
+      ),
+    );
+    if (allowed != true) return;
+    if (!context.mounted) return;
+    // Ask Android for the background allowance before keeping the socket open.
+    await BackgroundSocketController.requestBackgroundUnlimited();
+    if (!context.mounted) return;
+    await AppManager.instance.setKeepWebsocketAliveInBackground(true);
   }
 
   Future<void> _showJumpToDialog(BuildContext context) async {
@@ -210,6 +294,68 @@ class DebugSettings extends StatelessWidget {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.debugApiEndpointUpdated)));
+    }
+  }
+
+  Future<void> _showPushServerDialog(BuildContext context) async {
+    final l10n = context.l10n;
+    final manager = AppManager.instance;
+    final controller = TextEditingController(text: manager.pushServer);
+    final value = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.debugPushServer),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: l10n.debugPushServer,
+            hintText: 'push.qutty.app',
+          ),
+          autocorrect: false,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: Text(l10n.commonSave),
+          ),
+        ],
+      ),
+    );
+    if (value != null && value.isNotEmpty) {
+      await manager.setPushServer(value);
+    }
+  }
+
+  Future<void> _showPushProviderDialog(BuildContext context) async {
+    final l10n = context.l10n;
+    final manager = AppManager.instance;
+    final value = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(l10n.debugPushProvider),
+        children: [
+          RadioGroup<String>(
+            groupValue: manager.pushProvider,
+            onChanged: (v) {
+              if (v != null) Navigator.pop(context, v);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RadioListTile<String>(value: 'fcm', title: Text('fcm')),
+                RadioListTile<String>(value: 'apple', title: Text('apple')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    if (value != null && value.isNotEmpty) {
+      await manager.setPushProvider(value);
     }
   }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "891100035358",
+    "project_id": "qutty-flux",
+    "storage_bucket": "qutty-flux.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:891100035358:android:d83392f9c3200168dbb10f",
+        "android_client_info": {
+          "package_name": "app.qutty.client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlWWzVDNgIIUBPgHhOoySV7PO3zlIPsnE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

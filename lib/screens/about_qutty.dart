@@ -4,8 +4,15 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:qutty/l10n/l10n.dart';
 import 'package:qutty/widgets/logo/logo.dart';
 
-class SettingsAbout extends StatelessWidget {
+class SettingsAbout extends StatefulWidget {
   const SettingsAbout({super.key});
+
+  @override
+  State<SettingsAbout> createState() => _SettingsAboutState();
+}
+
+class _SettingsAboutState extends State<SettingsAbout> {
+  bool _versionWithBuildNumber = false;
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +26,15 @@ class SettingsAbout extends StatelessWidget {
         future: PackageInfo.fromPlatform(),
         builder: (context, snapshot) {
           String version = l10n.commonLoading;
-          String buildNumber = l10n.commonLoading;
 
           if (snapshot.hasData) {
             version = snapshot.data!.version;
-            buildNumber = snapshot.data!.buildNumber;
           }
+
+          final displayVersion =
+              (snapshot.hasData && _versionWithBuildNumber)
+                  ? '${snapshot.data!.version} BN-${snapshot.data!.buildNumber}'
+                  : version;
 
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -73,17 +83,19 @@ class SettingsAbout extends StatelessWidget {
 
               Center(
                 child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _versionWithBuildNumber = true;
+                    });
+                  },
                   onLongPress: () {
                     context.push('/settings/dev');
                   },
-                  child: Tooltip(
-                    message: l10n.aboutBuild(buildNumber),
-                    child: Text(
-                      l10n.aboutCopyright(version),
-                      textAlign: TextAlign.center,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
+                  child: Text(
+                    l10n.aboutCopyright(displayVersion),
+                    textAlign: TextAlign.center,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
                 ),

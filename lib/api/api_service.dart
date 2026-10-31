@@ -61,6 +61,21 @@ class ChatInfo {
         DateTime.now(),
     lastMessageForDumbAssChatList: json['last_message'] as String? ?? '',
   );
+
+  /// The chat as the server would send it, so it can be written to the
+  /// offline cache and read back without losing anything.
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'chat_type': chatType,
+    if (peerUserId != null) 'peer_user_id': peerUserId,
+    'display_name': displayName,
+    'bio': bio,
+    'avatar_url': avatarUrl,
+    'handles': handles,
+    'permissions': permissions,
+    'created_at': createdAt.toIso8601String(),
+    'last_message': lastMessageForDumbAssChatList,
+  };
 }
 
 class MemberInfo {
@@ -165,6 +180,13 @@ class ForwardAuthor {
     displayName: json['display_name'] as String? ?? '',
     avatarUrl: json['avatar_url'] as String? ?? '',
   );
+
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'id': id,
+    'display_name': displayName,
+    'avatar_url': avatarUrl,
+  };
 }
 
 class MessageInfo {
@@ -266,6 +288,26 @@ class MessageInfo {
         readCount: readCount ?? this.readCount,
         createdAt: createdAt,
       );
+
+  /// The message as the server would send it, so it can be written to the
+  /// offline cache and read back without losing anything.
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'chat_id': chatId,
+    'sender_id': senderId,
+    'text': text,
+    'attachment_key': attachmentKey,
+    'attachment_name': attachmentName,
+    'attachment_url': attachmentUrl,
+    'attachment_type': attachmentType,
+    'attachment_size': attachmentSize,
+    'is_edited': isEdited,
+    'forwarded': forwarded,
+    if (forwardAuthor != null) 'forward_author': forwardAuthor!.toJson(),
+    'replied': replied,
+    'read_count': readCount,
+    'created_at': createdAt.toIso8601String(),
+  };
 }
 
 /// A change applied to a message that already existed: it was either edited
@@ -453,6 +495,69 @@ class Profile {
     'account_type': accountType,
     'last_online': lastOnline?.toIso8601String(),
   };
+}
+
+/// A bot: a developer app the account owns, served as a regular user with
+/// [BotInfo.accountType] set to `bot`.
+///
+/// The bot is a user row the backend created for the owner, bound to it through
+/// a developer app, and authenticated with a session token the backend hands out
+/// exactly once through [CreatedBot]. Bots therefore show up in the same shapes
+/// as any other profile, which is what lets a client open a chat with one.
+class BotInfo {
+  final int id;
+  final String displayName;
+  final String bio;
+  final String avatarUrl;
+  final String accountType;
+  final List<String> handles;
+  final DateTime? lastOnline;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const BotInfo({
+    required this.id,
+    required this.displayName,
+    required this.bio,
+    this.avatarUrl = '',
+    required this.accountType,
+    required this.handles,
+    this.lastOnline,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory BotInfo.fromJson(Map<String, dynamic> json) => BotInfo(
+        id: (json['id'] as num?)?.toInt() ?? 0,
+        displayName: json['display_name'] as String? ?? '',
+        bio: json['bio'] as String? ?? '',
+        avatarUrl: json['avatar_url'] as String? ?? '',
+        accountType: json['account_type'] as String? ?? 'bot',
+        handles: (json['handles'] as List<dynamic>? ?? [])
+            .map((handle) => handle.toString())
+            .toList(),
+        lastOnline: DateTime.tryParse(json['last_online'] as String? ?? ''),
+        createdAt:
+            DateTime.tryParse(json['created_at'] as String? ?? '') ??
+            DateTime.now(),
+        updatedAt:
+            DateTime.tryParse(json['updated_at'] as String? ?? '') ??
+            DateTime.now(),
+      );
+}
+
+/// The bot a freshly created developer app produced, plus the session token
+/// that authenticates it.
+///
+/// The token is returned by the create call and by no other: the backend hands
+/// it out exactly once, because it only ever exists as the session token of the
+/// bot's own session. Losing it means losing the bot, so the caller is expected
+/// to surface it before the value goes away.
+class CreatedBot {
+  final BotInfo bot;
+  final String token;
+
+  const CreatedBot({required this.bot, required this.token});
 }
 
 class VoiceToken {
@@ -888,7 +993,7 @@ class ApiService {
   String _baseUrl;
   String? _token;
 
-  ApiService({String baseUrl = 'https://beta.qutty.app'})
+  ApiService({String baseUrl = 'https://api.qutty.app'})
     : _baseUrl = _normalizeBaseUrl(baseUrl);
 
   String get baseUrl => _baseUrl;
@@ -899,7 +1004,7 @@ class ApiService {
 
   static String _normalizeBaseUrl(String value) {
     final trimmed = value.trim();
-    if (trimmed.isEmpty) return 'https://beta.qutty.app';
+    if (trimmed.isEmpty) return 'https://api.qutty.app';
     return trimmed.endsWith('/')
         ? trimmed.substring(0, trimmed.length - 1)
         : trimmed;
@@ -1597,6 +1702,66 @@ class ApiService {
 
   Future<void> removeUgcFavoritePack(int packId) async =>
       _request('DELETE', '/ugc/favorites/packs/$packId');
+
+  /// The bots owned by the current account, oldest first.
+  Future<List<BotInfo>> bots() async =>
+      (await _requestList('GET', '/dev/bot')).map(BotInfo.fromJson).toList();
+
+  /// Creates a bot owned by the current account and returns it with the
+  /// session token that authenticates it.
+  ///
+  /// The backend refuses bots for accounts that are not human accounts
+  /// themselves, answering `bots cant have bots` with a 403, and the token only
+  /// exists because it is handed out here and nowhere else.
+  Future<CreatedBot> createBot({
+    required String displayName,
+    String bio = '',
+    String handle = '',
+  }) async {
+    final response = await _request(
+      'POST',
+      '/dev/bot',
+      body: {'display_name': displayName, 'bio': bio, 'handle': handle},
+    );
+    return CreatedBot(
+      bot: BotInfo.fromJson((response['bot'] as Map<String, dynamic>?) ?? {}),
+      token: response['token'] as String? ?? '',
+    );
+  }
+
+  /// Loads one of the caller's own bots by id.
+  Future<BotInfo> bot(int id) async =>
+      BotInfo.fromJson(await _request('GET', '/dev/bot/$id'));
+
+  /// Updates the display name, bio or avatar of one of the caller's own bots.
+  Future<BotInfo> updateBot(
+    int id, {
+    String? displayName,
+    String? bio,
+    String? avatarUrl,
+  }) async => BotInfo.fromJson(
+    await _request(
+      'PATCH',
+      '/dev/bot/$id',
+      body: {'display_name': displayName, 'bio': bio, 'avatar_url': avatarUrl},
+    ),
+  );
+
+  /// Deletes one of the caller's own bots, together with its developer app and
+  /// its session.
+  Future<void> deleteBot(int id) async => _request('DELETE', '/dev/bot/$id');
+
+  /// Rotates the token of one of the caller's own bots, returning the fresh
+  /// token. The old token stops working as soon as the rotation lands, and the
+  /// new one is only ever handed out here.
+  Future<String> resetBotToken(int id) async {
+    final response = await _request(
+      'POST',
+      '/dev/bot/$id/reset-token',
+      body: <String, dynamic>{},
+    );
+    return response['token'] as String? ?? '';
+  }
 
   Future<void> logout() async {
     if (_token != null) {

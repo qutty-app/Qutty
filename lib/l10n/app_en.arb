@@ -237,6 +237,66 @@
   "settingsAudioNoiseReductionSubtitle": "Suppress background noise during calls",
   "settingsAudioMicVolume": "Microphone volume",
   "settingsAudioSpeakerVolume": "Speaker volume",
+  "cacheTitle": "Offline cache",
+  "cacheTitleSubtitle": "Keep conversations and media on this device",
+  "cacheOfflineSection": "Offline",
+  "cacheStorageSection": "Storage",
+  "cacheContentsSection": "Contents",
+  "cacheClearSection": "Clear cache",
+  "cacheMessagesLabel": "Messages",
+  "cacheProfilesLabel": "People",
+  "cacheMediaToggle": "Cache media",
+  "cacheMediaToggleSubtitle": "Keep pictures and attachments on the device",
+  "cacheChatsToggle": "Cache conversations",
+  "cacheChatsToggleSubtitle": "Keep conversations, messages and profiles on the device",
+  "cacheMediaLabel": "Media",
+  "cacheChatsLabel": "Conversations",
+  "cacheTotalLabel": "Total",
+  "cacheMediaFiles": "{count} files",
+  "@cacheMediaFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cacheChatCount": "{count} conversations",
+  "@cacheChatCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cacheMessageCount": "{count} messages",
+  "@cacheMessageCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cacheProfileCount": "{count} profiles",
+  "@cacheProfileCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cacheLimitLabel": "Media limit",
+  "cacheLimitSubtitle": "How much space media may take on this device",
+  "cacheClearMedia": "Clear media cache",
+  "cacheClearChats": "Clear conversation cache",
+  "cacheClearAll": "Clear all cache",
+  "cacheClearMediaTitle": "Clear media cache?",
+  "cacheClearMediaBody": "Pictures and attachments on this device will be downloaded again when they are needed.",
+  "cacheClearChatsTitle": "Clear conversation cache?",
+  "cacheClearChatsBody": "Saved conversations, messages and profiles will be removed from this device.",
+  "cacheClearAllTitle": "Clear all cache?",
+  "cacheClearAllBody": "Everything Qutty keeps on this device for offline use will be removed.",
+  "cacheCleared": "Cache cleared",
+  "chatOfflineMessages": "Showing saved messages — you are offline",
   "screenSharePickTitle": "Choose what to share",
   "screenSharePickScreens": "Screens",
   "screenSharePickWindows": "Windows",
@@ -549,6 +609,10 @@
   "debugDeveloperInfoSubtitle": "Show IDs for profiles and messages",
   "debugFallbackSelectorCast": "FallBackSelectorCast",
   "debugFallbackSelectorCastSubtitle": "Always use the app's own screen picker instead of the system one",
+  "debugKeepWebsocketAlive": "Keep websocket alive in background",
+  "debugKeepWebsocketAliveSubtitle": "Keep the websocket connected while the app is backgrounded",
+  "debugBackgroundAllowTitle": "Allow background without limits?",
+  "debugBackgroundAllowMessage": "This lets the app keep the websocket open while it is not in the foreground. On Android it asks for permission to run in the background without limits. Continue?",
   "debugForceGroupCall": "Force group call layout",
   "debugForceGroupCallSubtitle": "Use the group call layout even in direct calls",
   "debugJumpTo": "Jump to",
@@ -666,6 +730,35 @@
   },
   "developerPortal": "Developer portal",
   "developerPortalSubtitle": "Tools for developers on Qutty",
+  "botsPortalTitle": "Bots",
+  "botsTitle": "Bots",
+  "botsSubtitle": "Create and manage your own bots",
+  "botsCreate": "New bot",
+  "botsCreateAction": "Create bot",
+  "botsNoBots": "No bots yet. Create one to get started.",
+  "botsLoadFailed": "Couldn't load bots",
+  "botsCreateFailed": "Couldn't create it",
+  "botsUpdated": "Bot updated",
+  "botsDeleted": "Deleted",
+  "botsCreated": "Bot created",
+  "botsDeleteTitle": "Delete bot?",
+  "botsDeleteBody": "Delete \"{name}\"? The bot and its token will be gone.",
+  "@botsDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "botsResetTokenTooltip": "Reset token",
+  "botsResetTokenTitle": "Reset bot token?",
+  "botsResetTokenBody": "The current token will stop working immediately. The new token is shown once, so copy it now.",
+  "botsResetTokenAction": "Reset token",
+  "botsTokenTitle": "Bot token",
+  "botsTokenCopy": "Copy",
+  "botsTokenCopied": "Copied",
+  "botsTokenMissing": "Token missing",
+  "botsActionFailed": "Something went wrong with the bot",
   "ugcTitle": "Stickers and Emojis",
   "ugcSubtitle": "Create and manage your own stickers and emoji",
   "ugcPortalTitle": "Stickers and Emojis",
@@ -720,5 +813,20 @@
   "ugcLinkCopied": "Link copied",
   "ugcPackTitle": "Sticker pack",
   "ugcPackUnavailable": "This sticker pack is not available.",
-  "ugcStickerPreview": "Sticker"
+  "ugcStickerPreview": "Sticker",
+  "debugPushServer": "Push server",
+  "debugPushProvider": "Push provider",
+  "debugPushRegistrationStatus": "Push registration status",
+  "debugPushNotRegistered": "Not registered",
+  "debugPushRegisteredId": "Registered (id: {id})",
+  "@debugPushRegisteredId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "debugUnregisterPush": "Unregister push",
+  "debugUnregisterPushSubtitle": "Manually unregister this device",
+  "debugPushUnregistered": "Push unregistered"
 }

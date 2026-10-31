@@ -628,6 +628,117 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsAudioSpeakerVolume => 'Lautsprecherlautstärke';
 
   @override
+  String get cacheTitle => 'Offline cache';
+
+  @override
+  String get cacheTitleSubtitle =>
+      'Keep conversations and media on this device';
+
+  @override
+  String get cacheOfflineSection => 'Offline';
+
+  @override
+  String get cacheStorageSection => 'Storage';
+
+  @override
+  String get cacheContentsSection => 'Contents';
+
+  @override
+  String get cacheClearSection => 'Clear cache';
+
+  @override
+  String get cacheMessagesLabel => 'Messages';
+
+  @override
+  String get cacheProfilesLabel => 'People';
+
+  @override
+  String get cacheMediaToggle => 'Cache media';
+
+  @override
+  String get cacheMediaToggleSubtitle =>
+      'Keep pictures and attachments on the device';
+
+  @override
+  String get cacheChatsToggle => 'Cache conversations';
+
+  @override
+  String get cacheChatsToggleSubtitle =>
+      'Keep conversations, messages and profiles on the device';
+
+  @override
+  String get cacheMediaLabel => 'Media';
+
+  @override
+  String get cacheChatsLabel => 'Conversations';
+
+  @override
+  String get cacheTotalLabel => 'Total';
+
+  @override
+  String cacheMediaFiles(int count) {
+    return '$count files';
+  }
+
+  @override
+  String cacheChatCount(int count) {
+    return '$count conversations';
+  }
+
+  @override
+  String cacheMessageCount(int count) {
+    return '$count messages';
+  }
+
+  @override
+  String cacheProfileCount(int count) {
+    return '$count profiles';
+  }
+
+  @override
+  String get cacheLimitLabel => 'Media limit';
+
+  @override
+  String get cacheLimitSubtitle =>
+      'How much space media may take on this device';
+
+  @override
+  String get cacheClearMedia => 'Clear media cache';
+
+  @override
+  String get cacheClearChats => 'Clear conversation cache';
+
+  @override
+  String get cacheClearAll => 'Clear all cache';
+
+  @override
+  String get cacheClearMediaTitle => 'Clear media cache?';
+
+  @override
+  String get cacheClearMediaBody =>
+      'Pictures and attachments on this device will be downloaded again when they are needed.';
+
+  @override
+  String get cacheClearChatsTitle => 'Clear conversation cache?';
+
+  @override
+  String get cacheClearChatsBody =>
+      'Saved conversations, messages and profiles will be removed from this device.';
+
+  @override
+  String get cacheClearAllTitle => 'Clear all cache?';
+
+  @override
+  String get cacheClearAllBody =>
+      'Everything Qutty keeps on this device for offline use will be removed.';
+
+  @override
+  String get cacheCleared => 'Cache cleared';
+
+  @override
+  String get chatOfflineMessages => 'Showing saved messages — you are offline';
+
+  @override
   String get screenSharePickTitle => 'Wähle aus, was geteilt werden soll';
 
   @override
@@ -1178,6 +1289,20 @@ class AppLocalizationsDe extends AppLocalizations {
       'Immer die App-eigene Bildschirmauswahl statt der Systemauswahl verwenden';
 
   @override
+  String get debugKeepWebsocketAlive => 'Websocket im Hintergrund aktiv halten';
+
+  @override
+  String get debugKeepWebsocketAliveSubtitle =>
+      'Websocket im Hintergrund verbunden halten';
+
+  @override
+  String get debugBackgroundAllowTitle => 'Hintergrund ohne Grenzen erlauben?';
+
+  @override
+  String get debugBackgroundAllowMessage =>
+      'Dies erlaubt der App, das Websocket im Hintergrund offen zu halten. Beim Android wird um Erlaubnis gefragt, im Hintergrund ohne Grenzen zu laufen. Fortfahren?';
+
+  @override
   String get debugForceGroupCall => 'Gruppen-Call-Layout erzwingen';
 
   @override
@@ -1350,6 +1475,75 @@ class AppLocalizationsDe extends AppLocalizations {
   String get developerPortalSubtitle => 'Werkzeuge für Qutty-Entwickler';
 
   @override
+  String get botsPortalTitle => 'Bots';
+
+  @override
+  String get botsTitle => 'Bots';
+
+  @override
+  String get botsSubtitle => 'Erstelle und verwalte eigene Bots';
+
+  @override
+  String get botsCreate => 'Neuer Bot';
+
+  @override
+  String get botsCreateAction => 'Bot erstellen';
+
+  @override
+  String get botsNoBots => 'Noch keine Bots. Erstelle einen, um zu starten.';
+
+  @override
+  String get botsLoadFailed => 'Bots konnten nicht geladen werden';
+
+  @override
+  String get botsCreateFailed => 'Konnte es nicht erstellen';
+
+  @override
+  String get botsUpdated => 'Bot aktualisiert';
+
+  @override
+  String get botsDeleted => 'Gelöscht';
+
+  @override
+  String get botsCreated => 'Bot erstellt';
+
+  @override
+  String get botsDeleteTitle => 'Bot löschen?';
+
+  @override
+  String botsDeleteBody(String name) {
+    return 'Bot \"$name\" löschen? Der Bot und sein Token verschwinden damit.';
+  }
+
+  @override
+  String get botsResetTokenTooltip => 'Token zurücksetzen';
+
+  @override
+  String get botsResetTokenTitle => 'Token des Bots zurücksetzen?';
+
+  @override
+  String get botsResetTokenBody =>
+      'Das aktuelle Token funktioniert sofort nicht mehr. Das neue Token wird nur einmal angezeigt, kopiere es also jetzt.';
+
+  @override
+  String get botsResetTokenAction => 'Token zurücksetzen';
+
+  @override
+  String get botsTokenTitle => 'Bot-Token';
+
+  @override
+  String get botsTokenCopy => 'Kopieren';
+
+  @override
+  String get botsTokenCopied => 'Kopiert';
+
+  @override
+  String get botsTokenMissing => 'Token fehlt';
+
+  @override
+  String get botsActionFailed => 'Etwas ist mit dem Bot schiefgelaufen';
+
+  @override
   String get ugcTitle => 'Sticker und Emojis';
 
   @override
@@ -1472,4 +1666,30 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get ugcStickerPreview => 'Sticker';
+
+  @override
+  String get debugPushServer => 'Push server';
+
+  @override
+  String get debugPushProvider => 'Push provider';
+
+  @override
+  String get debugPushRegistrationStatus => 'Push registration status';
+
+  @override
+  String get debugPushNotRegistered => 'Not registered';
+
+  @override
+  String debugPushRegisteredId(String id) {
+    return 'Registered (id: $id)';
+  }
+
+  @override
+  String get debugUnregisterPush => 'Unregister push';
+
+  @override
+  String get debugUnregisterPushSubtitle => 'Manually unregister this device';
+
+  @override
+  String get debugPushUnregistered => 'Push unregistered';
 }

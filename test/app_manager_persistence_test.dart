@@ -65,13 +65,13 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'qutty.accounts': jsonEncode([
         {
-          'id': 'https://beta.qutty.app\u000042',
+          'id': 'https://api.qutty.app\u000042',
           'label': 'alice',
-          'baseUrl': 'https://beta.qutty.app',
+          'baseUrl': 'https://api.qutty.app',
           'token': 'token-abc',
         },
       ]),
-      'qutty.active_account': 'https://beta.qutty.app\u000042',
+      'qutty.active_account': 'https://api.qutty.app\u000042',
       'qutty.active_profile': jsonEncode(profileJson),
     });
     final manager = AppManager.instance;
@@ -96,14 +96,14 @@ void main() {
   });
 
   test('restore clears a session rejected by the server', () async {
-    const accountId = 'https://beta.qutty.app\u000042';
+    const accountId = 'https://api.qutty.app\u000042';
     SharedPreferences.setMockInitialValues({
       SessionStore.accountTokenKey(accountId): 'expired-token',
       'qutty.accounts': jsonEncode([
         {
           'id': accountId,
           'label': 'alice',
-          'baseUrl': 'https://beta.qutty.app',
+          'baseUrl': 'https://api.qutty.app',
         },
       ]),
       'qutty.active_account': accountId,
@@ -128,13 +128,13 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'qutty.accounts': jsonEncode([
         {
-          'id': 'https://beta.qutty.app\u000042',
+          'id': 'https://api.qutty.app\u000042',
           'label': 'alice',
-          'baseUrl': 'https://beta.qutty.app',
+          'baseUrl': 'https://api.qutty.app',
           'token': 'token-abc',
         },
       ]),
-      'qutty.active_account': 'https://beta.qutty.app\u000042',
+      'qutty.active_account': 'https://api.qutty.app\u000042',
     });
     final manager = AppManager.instance;
     overrides.failAll = true;
@@ -155,8 +155,8 @@ void main() {
   test(
     'restore selects the saved account and reads its saved token',
     () async {
-      const firstId = 'https://beta.qutty.app\u000041';
-      const selectedId = 'https://beta.qutty.app\u000042';
+      const firstId = 'https://api.qutty.app\u000041';
+      const selectedId = 'https://api.qutty.app\u000042';
       SharedPreferences.setMockInitialValues({
         SessionStore.accountTokenKey(firstId): 'token-alpha',
         SessionStore.accountTokenKey(selectedId): 'token-beta',
@@ -164,12 +164,12 @@ void main() {
           {
             'id': firstId,
             'label': 'alice-first',
-            'baseUrl': 'https://beta.qutty.app',
+            'baseUrl': 'https://api.qutty.app',
           },
           {
             'id': selectedId,
             'label': 'alice-beta',
-            'baseUrl': 'https://beta.qutty.app',
+            'baseUrl': 'https://api.qutty.app',
           },
         ]),
         'qutty.active_account': selectedId,
@@ -182,7 +182,7 @@ void main() {
 
       expect(manager.accounts, hasLength(2));
       expect(manager.activeAccountId, selectedId);
-      expect(manager.api.baseUrl, 'https://beta.qutty.app');
+      expect(manager.api.baseUrl, 'https://api.qutty.app');
       expect(manager.api.token, 'token-beta');
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('qutty.active_account'), selectedId);

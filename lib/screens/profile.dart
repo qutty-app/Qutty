@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qutty/api/api_service.dart';
 import 'package:qutty/api/app_manager.dart';
 import 'package:qutty/l10n/l10n.dart';
 import 'package:qutty/widgets/avatar.dart';
+import 'package:qutty/widgets/cached_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final RegExp _linkPattern = RegExp(r'https?://[^\s<>"()]+');
@@ -55,7 +55,7 @@ class ProfileScreen extends StatelessWidget {
         if (exception.statusCode != 404) rethrow;
       }
     } else {
-      final user = await manager.api.user(id);
+      final user = await manager.loadUserProfile(id);
       avatarUrl = user.avatarUrl;
       dname = user.displayName;
       handle = user.handles.isNotEmpty ? user.handles.first : missing;
@@ -72,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
     List<MessageInfo> messages = const [];
     if (chatId != null) {
       try {
-        messages = await manager.api.messages(chatId);
+        messages = await manager.loadMessages(chatId);
       } on ApiException catch (exception) {
         if (exception.statusCode != 404) rethrow;
       }
@@ -332,28 +332,23 @@ class _AttachmentGrid extends StatelessWidget {
         final message = messages[index];
         final type = message.attachmentType.toLowerCase();
         final name = message.attachmentName.toLowerCase();
-        final isSvg = type == 'image/svg+xml' || name.endsWith('.svg');
-        final isImage = isSvg || type.startsWith('image/');
+        final isImage =
+            type == 'image/svg+xml' ||
+            type.startsWith('image/') ||
+            name.endsWith('.svg');
         return GestureDetector(
           onTap: () => onTap(message),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: isSvg
-                ? SvgPicture.network(
-                    message.attachmentUrl,
+            child: isImage
+                ? CachedImage(
+                    url: message.attachmentUrl,
+                    baseUrl: AppManager.instance.api.baseUrl,
                     fit: BoxFit.cover,
-                    placeholderBuilder: (_) =>
-                        ColoredBox(color: scheme.surfaceContainerHighest),
-                    errorBuilder: (_, _, _) => ColoredBox(
+                    placeholder: ColoredBox(
                       color: scheme.surfaceContainerHighest,
-                      child: const Icon(Icons.broken_image_outlined),
                     ),
-                  )
-                : isImage
-                ? Image.network(
-                    message.attachmentUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => ColoredBox(
+                    errorBuilder: (context, error, stack) => ColoredBox(
                       color: scheme.surfaceContainerHighest,
                       child: const Icon(Icons.broken_image_outlined),
                     ),

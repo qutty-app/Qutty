@@ -50,6 +50,9 @@ dependencies:
 
   intl: any
   package_info_plus: ^9.0.1
+  # Hashes URLs into cache file names. Already in the dependency graph
+  # transitively; declared because we import it directly.
+  crypto: ^3.0.7
   # Caches downloaded and sideloaded font files on disk. Already in the
   # dependency graph transitively; declared because we import it directly.
   path_provider: ^2.1.5

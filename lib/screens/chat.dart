@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qutty/api/api_service.dart';
 import 'package:qutty/api/app_manager.dart';
@@ -15,6 +14,7 @@ import 'package:qutty/api/ugc_link.dart';
 import 'package:qutty/l10n/l10n.dart';
 import 'package:qutty/widgets/adaptive.dart';
 import 'package:qutty/widgets/avatar.dart';
+import 'package:qutty/widgets/cached_image.dart';
 import 'package:qutty/widgets/forward_picker.dart';
 import 'package:qutty/widgets/markdown.dart';
 import 'package:qutty/widgets/media_picker.dart';
@@ -60,6 +60,15 @@ class _ChatScreenState extends State<ChatScreen> {
   ChatInfo? chat;
   List<MessageInfo> messages = const [];
   String? error;
+
+  /// True when the messages on screen came from the device rather than from
+  /// the server, so the screen can say that what it shows is not live.
+  bool offline = false;
+
+  /// Counts the loads started by this screen, so a background read started by
+  /// an older one does not paint over a newer answer.
+  int _loadGeneration = 0;
+
   PlatformFile? selectedFile;
   bool? isMember;
   bool canWrite = false;
@@ -82,6 +91,13 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Where the last pointer went down. It anchors the message action menu at
   /// the cursor, so a right click opens it like a desktop context menu.
   Offset _menuAnchor = Offset.zero;
+
+  /// Tooltip state per message, for the developer info tooltip that rides on a
+  /// long press. One key per message so a long conversation can hold several.
+  final Map<int, GlobalKey<TooltipState>> _messageTooltipKeys = <int, GlobalKey<TooltipState>>{};
+
+  GlobalKey<TooltipState> _messageTooltipKey(int messageId) =>
+      _messageTooltipKeys.putIfAbsent(messageId, () => GlobalKey<TooltipState>());
 
   /// The message the composer is answering, or null when it is a fresh one.
   /// While set, the composer shows a quoted preview and the next send carries
@@ -271,36 +287,88 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> load() async {
+    // A read of the stored copy may still be on its way from an earlier
+    // attempt; this number makes it land in the wrong place no longer.
+    final generation = ++_loadGeneration;
+    // Each part is fetched on its own so that one failure does not hide the
+    // others: a chat whose details cannot be fetched still shows the
+    // messages that are stored on the device.
+    String? failure;
+    ChatInfo? loadedChat;
     try {
-      final loadedChat = await manager.api.chat(widget.chatId);
-      MemberInfo? member;
-      try {
-        member = await manager.api.selfMember(widget.chatId);
-      } on ApiException catch (exception) {
-        if (exception.statusCode != 404) rethrow;
-      }
-      final loadedMessages = await manager.api.messages(widget.chatId);
-      if (mounted) {
-        setState(() {
-          chat = loadedChat;
-          messages = _mergeMessages(loadedMessages);
-          isMember = member != null;
-          canWrite =
-              member != null &&
-              (member.role == 'creator' ||
-                  member.role == 'admin' ||
-                  member.permissions.contains('write_messages') ||
-                  member.permissions.contains('administrator'));
-        });
-        // Opening the conversation is reading it, so report the newest message
-        // as read and seed the member cursors that drive the reader counts.
-        _markReadUpToLatest();
-        unawaited(manager.refreshReadCursors(widget.chatId));
-        _focusPendingMessage();
-      }
+      loadedChat = await manager.api.chat(widget.chatId);
     } on ApiException catch (exception) {
-      if (mounted) setState(() => error = exception.message);
+      failure = exception.message;
+    } catch (_) {
+      // A connection that never reaches the server is a failure like any
+      // other, and must not stop the rest of the screen from loading.
+      failure = L10n.current.requestFailed;
     }
+    MemberInfo? member;
+    var memberKnown = false;
+    try {
+      member = await manager.api.selfMember(widget.chatId);
+      memberKnown = true;
+    } on ApiException catch (exception) {
+      if (exception.statusCode != 404) failure ??= exception.message;
+    } catch (_) {
+      failure ??= L10n.current.requestFailed;
+    }
+    var loadedMessages = const <MessageInfo>[];
+    var live = false;
+    try {
+      loadedMessages = await manager.loadMessages(widget.chatId);
+      live = true;
+    } on ApiException catch (exception) {
+      failure ??= exception.message;
+      // The copy on the device is read in the background: the screen is
+      // already painted with what it has, and waiting for the disk before
+      // that would leave it empty whenever the disk is slow.
+      unawaited(_loadStoredMessages(generation));
+    } catch (_) {
+      failure ??= L10n.current.requestFailed;
+      unawaited(_loadStoredMessages(generation));
+    }
+    if (!mounted) return;
+    setState(() {
+      chat = loadedChat ?? chat;
+      messages = _mergeMessages(loadedMessages);
+      // The member's own rights are only replaced when they are known, so a
+      // failed lookup does not turn a writable conversation into a read-only
+      // one.
+      if (memberKnown) {
+        isMember = member != null;
+        canWrite =
+            member != null &&
+            (member.role == 'creator' ||
+                member.role == 'admin' ||
+                member.permissions.contains('write_messages') ||
+                member.permissions.contains('administrator'));
+      }
+      // A conversation the server answered for is live again, so the banner
+      // that says otherwise comes down.
+      if (live) offline = false;
+      error = failure;
+    });
+    // Opening the conversation is reading it, so report the newest message
+    // as read and seed the member cursors that drive the reader counts.
+    _markReadUpToLatest();
+    unawaited(manager.refreshReadCursors(widget.chatId));
+    _focusPendingMessage();
+  }
+
+  /// Fills the conversation from the copy stored on the device.
+  ///
+  /// Used when the server cannot be reached, so the messages that were read
+  /// before are still there instead of an empty screen.
+  Future<void> _loadStoredMessages(int generation) async {
+    final stored = await manager.storedMessages(widget.chatId);
+    if (!mounted || stored.isEmpty || generation != _loadGeneration) return;
+    setState(() {
+      messages = _mergeMessages(stored);
+      offline = true;
+      error = null;
+    });
   }
 
   /// Folds any realtime messages that arrived while the history request was in
@@ -500,8 +568,10 @@ class _ChatScreenState extends State<ChatScreen> {
         : '${(size / (1024 * 1024)).toStringAsFixed(1)} MB';
     final lowerType = contentType.toLowerCase();
     final lowerName = name.toLowerCase();
-    final isSvg = lowerType == 'image/svg+xml' || lowerName.endsWith('.svg');
-    final isImage = isSvg || lowerType.startsWith('image/');
+    final isImage =
+        lowerType == 'image/svg+xml' ||
+        lowerType.startsWith('image/') ||
+        lowerName.endsWith('.svg');
     return InkWell(
       onTap: () => openAttachment(url),
       child: Column(
@@ -510,22 +580,15 @@ class _ChatScreenState extends State<ChatScreen> {
           if (isImage)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: isSvg
-                  ? SvgPicture.network(
-                      url,
-                      width: 280,
-                      height: 180,
-                      fit: BoxFit.cover,
-                      placeholderBuilder: (_) => const SizedBox.shrink(),
-                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
-                    )
-                  : Image.network(
-                      url,
-                      width: 280,
-                      height: 180,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
-                    ),
+              child: CachedImage(
+                url: url,
+                baseUrl: manager.api.baseUrl,
+                width: 280,
+                height: 180,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) =>
+                    const SizedBox.shrink(),
+              ),
             ),
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -649,6 +712,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 return;
               }
               _menuAnchor = details.globalPosition;
+              _messageTooltipKey(message.id).currentState?.ensureTooltipVisible();
               unawaited(_showMessageMenu(message, details.globalPosition));
             },
       child: UgcView(id: id, size: size),
@@ -694,9 +758,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ? null
           : (wanted) => _toggleFavoritePack(pack, wanted),
       onInsert: () => insertAtCursor('<ugc:$id>'),
-      onShare: pack == null
-          ? null
-          : () => copyUgcPackLink(context, pack.id),
+      onShare: pack == null ? null : () => copyUgcPackLink(context, pack.id),
     );
   }
 
@@ -1255,7 +1317,15 @@ class _ChatScreenState extends State<ChatScreen> {
       onSecondaryTapDown: (details) => _menuAnchor = details.globalPosition,
       onTap: () => _handleMessageTap(message),
       onSecondaryTap: () => _handleMessageTap(message),
-      onLongPressStart: (_) => _startSelection(message.id),
+      onLongPressStart: (details) {
+        _startSelection(message.id);
+        // The developer info tooltip rides on this press rather than declaring
+        // its own: a tooltip that claims the long press races the bubble's
+        // handler for it and, being the deeper widget, wins, so the press would
+        // only ever surface the tooltip and never start the selection.
+        _messageTooltipKey(message.id).currentState?.ensureTooltipVisible();
+      },
+      onLongPressEnd: (_) => RawTooltip.dismissAllToolTips(),
       child: child,
     );
   }
@@ -1300,6 +1370,13 @@ class _ChatScreenState extends State<ChatScreen> {
           appBar: _selectionMode ? _buildSelectionAppBar() : _buildChatAppBar(),
           body: Column(
             children: [
+              if (offline)
+                _OfflineBanner(
+                  onRetry: () {
+                    setState(() => offline = false);
+                    load();
+                  },
+                ),
               if (error != null)
                 MaterialBanner(
                   content: Text(error!),
@@ -1430,7 +1507,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                 : body,
                           );
                           final messageContent = Tooltip(
+                            key: _messageTooltipKey(message.id),
                             message: l10n.chatMessageId(message.id),
+                            // The bubble's own long press owns the press: a tooltip
+                            // that declares its own long-press trigger races it in
+                            // the gesture arena and takes it, so the press would
+                            // only ever surface the tooltip.
+                            triggerMode: TooltipTriggerMode.manual,
                             child: bubble,
                           );
                           final content = _messageGestures(
@@ -1644,4 +1727,41 @@ class _SendMessageIntent extends Intent {
 
 class _InsertNewlineIntent extends Intent {
   const _InsertNewlineIntent();
+}
+
+/// Tells the user that the conversation on screen is the copy kept on the
+/// device, not what the server has right now.
+class _OfflineBanner extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _OfflineBanner({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    return Material(
+      color: scheme.secondaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+        child: Row(
+          children: [
+            Icon(
+              Icons.cloud_off_outlined,
+              size: 18,
+              color: scheme.onSecondaryContainer,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                l10n.chatOfflineMessages,
+                style: TextStyle(color: scheme.onSecondaryContainer),
+              ),
+            ),
+            TextButton(onPressed: onRetry, child: Text(l10n.commonTryAgain)),
+          ],
+        ),
+      ),
+    );
+  }
 }

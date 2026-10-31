@@ -64,6 +64,12 @@ void notificationSocketMain() async {
   String selectedTransport() =>
       preferences.getString('qutty.push_transport') ?? 'websocket';
 
+  // Re-read on every connect rather than trusting the value from when the
+  // service started: the debug keep-alive switch lives here too, and this
+  // isolate has no ChangeNotifier to tell it about a change.
+  bool keepAliveInBackground() =>
+      preferences.getBool('qutty.debug_keep_websocket_alive') ?? false;
+
   final session = await SessionStore.readActive(
     preferences,
     fallbackBaseUrl: const String.fromEnvironment(
@@ -87,6 +93,7 @@ void notificationSocketMain() async {
   final socket = WebSocketService(
     baseUrl: session.baseUrl,
     token: session.token,
+    retryForever: keepAliveInBackground(),
   );
 
   socket.events.listen((event) async {

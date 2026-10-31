@@ -23,11 +23,16 @@ class WebSocketService {
     required this.baseUrl,
     required this.token,
     this.path = '/v1/ws',
+    this.retryForever = false,
   });
 
   final String baseUrl;
   final String token;
   final String path;
+
+  /// When true the socket retries the connection forever after a failure or
+  /// disconnect instead of easing off, for the debug keep-alive switch.
+  final bool retryForever;
 
   WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _subscription;
@@ -36,6 +41,10 @@ class WebSocketService {
   bool _disposed = false;
   int _retryAttempt = 0;
   static const _maxRetryDelay = Duration(seconds: 30);
+
+  /// How long to wait before retrying when [retryForever] is set, instead of
+  /// backing off exponentially while the socket keeps trying to come back.
+  static const _retryForeverDelay = Duration(seconds: 2);
 
   ConnectionStatus _status = ConnectionStatus.disconnected;
   final _statusController = StreamController<ConnectionStatus>.broadcast();
@@ -114,10 +123,9 @@ class WebSocketService {
 
   void _scheduleReconnect() {
     _retryTimer?.cancel();
-    final delaySeconds = min(
-      _maxRetryDelay.inSeconds,
-      pow(2, _retryAttempt).toInt(),
-    );
+    final delaySeconds = retryForever
+        ? _retryForeverDelay.inSeconds
+        : min(_maxRetryDelay.inSeconds, pow(2, _retryAttempt).toInt());
     _retryTimer = Timer(Duration(seconds: delaySeconds), () {
       _retryAttempt++;
       if (!_disposed) {

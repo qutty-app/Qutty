@@ -15,9 +15,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/l10n.dart';
 import '../services/background_socket_controller.dart';
+import '../services/cache_overview.dart';
 import '../services/custom_fonts.dart';
+import '../services/media_cache.dart';
 import '../services/native_call_service.dart';
 import '../services/notification_service.dart';
+import '../services/offline_store.dart';
 import 'api_service.dart';
 import 'join_link.dart';
 import 'session_store.dart';
@@ -221,6 +224,7 @@ class AppManager extends ChangeNotifier {
   bool isLoading = true;
   WebSocketService? socket;
   ConnectionStatus connectionStatus = ConnectionStatus.disconnected;
+
   /// A link the OS handed the app -- a chat invite or a shared sticker pack --
   /// waiting for the widget tree to route it.
   String? pendingDeepLink;
@@ -236,6 +240,7 @@ class AppManager extends ChangeNotifier {
   /// Server-side id of this install's push registration, so the device can be
   /// detached individually rather than wiping every device on the account.
   int? _deviceId;
+  int? get deviceId => _deviceId;
 
   /// The transport currently carrying notifications. Null means this build has
   /// no way to be reached while backgrounded, which is not an error state: the
@@ -244,6 +249,30 @@ class AppManager extends ChangeNotifier {
 
   /// The transport currently in use, for display in the debug settings.
   PushTransport? get pushTransport => _transport;
+
+  String _pushServer = 'push.qutty.app';
+  String get pushServer => _pushServer;
+  Future<void> setPushServer(String value) async {
+    final normalized = value.trim();
+    if (normalized.isEmpty) return;
+    if (normalized == _pushServer) return;
+    _pushServer = normalized;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setString(_pushServerKey, normalized);
+    notifyListeners();
+  }
+
+  String _pushProvider = 'fcm';
+  String get pushProvider => _pushProvider;
+  Future<void> setPushProvider(String value) async {
+    final normalized = value.trim();
+    if (normalized.isEmpty) return;
+    if (normalized == _pushProvider) return;
+    _pushProvider = normalized;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setString(_pushProviderKey, normalized);
+    notifyListeners();
+  }
 
   /// Whether the app is in the foreground. Drives whether an incoming message
   /// is worth a local notification.
@@ -735,6 +764,12 @@ class AppManager extends ChangeNotifier {
   static const _speakerVolumeKey = 'qutty.audio_speaker_volume';
   static const _fallbackSelectorKey = 'qutty.fallback_selector_cast';
   static const _forceGroupCallKey = 'qutty.force_group_call_layout';
+  static const _cacheMediaKey = 'qutty.cache_media';
+  static const _cacheChatsKey = 'qutty.cache_chats';
+  static const _cacheLimitKey = 'qutty.cache_limit_bytes';
+  static const _pushServerKey = 'qutty.push_server';
+  static const _pushProviderKey = 'qutty.push_provider';
+  static const _keepWebsocketAliveKey = 'qutty.debug_keep_websocket_alive';
 
   /// Cache name for the one font the user brought themselves.
   ///
@@ -756,6 +791,15 @@ class AppManager extends ChangeNotifier {
 
   /// Debug switch that uses the group call layout even in direct calls.
   bool forceGroupCall = false;
+
+  /// Debug switch that keeps the websocket connected while the app is
+  /// backgrounded, so delivery can be debugged without the OS dropping it.
+  ///
+  /// Only surfaced in the debug settings, and only meaningful on mobile, where
+  /// the background socket runs through the foreground service. Turning it on
+  /// asks Android for the background allowance the service needs, and makes the
+  /// socket retry forever instead of easing off.
+  bool keepWebsocketAliveInBackground = false;
 
   /// True when the OS or browser shows its own picker (web, Android, iOS), so
   /// the app should let it handle the choice rather than listing sources.
@@ -816,6 +860,17 @@ class AppManager extends ChangeNotifier {
   /// Master switch for notifications. Turning it off unregisters the push token
   /// so the backend stops sending to this device entirely.
   bool notificationsEnabled = true;
+
+  /// Whether media -- pictures, attachments, stickers -- is kept on the device
+  /// so it can be shown without a connection.
+  ///
+  /// With this off nothing is written to the media cache and every picture is
+  /// fetched from the network again.
+  bool cacheMedia = true;
+
+  /// Whether conversations, messages and people are kept on the device so they
+  /// can be read without a connection.
+  bool cacheChats = true;
 
   /// The language the user picked, or null to follow the device language.
   ///
@@ -913,11 +968,23 @@ class AppManager extends ChangeNotifier {
       activeAccountId = active.id;
       api.baseUrl = active.baseUrl;
       api.token = active.token;
+      // The offline copy belongs to the account it was written for, so the
+      // store follows the active account.
+      _useCacheAccount(active.id);
     }
     developerInfo = preferences.getBool(_developerInfoKey) ?? false;
     forceReadCount = preferences.getBool(_forceReadCountKey) ?? false;
     fallbackSelectorCast = preferences.getBool(_fallbackSelectorKey) ?? false;
     forceGroupCall = preferences.getBool(_forceGroupCallKey) ?? false;
+    keepWebsocketAliveInBackground =
+        preferences.getBool(_keepWebsocketAliveKey) ?? false;
+    cacheMedia = preferences.getBool(_cacheMediaKey) ?? true;
+    cacheChats = preferences.getBool(_cacheChatsKey) ?? true;
+    _pushServer = preferences.getString(_pushServerKey) ?? 'push.qutty.app';
+    _pushProvider = preferences.getString(_pushProviderKey) ?? 'fcm';
+    await MediaCache.instance.setMaxBytes(
+      preferences.getInt(_cacheLimitKey) ?? MediaCache.defaultMaxBytes,
+    );
     themePreference = _themePreferenceFromString(
       preferences.getString(_themePreferenceKey),
     );
@@ -954,6 +1021,11 @@ class AppManager extends ChangeNotifier {
       // network outages at startup instead of dumping the user to the login
       // screen.
       profile = _profileFromPreferences(preferences);
+      // The stored conversations are read before the network is asked, so a
+      // launch without a connection still shows the chats the account has.
+      // The read is not awaited: a slow disk must not hold up the launch, and
+      // the list is filled in as soon as it answers.
+      unawaited(_restoreCachedChats());
       try {
         profile = await api.me();
         await _saveActiveAccount();
@@ -969,6 +1041,35 @@ class AppManager extends ChangeNotifier {
         // launch or via reconnect.
       }
     }
+  }
+
+  /// Points the offline caches at [accountId] and reads what is stored for it.
+  ///
+  /// Called whenever the active account changes. The reads run in the
+  /// background: a switch must not wait for the disk, and nothing is shown
+  /// until the answers land.
+  void _useCacheAccount(String? accountId) {
+    OfflineStore.instance.useAccount(accountId);
+    // Pictures are the account's too, so they are scoped the same way: one
+    // account's attachments are not another account's to see.
+    MediaCache.instance.useAccount(accountId);
+    unawaited(OfflineStore.instance.load());
+    unawaited(MediaCache.instance.load());
+  }
+
+  /// Fills the chat list from the offline copy.
+  ///
+  /// Only used when the server cannot be reached, so the list the user sees
+  /// is the one they left behind rather than an empty screen.
+  Future<void> _restoreCachedChats() async {
+    if (!cacheChats) return;
+    await OfflineStore.instance.load();
+    final cached = OfflineStore.instance.cachedChats;
+    // A list that already came back from the server is newer than the stored
+    // copy, so it is left alone.
+    if (cached.isEmpty || chats.isNotEmpty) return;
+    chats = cached;
+    notifyListeners();
   }
 
   Future<void> _clearInvalidActiveSession(SharedPreferences preferences) async {
@@ -993,6 +1094,8 @@ class AppManager extends ChangeNotifier {
     api.token = await api.login(username, password);
     profile = await api.me();
     await _saveActiveAccount();
+    // The account id carries the user id, so it is only known now.
+    _useCacheAccount(activeAccountId);
     await refreshChats();
     await connectWebSocket();
     unawaited(syncPushRegistration());
@@ -1003,6 +1106,7 @@ class AppManager extends ChangeNotifier {
     await api.loginWithToken(token);
     profile = await api.me();
     await _saveActiveAccount();
+    _useCacheAccount(activeAccountId);
     await refreshChats();
     await connectWebSocket();
     unawaited(syncPushRegistration());
@@ -1029,8 +1133,20 @@ class AppManager extends ChangeNotifier {
   }
 
   Future<void> _loadChats() async {
-    chats = await api.chats();
+    final accountId = activeAccountId;
+    final loaded = await api.chats();
+    // The account can be switched while the request is in flight. The answer
+    // then belongs to the account that was left, and keeping it would show one
+    // account's conversations to another.
+    if (accountId != activeAccountId) return;
+    chats = loaded;
     notifyListeners();
+    if (!cacheChats) return;
+    // The stored copy is what the app falls back to when the server cannot be
+    // reached, so it is refreshed on every successful load. The write is not
+    // awaited: the list on screen must not wait for the disk.
+    unawaited(OfflineStore.instance.saveChats(loaded));
+    _prefetchMedia(loaded.map((chat) => chat.avatarUrl));
   }
 
   /// Debounces the chat-list refresh triggered by realtime messages so a burst
@@ -1113,6 +1229,19 @@ class AppManager extends ChangeNotifier {
     final preferences = await SharedPreferences.getInstance();
     await preferences.setBool(_forceGroupCallKey, value);
     notifyListeners();
+  }
+
+  Future<void> setKeepWebsocketAliveInBackground(bool value) async {
+    if (keepWebsocketAliveInBackground == value) return;
+    keepWebsocketAliveInBackground = value;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(_keepWebsocketAliveKey, value);
+    notifyListeners();
+    if (!isLoggedIn) return;
+    // Move the live socket onto the new retry policy and make sure the
+    // background socket runs under it while the app is backgrounded.
+    unawaited(_syncBackgroundSocket());
+    unawaited(connectWebSocket());
   }
 
   Future<void> setCallCameraOn(bool value) async {
@@ -1440,7 +1569,7 @@ class AppManager extends ChangeNotifier {
     }
   }
 
-  Future<void> _unregisterThisDevice() async {
+  Future<void> unregisterThisDevice() async {
     final id = _deviceId;
     if (id == null) return;
     try {
@@ -1451,6 +1580,8 @@ class AppManager extends ChangeNotifier {
       _deviceId = null;
     }
   }
+
+  Future<void> _unregisterThisDevice() => unregisterThisDevice();
 
   /// Detaches every push token owned by the signing-out account. Unlike the
   /// toggle, sign-out must clear every device: the person using this phone may
@@ -1520,7 +1651,9 @@ class AppManager extends ChangeNotifier {
   /// needs a notification unless the user is already reading that conversation.
   bool shouldNotifyForChatId(int chatId) {
     if (!notificationsEnabled) return false;
-    debugPrint('shouldNotifyForChatId: isForeground=$isForeground, activeChatId=$activeChatId, chatId=$chatId');
+    debugPrint(
+      'shouldNotifyForChatId: isForeground=$isForeground, activeChatId=$activeChatId, chatId=$chatId',
+    );
     var notify = NotificationService.instance.shouldNotify(
       isForeground: isForeground,
       activeChatId: activeChatId,
@@ -1737,6 +1870,11 @@ class AppManager extends ChangeNotifier {
     await _unregisterAllDevices();
     await api.logout();
     await SessionStore.deleteToken();
+    // The offline copy of a signed-out account stays on the device otherwise,
+    // and the next person to use the device could read it. Pictures are part
+    // of that copy.
+    await OfflineStore.instance.clearAccount();
+    await MediaCache.instance.clear();
     _chatsRefreshDebounce?.cancel();
     _chatsRefreshDebounce = null;
     _deviceId = null;
@@ -1770,6 +1908,8 @@ class AppManager extends ChangeNotifier {
       api.token = null;
       profile = null;
       chats = const [];
+      // No account is left, so the caches have nobody to belong to.
+      _useCacheAccount(null);
     }
     await _persistAccounts(preferences);
     notifyListeners();
@@ -1806,7 +1946,11 @@ class AppManager extends ChangeNotifier {
   Future<void> connectWebSocket() async {
     if (api.token == null) return;
     await disconnectSocket();
-    final ws = WebSocketService(baseUrl: api.baseUrl, token: api.token!);
+    final ws = WebSocketService(
+      baseUrl: api.baseUrl,
+      token: api.token!,
+      retryForever: keepWebsocketAliveInBackground,
+    );
     socket = ws;
     _socketStatusSub = ws.statusStream.listen((value) {
       connectionStatus = value;
@@ -2075,6 +2219,11 @@ class AppManager extends ChangeNotifier {
     if (controller != null && !controller.isClosed) {
       controller.add(message);
     }
+    // The stored history follows the server's, so a message that arrives while
+    // the app runs is part of the offline copy too.
+    if (cacheChats) {
+      unawaited(OfflineStore.instance.appendMessage(message.chatId, message));
+    }
     _scheduleChatsRefresh();
     if (shouldNotifyForChatId(message.chatId)) {
       unawaited(_notifyIncoming(message));
@@ -2092,10 +2241,7 @@ class AppManager extends ChangeNotifier {
     final l10n = L10n.current;
     // A sticker-only body is a reference, not text; show a word instead of the
     // raw `<ugc:id>` markup, matching what the chat list preview does.
-    final text = ugcPreviewText(
-      message.text.trim(),
-      l10n.ugcStickerPreview,
-    );
+    final text = ugcPreviewText(message.text.trim(), l10n.ugcStickerPreview);
     final preview = text.isNotEmpty
         ? text
         : message.attachmentName.isNotEmpty
@@ -2153,11 +2299,17 @@ class AppManager extends ChangeNotifier {
     if (_lastMessage[message.chatId]?.id == message.id) {
       _lastMessage[message.chatId] = message;
     }
+    if (cacheChats) {
+      unawaited(OfflineStore.instance.appendMessage(message.chatId, message));
+    }
     _emitMessageChange(MessageChange.edited(message));
   }
 
   /// Records that [messageId] no longer exists in [chatId].
   void onMessageDeleted(int chatId, int messageId) {
+    if (cacheChats) {
+      unawaited(OfflineStore.instance.removeMessage(chatId, messageId));
+    }
     _emitMessageChange(MessageChange.deleted(chatId, messageId));
   }
 
@@ -2409,6 +2561,14 @@ class AppManager extends ChangeNotifier {
     api.token = account.token;
     await SessionStore.saveToken(account.token);
     activeAccountId = account.id;
+    // Nothing of the account being left may stay on screen while the new one
+    // loads.
+    chats = const [];
+    // The stored data belongs to one account, so the store follows the switch.
+    _useCacheAccount(account.id);
+    // A switch without a connection still shows the conversations the account
+    // saw last time.
+    unawaited(_restoreCachedChats());
     // Read cursors belong to the account being left; the incoming account's
     // chats share ids but not readers, so start clean before loading them.
     _readCursors.clear();
@@ -2456,7 +2616,8 @@ class AppManager extends ChangeNotifier {
   /// arrive through the same OS hook, so both are stored here and told apart
   /// when the router is ready.
   void receiveDeepLink(String value) {
-    if (parseJoinLink(value) == null && parseUgcShareLink(value) == null) return;
+    if (parseJoinLink(value) == null && parseUgcShareLink(value) == null)
+      return;
     pendingDeepLink = value;
     notifyListeners();
   }
@@ -2466,6 +2627,148 @@ class AppManager extends ChangeNotifier {
     pendingDeepLink = null;
     notifyListeners();
     return value;
+  }
+
+  // --- Offline cache ----------------------------------------------------
+
+  /// Loads a conversation's messages from the server.
+  ///
+  /// The stored copy is written on every successful load, so the offline
+  /// history follows the server's. It is not read here: a history is too large
+  /// to hand out without a disk read, and a screen must not wait for one. A
+  /// caller that needs the stored copy -- because the server could not be
+  /// reached -- asks for it with [storedMessages] from a background task.
+  Future<List<MessageInfo>> loadMessages(int chatId) async {
+    final messages = await api.messages(chatId);
+    if (cacheChats) {
+      unawaited(OfflineStore.instance.saveMessages(chatId, messages));
+      _prefetchMedia(
+        messages
+            .where((message) => message.attachmentUrl.isNotEmpty)
+            .map((message) => message.attachmentUrl),
+      );
+    }
+    return messages;
+  }
+
+  /// The messages of a conversation that are stored on the device.
+  ///
+  /// Empty when the conversation was never read.
+  Future<List<MessageInfo>> storedMessages(int chatId) =>
+      OfflineStore.instance.loadMessages(chatId);
+
+  /// Loads a person's profile, falling back to the stored copy when the
+  /// server cannot be reached.
+  ///
+  /// The stored copy is handed out from memory, so the fallback costs the
+  /// screen no wait.
+  Future<Profile> loadUserProfile(int userId) async {
+    try {
+      final loaded = await api.user(userId);
+      if (cacheChats) unawaited(OfflineStore.instance.saveUserProfile(loaded));
+      _prefetchMedia([loaded.avatarUrl]);
+      return loaded;
+    } on ApiException {
+      final cached = await OfflineStore.instance.loadUserProfile(userId);
+      if (cached == null) rethrow;
+      return cached;
+    } catch (_) {
+      final cached = await OfflineStore.instance.loadUserProfile(userId);
+      if (cached == null) rethrow;
+      return cached;
+    }
+  }
+
+  /// The headers a media request to [url] needs.
+  ///
+  /// Only the app's own server gets the session token: a media url can point
+  /// at third-party storage, and handing the token over would leak it.
+  Map<String, String> mediaHeadersFor(String url) {
+    final token = api.token;
+    if (token == null || token.isEmpty) return const {};
+    final media = Uri.tryParse(url);
+    final base = Uri.tryParse(api.baseUrl);
+    if (media == null || base == null) return const {};
+    if (media.scheme != base.scheme || media.host != base.host) {
+      return const {};
+    }
+    return {'Authorization': 'Bearer $token'};
+  }
+
+  /// Keeps [urls] on the device so they can be shown without a connection.
+  void _prefetchMedia(Iterable<String> urls) {
+    if (!cacheMedia) return;
+    for (final url in urls) {
+      if (url.isEmpty) continue;
+      MediaCache.instance.prefetch(url, headers: mediaHeadersFor(url));
+    }
+  }
+
+  /// Turns media caching on or off.
+  ///
+  /// Turning it off drops what is already stored: the point of the switch is
+  /// that nothing is kept on the device.
+  Future<void> setCacheMedia(bool value) async {
+    if (cacheMedia == value) return;
+    cacheMedia = value;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(_cacheMediaKey, value);
+    if (!value) await MediaCache.instance.clear();
+    notifyListeners();
+  }
+
+  /// Turns conversation caching on or off.
+  ///
+  /// Turning it off drops the stored conversations, messages and people.
+  Future<void> setCacheChats(bool value) async {
+    if (cacheChats == value) return;
+    cacheChats = value;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(_cacheChatsKey, value);
+    if (!value) await OfflineStore.instance.clearAccount();
+    notifyListeners();
+  }
+
+  /// Sets how much space the media cache may take.
+  Future<void> setCacheLimit(int bytes) async {
+    await MediaCache.instance.setMaxBytes(bytes);
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setInt(_cacheLimitKey, bytes);
+    notifyListeners();
+  }
+
+  /// What the app keeps on the device for offline use.
+  Future<CacheOverview> cacheOverview() async {
+    final media = await MediaCache.instance.stats();
+    final store = await OfflineStore.instance.stats();
+    return CacheOverview(
+      mediaFiles: media.fileCount,
+      mediaBytes: media.totalBytes,
+      mediaLimitBytes: media.maxBytes,
+      chatCount: store.chatCount,
+      messageCount: store.messageCount,
+      profileCount: store.profileCount,
+      chatBytes: store.totalBytes,
+    );
+  }
+
+  /// Empties the media cache.
+  Future<void> clearMediaCache() async {
+    await MediaCache.instance.clear();
+    notifyListeners();
+  }
+
+  /// Empties the stored conversations, messages and people.
+  Future<void> clearChatCache() async {
+    await OfflineStore.instance.clearAccount();
+    notifyListeners();
+  }
+
+  /// Empties everything the app keeps for offline use.
+  Future<void> clearAllCache() async {
+    await MediaCache.instance.clearAll();
+    await OfflineStore.instance.clearAll();
+    notifyListeners();
   }
 
   @override

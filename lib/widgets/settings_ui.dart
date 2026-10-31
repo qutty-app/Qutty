@@ -216,6 +216,29 @@ class LoadingCenter extends StatelessWidget {
       const Center(child: CircularProgressIndicator());
 }
 
+/// A human readable size, such as "1.5 MB".
+///
+/// The numbers are written the way a person would say them out loud, so a
+/// cache of 1.5 megabytes reads as "1.5 MB" rather than as a byte count.
+String formatBytes(int bytes) {
+  if (bytes <= 0) return '0 B';
+  const units = <String>['B', 'KB', 'MB', 'GB', 'TB'];
+  var value = bytes.toDouble();
+  var unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit++;
+  }
+  final text = unit == 0 || value >= 100
+      ? value.toStringAsFixed(0)
+      : value.toStringAsFixed(1);
+  // Whole numbers are written whole: "64 MB" rather than "64.0 MB".
+  final trimmed = text.endsWith('.0')
+      ? text.substring(0, text.length - 2)
+      : text;
+  return '$trimmed ${units[unit]}';
+}
+
 /// Returns a friendly relative time description for a past timestamp.
 ///
 /// [l10n] is required rather than read from a context because the callers are

@@ -884,6 +884,31 @@ void main() {
     expect(find.text('Test chat'), findsOneWidget);
   });
 
+  testWidgets(
+    'long press on a message with developer info starts multi-select',
+    (tester) async {
+      manager.developerInfo = true;
+      addTearDown(() => manager.developerInfo = false);
+
+      login();
+      await openChat(tester, 4250);
+      manager.onIncomingMessage(
+        _message(id: 50, chatId: 4250, senderId: 99, text: 'held message'),
+      );
+      await tester.pump();
+      await tester.pump(_debounce);
+
+      await tester.longPress(find.text('held message'));
+      await tester.pumpAndSettle();
+
+      // The long press is the touch affordance for multi-select. The developer
+      // info tooltip wraps the bubble, so the press has to reach past it rather
+      // than being taken by the tooltip alone.
+      expect(find.byTooltip('Message ID: 50'), findsOneWidget);
+      expect(find.text('1 selected'), findsOneWidget);
+    },
+  );
+
   testWidgets('right click opens the message action menu at the pointer', (
     tester,
   ) async {

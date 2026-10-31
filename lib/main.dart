@@ -13,11 +13,13 @@ import 'package:qutty/screens/auth/login.dart';
 import 'package:qutty/screens/call.dart';
 import 'package:qutty/screens/chat.dart';
 import 'package:qutty/screens/chats.dart';
+import 'package:qutty/screens/cache_settings.dart';
 import 'package:qutty/screens/create_chat_screen.dart';
 import 'package:qutty/screens/fallback.dart';
 import 'package:qutty/screens/edit_profile.dart';
 import 'package:qutty/screens/femboy.dart';
 import 'package:qutty/screens/profile.dart';
+import 'package:qutty/screens/bot_portal.dart';
 import 'package:qutty/screens/settings.dart';
 import 'package:qutty/screens/customization.dart';
 import 'package:qutty/screens/chat_settings.dart';
@@ -107,8 +109,16 @@ final GoRouter router = GoRouter(
       builder: (_, _) => const FontScreen(),
     ),
     GoRoute(
+      path: '/settings/cache',
+      builder: (_, _) => const CacheSettingsScreen(),
+    ),
+    GoRoute(
       path: '/settings/developer/ugc',
       builder: (_, _) => const UgcPortalScreen(),
+    ),
+    GoRoute(
+      path: '/settings/developer/bots',
+      builder: (_, _) => const BotPortalScreen(),
     ),
     GoRoute(
       path: '/uwu/femboy/qutty/rdprojects/67',

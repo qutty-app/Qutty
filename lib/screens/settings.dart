@@ -56,6 +56,18 @@ class SettingsScreen extends StatelessWidget {
                 children: [_ConnectionTile(status: manager.connectionStatus)],
               ),
               SettingsSection(
+                title: l10n.cacheOfflineSection,
+                children: [
+                  SettingsTile(
+                    leading: const Icon(Icons.offline_bolt_outlined),
+                    title: l10n.cacheTitle,
+                    subtitle: l10n.cacheTitleSubtitle,
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/settings/cache'),
+                  ),
+                ],
+              ),
+              SettingsSection(
                 title: l10n.settingsNotifications,
                 children: const [_NotificationsTile()],
               ),
@@ -146,7 +158,7 @@ class SettingsScreen extends StatelessWidget {
                             : Icons.account_circle_outlined,
                       ),
                       title: account.label,
-                      subtitle: account.baseUrl,
+                      subtitle: account.baseUrl == "https://api.qutty.app" ? "" : account.baseUrl,
                       trailing: account.id == manager.activeAccountId
                           ? const Icon(Icons.check, size: 20)
                           : IconButton(
@@ -186,6 +198,13 @@ class SettingsScreen extends StatelessWidget {
                 title: l10n.developerPortal,
                 subtitle: l10n.developerPortalSubtitle,
                 children: [
+                  SettingsTile(
+                    leading: const Icon(Icons.smart_toy_outlined),
+                    title: l10n.botsTitle,
+                    subtitle: l10n.botsSubtitle,
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/settings/developer/bots'),
+                  ),
                   SettingsTile(
                     leading: const Icon(Icons.emoji_emotions_outlined),
                     title: l10n.ugcTitle,

@@ -24,14 +24,22 @@ class BackgroundSocketController {
     return _invoke('start');
   }
 
+  /// Asks the platform to let this app run in the background without limits,
+  /// which is what the debug "keep websocket alive" switch relies on before the
+  /// background socket is allowed to hold a connection open.
+  static Future<bool> requestBackgroundUnlimited() async {
+    if (!isSupported) return false;
+    return _invoke('requestBackgroundUnlimited');
+  }
+
   static Future<bool> stop() async {
     if (!isSupported) return false;
     return _invoke('stop');
   }
 
-  static Future<bool> _invoke(String method) async {
+  static Future<bool> _invoke(String method, [dynamic arguments]) async {
     try {
-      return await channel.invokeMethod<bool>(method) ?? false;
+      return await channel.invokeMethod<bool>(method, arguments) ?? false;
     } on PlatformException catch (error) {
       debugPrint('backgroundSocket: $method failed: ${error.message}');
       return false;
