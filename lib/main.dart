@@ -36,6 +36,7 @@ import 'package:qutty/widgets/adaptive.dart';
 import 'package:qutty/widgets/api_error_footer.dart';
 import 'package:qutty/widgets/call_route_sync.dart';
 import 'package:qutty/widgets/home_layout_sync.dart';
+import 'package:qutty/widgets/resizable_sidebar.dart';
 
 final manager = AppManager.instance;
 final routerNotifier = RouterNotifier(manager);
@@ -104,10 +105,7 @@ final GoRouter router = GoRouter(
       path: '/settings/language',
       builder: (_, _) => const LanguageScreen(),
     ),
-    GoRoute(
-      path: '/settings/font',
-      builder: (_, _) => const FontScreen(),
-    ),
+    GoRoute(path: '/settings/font', builder: (_, _) => const FontScreen()),
     GoRoute(
       path: '/settings/cache',
       builder: (_, _) => const CacheSettingsScreen(),
@@ -188,32 +186,37 @@ Future<void> main() async {
     // is routed, and so a Firebase failure cannot delay the first frame.
     unawaited(manager.startNotifications());
     // QUTTYDBG temporary
-    unawaited(Future.delayed(const Duration(seconds: 10), () async {
-      final dbg = io.File('/tmp/qutty_hook.log');
-      void log(String m) => dbg.writeAsStringSync('$m\n', mode: io.FileMode.append);
-      await NotificationService.instance.initialize();
-      final macos = FlutterLocalNotificationsPlugin()
-          .resolvePlatformSpecificImplementation<
-            MacOSFlutterLocalNotificationsPlugin
-          >();
-      final perms = await macos?.checkPermissions();
-      log(
-        'QUTTYDBG perms isEnabled=${perms?.isEnabled} '
-        'alert=${perms?.isAlertEnabled} badge=${perms?.isBadgeEnabled} '
-        'sound=${perms?.isSoundEnabled}',
-      );
-      for (var i = 0; i < 3; i++) {
-        await NotificationService.instance.show(
-          NotificationPayload(
-            title: 'QUTTYDBG banner test ${i + 1}',
-            body: 'local notification',
-            chatId: 1,
-          ),
+    unawaited(
+      Future.delayed(const Duration(seconds: 10), () async {
+        final dbg = io.File('/tmp/qutty_hook.log');
+        void log(String m) =>
+            dbg.writeAsStringSync('$m\n', mode: io.FileMode.append);
+        await NotificationService.instance.initialize();
+        final macos = FlutterLocalNotificationsPlugin()
+            .resolvePlatformSpecificImplementation<
+              MacOSFlutterLocalNotificationsPlugin
+            >();
+        final perms = await macos?.checkPermissions();
+        log(
+          'QUTTYDBG perms isEnabled=${perms?.isEnabled} '
+          'alert=${perms?.isAlertEnabled} badge=${perms?.isBadgeEnabled} '
+          'sound=${perms?.isSoundEnabled}',
         );
-        log('QUTTYDBG posted ${i + 1} at ${DateTime.now().toIso8601String()}');
-        await Future.delayed(const Duration(seconds: 7));
-      }
-    }));
+        for (var i = 0; i < 3; i++) {
+          await NotificationService.instance.show(
+            NotificationPayload(
+              title: 'QUTTYDBG banner test ${i + 1}',
+              body: 'local notification',
+              chatId: 1,
+            ),
+          );
+          log(
+            'QUTTYDBG posted ${i + 1} at ${DateTime.now().toIso8601String()}',
+          );
+          await Future.delayed(const Duration(seconds: 7));
+        }
+      }),
+    );
   }, showUnhandledApiError);
 }
 
@@ -494,12 +497,10 @@ class _HomeScreen extends StatelessWidget {
             focusMessageId: focusMessageId,
           );
     final content = isWideScreen(context)
-        ? Row(
-            children: [
-              const SizedBox(width: 360, child: ChatsScreen()),
-              const VerticalDivider(width: 1),
-              Expanded(child: chat ?? const _SelectChatPlaceholder()),
-            ],
+        ? ResizableSidebar(
+            handleKey: const ValueKey('chat-list-resize-handle'),
+            sidebar: const ChatsScreen(),
+            child: chat ?? const _SelectChatPlaceholder(),
           )
         : chat ?? const ChatsScreen();
     // A live call puts a small bar above whichever chat is open, so the call is

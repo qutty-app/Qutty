@@ -8,14 +8,194 @@ import 'package:qutty/l10n/l10n.dart';
 
 import 'join_link.dart';
 
+/// A request the server rejected.
+///
+/// Every backend error is a JSON object of the shape
+/// `{"error": "snake_case_code", "message": "human readable text"}`. [code] is
+/// that stable machine readable name (empty when the server answered with
+/// something else, for example a proxy timeout page), [message] is the text a
+/// UI can show directly, [detail] keeps the raw body, and [request] names the
+/// call. Both are only shown in the expandable developer view.
 class ApiException implements Exception {
   final int statusCode;
   final String message;
+  final String code;
+  final String? detail;
+  final String request;
 
-  const ApiException(this.statusCode, this.message);
+  const ApiException(
+    this.statusCode,
+    this.message, {
+    this.code = '',
+    this.detail,
+    this.request = '',
+  });
+
+  /// True when the response carried a recognized API error object.
+  bool get hasCode => code.isNotEmpty;
 
   @override
-  String toString() => message;
+  String toString() =>
+      detail == null || detail == message ? message : '$message ($detail)';
+}
+
+/// Parses the body of a failed request into an [ApiException].
+///
+/// Never exposes the transport shape of the call (`POST /path: ...`) to the
+/// user: known error codes are mapped to a localized string, an unknown but
+/// well-formed `message` is shown as is, and anything else (empty body, HTML
+/// error page, plain text) collapses to [statusMessage]. The request and raw
+/// body stay in the exception for the expandable developer view only.
+ApiException apiExceptionFromResponse(
+  int statusCode,
+  String body, {
+  required String statusMessage,
+  String request = '',
+}) {
+  final raw = body.trim();
+  String? serverMessage;
+  var code = '';
+  if (raw.isNotEmpty) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map<String, dynamic>) {
+        final value = decoded['error'];
+        if (value is String) code = value;
+        final text = decoded['message'];
+        if (text is String && text.trim().isNotEmpty) {
+          serverMessage = text.trim();
+        }
+      }
+    } catch (_) {
+      // Not JSON: an HTML error page, a plain text proxy response, or nothing
+      // at all. Fall through to the generic message.
+    }
+  }
+
+  // Precedence: a code we know beats the server's own wording, which keeps the
+  // text localized. An unknown code still shows the server message, and a body
+  // that is not an API error at all falls back to the status based text.
+  final message = translateApiError(code) ?? serverMessage ?? statusMessage;
+  return ApiException(
+    statusCode,
+    message,
+    code: code,
+    detail: raw.isEmpty ? null : raw,
+    request: request,
+  );
+}
+
+/// Maps a backend error code to a localized user facing message.
+///
+/// Returns null when the code is unknown to this build, so a newer server can
+/// add codes without the client showing an empty error.
+String? translateApiError(String code) {
+  final l10n = L10n.current;
+  return switch (code) {
+    '' => null,
+    // 400
+    'bad_request' => l10n.errorBadRequest,
+    'invalid_request_body' => l10n.errorInvalidRequestBody,
+    'invalid_user_id' => l10n.errorInvalidUserId,
+    'invalid_chat_id' => l10n.errorInvalidChatId,
+    'invalid_message_id' => l10n.errorInvalidMessageId,
+    'invalid_session_id' => l10n.errorInvalidSessionId,
+    'invalid_bot_id' => l10n.errorInvalidBotId,
+    'invalid_device_id' => l10n.errorInvalidDeviceId,
+    'invalid_provider' => l10n.errorInvalidProvider,
+    'invalid_member_role' => l10n.errorInvalidMemberRole,
+    'invalid_invite_code' => l10n.errorInvalidInviteCode,
+    'invalid_join_link' => l10n.errorInvalidJoinLink,
+    'invalid_form' => l10n.errorInvalidForm,
+    'invalid_token' => l10n.errorInvalidToken,
+    'invalid_credentials' => l10n.errorInvalidCredentials,
+    'invalid_password' => l10n.errorInvalidPassword,
+    'enc_invalid' => l10n.errorEncInvalid,
+    'enc_too_long' => l10n.errorEncTooLong,
+    'token_required' => l10n.errorTokenRequired,
+    'token_too_long' => l10n.errorTokenTooLong,
+    'provider_required' => l10n.errorProviderRequired,
+    'provider_too_long' => l10n.errorProviderTooLong,
+    'url_required' => l10n.errorUrlRequired,
+    'url_not_uploaded' => l10n.errorUrlNotUploaded,
+    'name_required' => l10n.errorNameRequired,
+    'handle_required' => l10n.errorHandleRequired,
+    'handle_too_short' => l10n.errorHandleTooShort,
+    'handle_invalid_chars' => l10n.errorHandleInvalidChars,
+    'display_name_required' => l10n.errorDisplayNameRequired,
+    'display_name_invalid_length' => l10n.errorDisplayNameInvalidLength,
+    'bio_too_long' => l10n.errorBioTooLong,
+    'message_empty' => l10n.errorMessageEmpty,
+    'user_id_required' => l10n.errorUserIdRequired,
+    'user_id_and_password_required' => l10n.errorUserIdAndPasswordRequired,
+    'username_and_password_required' => l10n.errorUsernameAndPasswordRequired,
+    'pack_id_required' => l10n.errorPackIdRequired,
+    'item_id_required' => l10n.errorItemIdRequired,
+    'filename_required' => l10n.errorFilenameRequired,
+    'dm_avatar_forbidden' => l10n.errorDmAvatarForbidden,
+    'cannot_update_dm' => l10n.errorCannotUpdateDm,
+    'self_dm_forbidden' => l10n.errorSelfDmForbidden,
+    'dm_invite_forbidden' => l10n.errorDmInviteForbidden,
+    'dm_handle_forbidden' => l10n.errorDmHandleForbidden,
+    'dm_transfer_forbidden' => l10n.errorDmTransferForbidden,
+    'target_not_admin' => l10n.errorTargetNotAdmin,
+    'target_not_member' => l10n.errorTargetNotMember,
+    'chat_already_owned' => l10n.errorChatAlreadyOwned,
+    'add_admins_required' => l10n.errorAddAdminsRequired,
+    'add_admins_permission_required' => l10n.errorAddAdminsRequired,
+    'cannot_kick_creator' => l10n.errorCannotKickCreator,
+    'cannot_kick_self' => l10n.errorCannotKickSelf,
+    'cannot_modify_creator' => l10n.errorCannotModifyCreator,
+    'creator_only' => l10n.errorCreatorOnly,
+    'creator_must_delete' => l10n.errorCreatorMustDelete,
+    'creator_must_delete_chat' => l10n.errorCreatorMustDelete,
+    'forwarded_not_editable' => l10n.errorForwardedNotEditable,
+    'forwarded_message_not_editable' => l10n.errorForwardedNotEditable,
+    'bots_cannot_have_bots' => l10n.errorBotsCannotHaveBots,
+    'voice_control_required' => l10n.errorVoiceControlRequired,
+    'voice_not_active' => l10n.errorVoiceNotActive,
+    // 401
+    'missing_token' => l10n.errorMissingToken,
+    'missing_session' => l10n.errorMissingSession,
+    'missing_account' => l10n.errorMissingAccount,
+    'session_not_found' => l10n.errorSessionNotFound,
+    'session_too_new' => l10n.errorSessionTooNew,
+    // 403
+    'forbidden' => l10n.errorForbidden,
+    'not_a_member' => l10n.errorNotAMember,
+    'no_permission' => l10n.errorNoPermission,
+    'not_admin' => l10n.errorNotAdmin,
+    'account_not_found' => l10n.errorAccountNotFound,
+    // 404
+    'chat_not_found' => l10n.errorChatNotFound,
+    'user_not_found' => l10n.errorUserNotFound,
+    'member_not_found' => l10n.errorMemberNotFound,
+    'message_not_found' => l10n.errorMessageNotFound,
+    'pack_not_found' => l10n.errorPackNotFound,
+    'item_not_found' => l10n.errorItemNotFound,
+    'bot_not_found' => l10n.errorBotNotFound,
+    'device_not_found' => l10n.errorDeviceNotFound,
+    'invite_link_not_found' => l10n.errorInviteLinkNotFound,
+    'invite_link_invalid' => l10n.errorInviteLinkInvalid,
+    // 409
+    'username_taken' => l10n.errorUsernameTaken,
+    'email_taken' => l10n.errorEmailTaken,
+    'chat_create_failed' => l10n.errorChatCreateFailed,
+    'chat_create_conflict' => l10n.errorChatCreateFailed,
+    'bot_create_failed' => l10n.errorBotCreateFailed,
+    'bot_create_conflict' => l10n.errorBotCreateFailed,
+    // 410
+    'invite_link_expired' => l10n.errorInviteLinkExpired,
+    // 429
+    'rate_limit_exceeded' => l10n.errorRateLimitExceeded,
+    // 500
+    'internal_error' => l10n.errorInternal,
+    'server_error' => l10n.errorServer,
+    'registration_failed' => l10n.errorRegistrationFailed,
+    'storage_failed' => l10n.errorStorageFailed,
+    'presign_failed' => l10n.errorPresignFailed,
+    _ => null,
+  };
 }
 
 class ChatInfo {
@@ -30,6 +210,11 @@ class ChatInfo {
   final DateTime createdAt;
   final String lastMessageForDumbAssChatList;
 
+  /// This viewer's role in the chat, when the server sent one (the chat list
+  /// does). A DM whose role is `restricted` was deleted for this user only and
+  /// is hidden from the list until either side writes to it again.
+  final String myRole;
+
   const ChatInfo({
     required this.id,
     required this.chatType,
@@ -41,6 +226,7 @@ class ChatInfo {
     this.permissions = const [],
     required this.createdAt,
     this.lastMessageForDumbAssChatList = "",
+    this.myRole = '',
   });
 
   factory ChatInfo.fromJson(Map<String, dynamic> json) => ChatInfo(
@@ -60,6 +246,7 @@ class ChatInfo {
         DateTime.tryParse(json['created_at'] as String? ?? '') ??
         DateTime.now(),
     lastMessageForDumbAssChatList: json['last_message'] as String? ?? '',
+    myRole: json['my_role'] as String? ?? '',
   );
 
   /// The chat as the server would send it, so it can be written to the
@@ -75,6 +262,7 @@ class ChatInfo {
     'permissions': permissions,
     'created_at': createdAt.toIso8601String(),
     'last_message': lastMessageForDumbAssChatList,
+    'my_role': myRole,
   };
 }
 
@@ -310,6 +498,25 @@ class MessageInfo {
   };
 }
 
+/// One page of a conversation's history, oldest message first.
+///
+/// The server walks the history backwards: the first page holds the newest
+/// messages, and asking with [beforeId] set to the oldest one already loaded
+/// returns the page before it. [hasMore] says whether another page exists.
+class MessagePage {
+  final List<MessageInfo> messages;
+  final int total;
+  final bool hasMore;
+
+  const MessagePage({
+    required this.messages,
+    this.total = 0,
+    this.hasMore = false,
+  });
+
+  static const empty = MessagePage(messages: []);
+}
+
 /// A change applied to a message that already existed: it was either edited
 /// (the whole message is replaced) or deleted (the message is removed).
 ///
@@ -528,22 +735,22 @@ class BotInfo {
   });
 
   factory BotInfo.fromJson(Map<String, dynamic> json) => BotInfo(
-        id: (json['id'] as num?)?.toInt() ?? 0,
-        displayName: json['display_name'] as String? ?? '',
-        bio: json['bio'] as String? ?? '',
-        avatarUrl: json['avatar_url'] as String? ?? '',
-        accountType: json['account_type'] as String? ?? 'bot',
-        handles: (json['handles'] as List<dynamic>? ?? [])
-            .map((handle) => handle.toString())
-            .toList(),
-        lastOnline: DateTime.tryParse(json['last_online'] as String? ?? ''),
-        createdAt:
-            DateTime.tryParse(json['created_at'] as String? ?? '') ??
-            DateTime.now(),
-        updatedAt:
-            DateTime.tryParse(json['updated_at'] as String? ?? '') ??
-            DateTime.now(),
-      );
+    id: (json['id'] as num?)?.toInt() ?? 0,
+    displayName: json['display_name'] as String? ?? '',
+    bio: json['bio'] as String? ?? '',
+    avatarUrl: json['avatar_url'] as String? ?? '',
+    accountType: json['account_type'] as String? ?? 'bot',
+    handles: (json['handles'] as List<dynamic>? ?? [])
+        .map((handle) => handle.toString())
+        .toList(),
+    lastOnline: DateTime.tryParse(json['last_online'] as String? ?? ''),
+    createdAt:
+        DateTime.tryParse(json['created_at'] as String? ?? '') ??
+        DateTime.now(),
+    updatedAt:
+        DateTime.tryParse(json['updated_at'] as String? ?? '') ??
+        DateTime.now(),
+  );
 }
 
 /// The bot a freshly created developer app produced, plus the session token
@@ -1415,9 +1622,40 @@ class ApiService {
   Future<int> joinLink(String value, bool isHandle) async =>
       isHandle ? joinChat(value) : joinInvite(value);
 
-  Future<List<MessageInfo>> messages(int chatId) async {
-    final data = await _requestList('GET', '/chats/$chatId/messages');
-    return data.map(MessageInfo.fromJson).toList();
+  /// Loads the newest page of a conversation's messages, oldest first.
+  Future<List<MessageInfo>> messages(int chatId) async =>
+      (await messagePage(chatId)).messages;
+
+  /// Loads one page of a conversation's messages, oldest first.
+  ///
+  /// The newest page is returned when [beforeId] is null. Passing the oldest
+  /// message already loaded asks for the page before it, which is how the
+  /// screen walks backwards through history.
+  Future<MessagePage> messagePage(
+    int chatId, {
+    int? beforeId,
+    int limit = 50,
+  }) async {
+    final response = await _send(
+      'GET',
+      '/chats/$chatId/messages',
+      query: {
+        'limit': '$limit',
+        if (beforeId != null) 'before_id': '$beforeId',
+      },
+    );
+    final data = _decodeList(response.body);
+    final messages = data.map(MessageInfo.fromJson).toList();
+    // X-Total-Count is how many messages the query still has in total, so a
+    // full page followed by a larger total means there is more history. A
+    // server that does not send the header falls back to whether the page was
+    // full, which at worst costs one empty request at the start of history.
+    final total = int.tryParse(response.headers['x-total-count'] ?? '') ?? 0;
+    return MessagePage(
+      messages: messages,
+      total: total,
+      hasMore: total > 0 ? messages.length < total : messages.length >= limit,
+    );
   }
 
   Future<FileInfo> uploadFile(PlatformFile file) async {
@@ -1567,8 +1805,10 @@ class ApiService {
 
   /// Makes [url] absolute when the server handed back a root-relative path.
   ///
-  /// Storage can be configured with or without a public base URL, so a stored
-  /// file reference is sometimes `/v1/file/...` and sometimes a full URL.
+  /// Object references are returned as stable `/v1/file/...` paths; the backend
+  /// turns them into a short-lived presigned object-store URL on request, so
+  /// clients never need to know the bucket address. Third-party assets can
+  /// still arrive as full URLs, which are returned unchanged.
   /// Widgets that hand a URL to `Image.network` need the absolute form either
   /// way, and this is the one place that knows the base URL.
   String absoluteUrl(String url) {
@@ -1619,9 +1859,7 @@ class ApiService {
 
   /// The caller's UGC items, or the items of one pack when [packId] is given.
   Future<List<UgcItem>> ugcItems({int? packId}) async {
-    final path = packId == null
-        ? '/ugc/items'
-        : '/ugc/packs/$packId/items';
+    final path = packId == null ? '/ugc/items' : '/ugc/packs/$packId/items';
     return (await _requestList('GET', path)).map(UgcItem.fromJson).toList();
   }
 
@@ -1666,11 +1904,7 @@ class ApiService {
     await _request(
       'PATCH',
       '/ugc/items/$id',
-      body: {
-        'name': ?name,
-        'url': ?url,
-        'key': ?key,
-      },
+      body: {'name': ?name, 'url': ?url, 'key': ?key},
     ),
   );
 
@@ -1678,11 +1912,10 @@ class ApiService {
       _request('DELETE', '/ugc/items/$id');
 
   /// The items the caller has saved across every pack.
-  Future<List<UgcItem>> ugcFavoriteItems() async =>
-      (await _requestList(
-        'GET',
-        '/ugc/favorites/items',
-      )).map(UgcItem.fromJson).toList();
+  Future<List<UgcItem>> ugcFavoriteItems() async => (await _requestList(
+    'GET',
+    '/ugc/favorites/items',
+  )).map(UgcItem.fromJson).toList();
 
   Future<void> addUgcFavoriteItem(int itemId) async =>
       _request('POST', '/ugc/favorites/items', body: {'item_id': itemId});
@@ -1691,11 +1924,10 @@ class ApiService {
       _request('DELETE', '/ugc/favorites/items/$itemId');
 
   /// The packs the caller has saved.
-  Future<List<UgcPack>> ugcFavoritePacks() async =>
-      (await _requestList(
-        'GET',
-        '/ugc/favorites/packs',
-      )).map(UgcPack.fromJson).toList();
+  Future<List<UgcPack>> ugcFavoritePacks() async => (await _requestList(
+    'GET',
+    '/ugc/favorites/packs',
+  )).map(UgcPack.fromJson).toList();
 
   Future<void> addUgcFavoritePack(int packId) async =>
       _request('POST', '/ugc/favorites/packs', body: {'pack_id': packId});
@@ -1846,11 +2078,37 @@ class ApiService {
       _ => throw ArgumentError('Unsupported HTTP method: $method'),
     };
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      final detail = response.body.trim().isEmpty
-          ? L10n.current.requestFailed
-          : response.body.trim();
-      throw ApiException(response.statusCode, '$method $path: $detail');
+      throw apiExceptionFromResponse(
+        response.statusCode,
+        response.body,
+        statusMessage: _statusMessage(
+          response.statusCode,
+          authenticated: authenticated,
+        ),
+        request: '$method $path',
+      );
     }
     return response;
+  }
+
+  /// Fallback text for a failure whose body is not an API error object, for
+  /// example a gateway timeout page or an older server that answered without
+  /// the `{"error", "message"}` envelope.
+  ///
+  /// A 401 on a request that carried no credentials can only mean the
+  /// credentials were rejected, so sign-in shows "Incorrect username or
+  /// password" even when the body is unreadable. On an authenticated request it
+  /// means the stored session is gone.
+  static String _statusMessage(int statusCode, {bool authenticated = true}) {
+    final l10n = L10n.current;
+    return switch (statusCode) {
+      401 =>
+        authenticated ? l10n.errorMissingSession : l10n.errorInvalidCredentials,
+      403 => l10n.errorForbidden,
+      404 => l10n.errorNotFound,
+      429 => l10n.errorRateLimitExceeded,
+      >= 500 => l10n.errorServer,
+      _ => l10n.requestFailed,
+    };
   }
 }

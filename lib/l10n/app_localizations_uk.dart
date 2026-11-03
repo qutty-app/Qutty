@@ -902,6 +902,53 @@ class AppLocalizationsUk extends AppLocalizations {
   String get chatSettingsTitle => 'Налаштування чату';
 
   @override
+  String get commonStay => 'Залишитися';
+
+  @override
+  String get chatLeaveConfirmChat => 'Ви впевнені, що хочете покинути цей чат?';
+
+  @override
+  String get chatLeaveConfirmChannel =>
+      'Ви впевнені, що хочете покинути цей канал?';
+
+  @override
+  String get chatLeaveOwnerWarning =>
+      'Вам потрібно передати права власника, перш ніж покинути чат!';
+
+  @override
+  String get chatDmDeleteForTitle => 'Видалити цей чат для:';
+
+  @override
+  String get chatDmDeleteForBoth => 'Обох';
+
+  @override
+  String get chatDmDeleteForMe => 'Мене';
+
+  @override
+  String get chatDmDeleteSelfConfirm =>
+      'Ви впевнені, що хочете видалити цей чат для себе?';
+
+  @override
+  String get chatDmDeleteBothConfirm =>
+      'Ви впевнені, що хочете видалити цей чат для обох користувачів?';
+
+  @override
+  String chatDeleteConfirmNoHandle(String name) {
+    return 'Ви впевнені, що хочете видалити $name?';
+  }
+
+  @override
+  String chatDeleteConfirmWithHandle(String name, String handle) {
+    return 'Ви впевнені, що хочете видалити $name (@$handle)?';
+  }
+
+  @override
+  String get chatSlideToConfirm => 'Проведіть для підтвердження';
+
+  @override
+  String get chatSlideToDelete => 'Проведіть, щоб ВИДАЛИТИ';
+
+  @override
   String get chatSettingsLeaveTitle => 'Покинути чат?';
 
   @override
@@ -919,6 +966,21 @@ class AppLocalizationsUk extends AppLocalizations {
   @override
   String get chatSettingsDeleteBody =>
       'Усі повідомлення та учасники буде видалено назавжди. Це не можна скасувати.';
+
+  @override
+  String get chatDeleteMessageTitle => 'Видалити повідомлення?';
+
+  @override
+  String get chatDeleteMessageBody =>
+      'Повідомлення буде видалено для всіх. Це не можна скасувати.';
+
+  @override
+  String get chatDeleteMessagesTitle => 'Видалити повідомлення?';
+
+  @override
+  String chatDeleteMessagesBody(int count) {
+    return 'Видалити повідомлення ($count)? Це не можна скасувати.';
+  }
 
   @override
   String get chatSettingsLoadFailed => 'Не вдалося завантажити налаштування';
@@ -1164,10 +1226,6 @@ class AppLocalizationsUk extends AppLocalizations {
       'Відображуване ім\'я не може бути порожнім';
 
   @override
-  String get editProfileHandleReserved =>
-      'Нікнейм не може бути _, цей нікнейм зарезервовано для скидання нікнейма';
-
-  @override
   String get editChatChannelSettings => 'Налаштування каналу';
 
   @override
@@ -1262,6 +1320,19 @@ class AppLocalizationsUk extends AppLocalizations {
   @override
   String get debugSubtitle =>
       'Налаштування розробки/налагодження, він же Quttycaka';
+
+  @override
+  String get debugTestSlider => 'Тестовий слайдер';
+
+  @override
+  String get debugTestSliderSubtitle => 'Переглянути підтвердження зсувом';
+
+  @override
+  String get debugTestSliderMessage =>
+      'Проведіть слайдер до кінця для підтвердження.';
+
+  @override
+  String get debugTestSliderConfirmed => 'Слайдер підтверджено';
 
   @override
   String get debugApiEndpoint => 'Адреса API';
@@ -1683,4 +1754,283 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get debugPushUnregistered => 'Push unregistered';
+
+  @override
+  String get errorBadRequest => 'The request could not be processed.';
+
+  @override
+  String get errorInvalidRequestBody => 'The request body is malformed.';
+
+  @override
+  String get errorInvalidUserId => 'That user id is not valid.';
+
+  @override
+  String get errorInvalidChatId => 'That chat id is not valid.';
+
+  @override
+  String get errorInvalidMessageId => 'That message id is not valid.';
+
+  @override
+  String get errorInvalidSessionId => 'That session id is not valid.';
+
+  @override
+  String get errorInvalidBotId => 'That bot id is not valid.';
+
+  @override
+  String get errorInvalidDeviceId => 'That device id is not valid.';
+
+  @override
+  String get errorInvalidProvider => 'That push provider is not supported.';
+
+  @override
+  String get errorInvalidMemberRole => 'That member role is not valid.';
+
+  @override
+  String get errorInvalidInviteCode => 'That invite code is not valid.';
+
+  @override
+  String get errorInvalidJoinLink => 'That join link is not valid.';
+
+  @override
+  String get errorInvalidForm => 'The form is malformed.';
+
+  @override
+  String get errorInvalidToken => 'That token is not valid.';
+
+  @override
+  String get errorInvalidCredentials =>
+      'Неправильне ім\'я користувача або пароль.';
+
+  @override
+  String get errorInvalidPassword => 'That password is not valid.';
+
+  @override
+  String get errorEncInvalid => 'The encrypted payload is not valid.';
+
+  @override
+  String get errorEncTooLong => 'The encrypted payload is too long.';
+
+  @override
+  String get errorTokenRequired => 'A token is required.';
+
+  @override
+  String get errorTokenTooLong => 'That token is too long.';
+
+  @override
+  String get errorProviderRequired => 'A push provider is required.';
+
+  @override
+  String get errorProviderTooLong => 'That push provider name is too long.';
+
+  @override
+  String get errorUrlRequired => 'A URL is required.';
+
+  @override
+  String get errorUrlNotUploaded => 'The file has not finished uploading yet.';
+
+  @override
+  String get errorNameRequired => 'A name is required.';
+
+  @override
+  String get errorHandleRequired => 'A username is required.';
+
+  @override
+  String get errorHandleTooShort => 'That username is too short.';
+
+  @override
+  String get errorHandleInvalidChars =>
+      'That username contains characters that are not allowed.';
+
+  @override
+  String get errorDisplayNameRequired => 'A display name is required.';
+
+  @override
+  String get errorDisplayNameInvalidLength =>
+      'That display name has the wrong length.';
+
+  @override
+  String get errorBioTooLong => 'That bio is too long.';
+
+  @override
+  String get errorMessageEmpty => 'The message is empty.';
+
+  @override
+  String get errorUserIdRequired => 'A user id is required.';
+
+  @override
+  String get errorUserIdAndPasswordRequired =>
+      'A user id and password are required.';
+
+  @override
+  String get errorUsernameAndPasswordRequired =>
+      'A username and password are required.';
+
+  @override
+  String get errorPackIdRequired => 'A sticker pack id is required.';
+
+  @override
+  String get errorItemIdRequired => 'A sticker id is required.';
+
+  @override
+  String get errorFilenameRequired => 'A file name is required.';
+
+  @override
+  String get errorDmAvatarForbidden => 'Direct messages cannot have an avatar.';
+
+  @override
+  String get errorCannotUpdateDm => 'A direct message cannot be updated.';
+
+  @override
+  String get errorSelfDmForbidden =>
+      'You cannot open a direct message with yourself.';
+
+  @override
+  String get errorDmInviteForbidden =>
+      'You cannot invite people to a direct message.';
+
+  @override
+  String get errorDmHandleForbidden =>
+      'A direct message cannot have a username.';
+
+  @override
+  String get errorDmTransferForbidden =>
+      'A direct message cannot be transferred.';
+
+  @override
+  String get errorTargetNotAdmin => 'That member is not an admin.';
+
+  @override
+  String get errorTargetNotMember => 'That user is not a member of this chat.';
+
+  @override
+  String get errorChatAlreadyOwned => 'This chat already has an owner.';
+
+  @override
+  String get errorAddAdminsRequired => 'The chat needs at least one admin.';
+
+  @override
+  String get errorCannotKickCreator => 'The creator cannot be removed.';
+
+  @override
+  String get errorCannotKickSelf => 'You cannot remove yourself.';
+
+  @override
+  String get errorCannotModifyCreator => 'The creator cannot be modified.';
+
+  @override
+  String get errorCreatorOnly => 'Only the creator can do that.';
+
+  @override
+  String get errorCreatorMustDelete =>
+      'The creator must delete the chat instead.';
+
+  @override
+  String get errorForwardedNotEditable =>
+      'Forwarded messages cannot be edited.';
+
+  @override
+  String get errorBotsCannotHaveBots => 'Bots cannot create bots.';
+
+  @override
+  String get errorVoiceControlRequired =>
+      'You need control of the voice chat to do that.';
+
+  @override
+  String get errorVoiceNotActive => 'The voice session is not active.';
+
+  @override
+  String get errorMissingToken => 'You are not signed in.';
+
+  @override
+  String get errorMissingSession => 'Сеанс завершився. Увійдіть знову.';
+
+  @override
+  String get errorMissingAccount => 'That account does not exist.';
+
+  @override
+  String get errorSessionNotFound => 'That session no longer exists.';
+
+  @override
+  String get errorSessionTooNew => 'That session is too new for this action.';
+
+  @override
+  String get errorForbidden => 'You are not allowed to do that.';
+
+  @override
+  String get errorNotAMember => 'Ви не учасник цього чату.';
+
+  @override
+  String get errorNoPermission => 'У вас немає прав на цю дію.';
+
+  @override
+  String get errorNotAdmin => 'Only admins can do that.';
+
+  @override
+  String get errorAccountNotFound => 'That account does not exist.';
+
+  @override
+  String get errorChatNotFound => 'That chat does not exist.';
+
+  @override
+  String get errorUserNotFound => 'That user does not exist.';
+
+  @override
+  String get errorMemberNotFound => 'That user is not a member of this chat.';
+
+  @override
+  String get errorMessageNotFound => 'That message does not exist.';
+
+  @override
+  String get errorPackNotFound => 'That sticker pack does not exist.';
+
+  @override
+  String get errorItemNotFound => 'That sticker does not exist.';
+
+  @override
+  String get errorBotNotFound => 'That bot does not exist.';
+
+  @override
+  String get errorDeviceNotFound => 'That device is not registered.';
+
+  @override
+  String get errorInviteLinkNotFound => 'That invite link does not exist.';
+
+  @override
+  String get errorInviteLinkInvalid => 'That invite link is not valid.';
+
+  @override
+  String get errorUsernameTaken => 'That username is already taken.';
+
+  @override
+  String get errorEmailTaken => 'That email is already in use.';
+
+  @override
+  String get errorChatCreateFailed => 'The chat could not be created.';
+
+  @override
+  String get errorBotCreateFailed => 'The bot could not be created.';
+
+  @override
+  String get errorInviteLinkExpired => 'That invite link has expired.';
+
+  @override
+  String get errorRateLimitExceeded => 'Забагато запитів. Спробуйте пізніше.';
+
+  @override
+  String get errorInternal => 'На сервері сталася помилка.';
+
+  @override
+  String get errorServer => 'The server could not complete the request.';
+
+  @override
+  String get errorRegistrationFailed => 'Registration failed. Try again.';
+
+  @override
+  String get errorStorageFailed => 'File storage is unavailable right now.';
+
+  @override
+  String get errorPresignFailed => 'The upload could not be started.';
+
+  @override
+  String get errorNotFound => 'Не вдалося знайти цей елемент.';
 }

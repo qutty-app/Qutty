@@ -21,6 +21,7 @@ import '../services/media_cache.dart';
 import '../services/native_call_service.dart';
 import '../services/notification_service.dart';
 import '../services/offline_store.dart';
+import '../services/tray_service.dart';
 import 'api_service.dart';
 import 'join_link.dart';
 import 'session_store.dart';
@@ -179,6 +180,18 @@ class AppManager extends ChangeNotifier {
   /// Chats whose member cursors have been loaded. Until a chat is in here its
   /// messages' own snapshot `readCount` is the only source of truth.
   final Set<int> _readCursorsLoaded = {};
+
+  /// Members of each chat by user id, so a message can draw its sender's
+  /// picture without asking for the member list again for every bubble.
+  final Map<int, Map<int, MemberInfo>> _members = {};
+
+  /// Member-list requests in flight, so the read-cursor seed and the message
+  /// avatars can share one request instead of racing each other.
+  final Map<int, Future<List<MemberInfo>>> _memberLoads = {};
+
+  /// Bumped when the account changes, so a member request that belonged to the
+  /// account being left cannot populate the incoming account's cache.
+  int _memberEpoch = 0;
 
   /// UGC items resolved by id, so a message that mentions `<ugc:123>` draws the
   /// sticker without a request per frame. Filled by [ensureUgcItems] and read by
@@ -741,6 +754,7 @@ class AppManager extends ChangeNotifier {
   static const _accentPreferenceKey = 'qutty.accent_pregree';
   static const _customAccentColorKey = 'qutty.custom_accent_color';
   static const _notificationsEnabledKey = 'qutty.notifications_enabled';
+  static const _closeToTrayKey = 'qutty.close_to_tray';
   static const _localeKey = 'qutty.locale';
   static const _fontIdKey = 'qutty.font_id';
   static const _fontLabelKey = 'qutty.font_label';
@@ -860,6 +874,13 @@ class AppManager extends ChangeNotifier {
   /// Master switch for notifications. Turning it off unregisters the push token
   /// so the backend stops sending to this device entirely.
   bool notificationsEnabled = true;
+
+  /// Whether closing the main window hides it to the tray instead of quitting.
+  ///
+  /// Only meaningful on Windows and Linux, where the runner implements a tray
+  /// icon. On macOS and mobile the platform owns the close behaviour and the
+  /// setting is hidden, so the stored value is never read there.
+  bool closeToTray = true;
 
   /// Whether media -- pictures, attachments, stickers -- is kept on the device
   /// so it can be shown without a connection.
@@ -994,6 +1015,7 @@ class AppManager extends ChangeNotifier {
     customAccentColor = preferences.getInt(_customAccentColorKey) ?? 0xff058deb;
     notificationsEnabled =
         preferences.getBool(_notificationsEnabledKey) ?? true;
+    closeToTray = preferences.getBool(_closeToTrayKey) ?? true;
     callCameraOn = preferences.getBool(_callCameraOnKey) ?? false;
     callCameraFace = preferences.getString(_callCameraFaceKey) ?? 'front';
     callLoudspeaker = preferences.getBool(_callLoudspeakerKey) ?? true;
@@ -1139,14 +1161,22 @@ class AppManager extends ChangeNotifier {
     // then belongs to the account that was left, and keeping it would show one
     // account's conversations to another.
     if (accountId != activeAccountId) return;
-    chats = loaded;
+    // A DM deleted for this user stays a restricted member so new messages can
+    // restore it. It must not be in the chat list until that happens, while
+    // search and direct links still find it.
+    final visible = loaded
+        .where(
+          (chat) => !(chat.chatType == 'dm' && chat.myRole == 'restricted'),
+        )
+        .toList();
+    chats = visible;
     notifyListeners();
     if (!cacheChats) return;
     // The stored copy is what the app falls back to when the server cannot be
     // reached, so it is refreshed on every successful load. The write is not
     // awaited: the list on screen must not wait for the disk.
-    unawaited(OfflineStore.instance.saveChats(loaded));
-    _prefetchMedia(loaded.map((chat) => chat.avatarUrl));
+    unawaited(OfflineStore.instance.saveChats(visible));
+    _prefetchMedia(visible.map((chat) => chat.avatarUrl));
   }
 
   /// Debounces the chat-list refresh triggered by realtime messages so a burst
@@ -1548,6 +1578,20 @@ class AppManager extends ChangeNotifier {
     }
   }
 
+  /// Persists whether closing the window hides the app to the tray.
+  ///
+  /// The runner needs the value too: its window procedure runs outside Flutter
+  /// and cannot read SharedPreferences, so the flag is pushed down over the
+  /// tray channel every time it changes and once at startup.
+  Future<void> setCloseToTray(bool value) async {
+    if (closeToTray == value) return;
+    closeToTray = value;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(_closeToTrayKey, value);
+    await TrayService.instance.setCloseToTray(value);
+    notifyListeners();
+  }
+
   Future<void> _registerPushToken(String token, PushTransport transport) async {
     if (token.isEmpty || !isLoggedIn || !notificationsEnabled) return;
     try {
@@ -1892,6 +1936,9 @@ class AppManager extends ChangeNotifier {
     _unread.clear();
     _readCursors.clear();
     _readCursorsLoaded.clear();
+    _members.clear();
+    _memberLoads.clear();
+    _memberEpoch++;
     clearUgcItems();
     final preferences = await SharedPreferences.getInstance();
     accounts = accounts
@@ -1922,6 +1969,9 @@ class AppManager extends ChangeNotifier {
     chats = const [];
     _readCursors.clear();
     _readCursorsLoaded.clear();
+    _members.clear();
+    _memberLoads.clear();
+    _memberEpoch++;
     clearUgcItems();
     notifyListeners();
   }
@@ -2330,6 +2380,46 @@ class AppManager extends ChangeNotifier {
     onMessageDeleted(chatId, messageId);
   }
 
+  /// Loads and caches the members of [chatId].
+  ///
+  /// A caller that only needs the cached copy passes `force: false`; a caller
+  /// refreshing live data, such as the read-cursor seed, passes `force: true`.
+  /// Concurrent callers share the request already in flight.
+  Future<List<MemberInfo>> loadMembers(int chatId, {bool force = false}) {
+    final inFlight = _memberLoads[chatId];
+    if (inFlight != null) return inFlight;
+    final cached = _members[chatId];
+    if (!force && cached != null) return Future.value(cached.values.toList());
+    final epoch = _memberEpoch;
+    late final Future<List<MemberInfo>> request;
+    request = api
+        .members(chatId)
+        .then((members) {
+          if (epoch == _memberEpoch) {
+            _members[chatId] = {
+              for (final member in members) member.userId: member,
+            };
+          }
+          return members;
+        })
+        .whenComplete(() {
+          // A sign-out may have replaced this request with a fresh one for the
+          // same chat id; only the request that is still current may clear it.
+          if (identical(_memberLoads[chatId], request)) {
+            _memberLoads.remove(chatId);
+          }
+        });
+    _memberLoads[chatId] = request;
+    return request;
+  }
+
+  /// The cached member [userId] of [chatId], if that member list is loaded.
+  ///
+  /// Used by the message list to show a sender's picture and name without
+  /// making a profile request per message.
+  MemberInfo? memberForUser(int chatId, int userId) =>
+      _members[chatId]?[userId];
+
   /// Loads every member's read cursor for [chatId].
   ///
   /// A message carries a reader count, but that snapshot only moves when the
@@ -2338,7 +2428,7 @@ class AppManager extends ChangeNotifier {
   /// receipts advance it, so a DM tick can flip the moment the peer reads.
   Future<void> refreshReadCursors(int chatId) async {
     try {
-      final members = await api.members(chatId);
+      final members = await loadMembers(chatId, force: true);
       if (profile == null) return;
       final cursors = _readCursors.putIfAbsent(chatId, () => {});
       for (final member in members) {
@@ -2573,6 +2663,9 @@ class AppManager extends ChangeNotifier {
     // chats share ids but not readers, so start clean before loading them.
     _readCursors.clear();
     _readCursorsLoaded.clear();
+    _members.clear();
+    _memberLoads.clear();
+    _memberEpoch++;
     clearUgcItems();
     profile = await api.me();
     await refreshChats();
@@ -2632,24 +2725,61 @@ class AppManager extends ChangeNotifier {
 
   // --- Offline cache ----------------------------------------------------
 
-  /// Loads a conversation's messages from the server.
+  /// Loads one page of a conversation's messages from the server.
   ///
   /// The stored copy is written on every successful load, so the offline
   /// history follows the server's. It is not read here: a history is too large
   /// to hand out without a disk read, and a screen must not wait for one. A
   /// caller that needs the stored copy -- because the server could not be
   /// reached -- asks for it with [storedMessages] from a background task.
-  Future<List<MessageInfo>> loadMessages(int chatId) async {
-    final messages = await api.messages(chatId);
+  ///
+  /// Passing [beforeId] asks for the page older than that message, which is
+  /// how a chat walks back through history without reloading what it has.
+  Future<MessagePage> loadMessagePage(
+    int chatId, {
+    int? beforeId,
+    int limit = 50,
+  }) async {
+    final page = await api.messagePage(
+      chatId,
+      beforeId: beforeId,
+      limit: limit,
+    );
     if (cacheChats) {
-      unawaited(OfflineStore.instance.saveMessages(chatId, messages));
+      unawaited(_storeMessages(chatId, page.messages));
       _prefetchMedia(
-        messages
+        page.messages
             .where((message) => message.attachmentUrl.isNotEmpty)
             .map((message) => message.attachmentUrl),
       );
     }
-    return messages;
+    return page;
+  }
+
+  /// Loads the newest page of a conversation's messages.
+  Future<List<MessageInfo>> loadMessages(int chatId) async =>
+      (await loadMessagePage(chatId)).messages;
+
+  /// Folds a freshly loaded page into the stored history.
+  ///
+  /// A page only carries part of the conversation, so replacing the stored
+  /// copy with it would drop every older message already cached. Merging by id
+  /// keeps the cache growing as the screen walks back through history.
+  ///
+  /// This is deliberately not `async`: [OfflineStore.saveMessages] puts the
+  /// history in memory before it waits for the disk, so a caller that does not
+  /// await the write still sees the new page immediately.
+  Future<void> _storeMessages(int chatId, List<MessageInfo> messages) {
+    final stored = OfflineStore.instance.cachedMessages(chatId);
+    if (stored == null) {
+      return OfflineStore.instance.saveMessages(chatId, messages);
+    }
+    final byId = <int, MessageInfo>{
+      for (final message in stored) message.id: message,
+      for (final message in messages) message.id: message,
+    };
+    final merged = byId.values.toList()..sort((a, b) => a.id.compareTo(b.id));
+    return OfflineStore.instance.saveMessages(chatId, merged);
   }
 
   /// The messages of a conversation that are stored on the device.
@@ -2697,11 +2827,19 @@ class AppManager extends ChangeNotifier {
   }
 
   /// Keeps [urls] on the device so they can be shown without a connection.
+  ///
+  /// Stored media references are root-relative /v1/file/ paths, so they are
+  /// made absolute before they reach the downloader; the cache key then also
+  /// matches the URL CachedImage uses when it draws the picture.
   void _prefetchMedia(Iterable<String> urls) {
     if (!cacheMedia) return;
     for (final url in urls) {
       if (url.isEmpty) continue;
-      MediaCache.instance.prefetch(url, headers: mediaHeadersFor(url));
+      final absolute = api.absoluteUrl(url);
+      MediaCache.instance.prefetch(
+        absolute,
+        headers: mediaHeadersFor(absolute),
+      );
     }
   }
 

@@ -8,7 +8,11 @@ import 'dart:io';
 /// talk to the backend without touching the network. The parts of the
 /// `HttpClient` surface the app never uses fall through `noSuchMethod`.
 class FakeApiHttpOverrides extends HttpOverrides {
-  FakeApiHttpOverrides({this.failAll = false, this.routes = const {}});
+  FakeApiHttpOverrides({
+    this.failAll = false,
+    this.routes = const {},
+    this.responseHeaders = const {},
+  });
 
   /// When true every request throws, to exercise offline behaviour.
   bool failAll;
@@ -23,6 +27,10 @@ class FakeApiHttpOverrides extends HttpOverrides {
   /// content type, which is how tests get a real decodable image out of
   /// `Image.network` instead of a decode failure.
   final Map<String, String> routes;
+
+  /// Extra response headers keyed the same way as [routes], so a test can serve
+  /// the validators a media cache compares against.
+  final Map<String, Map<String, String>> responseHeaders;
   final Map<String, int> statusCodes = {};
 
   /// Every request the client made, in order, so a test can assert that a
@@ -34,6 +42,7 @@ class FakeApiHttpOverrides extends HttpOverrides {
     failAll: failAll,
     routes: routes,
     statusCodes: statusCodes,
+    responseHeaders: responseHeaders,
     requests: requests,
   );
 }
@@ -64,12 +73,14 @@ class FakeHttpClient implements HttpClient {
     required this.failAll,
     required this.routes,
     required this.statusCodes,
+    this.responseHeaders = const {},
     List<FakeRequest>? requests,
   }) : requests = requests ?? <FakeRequest>[];
 
   final bool failAll;
   final Map<String, String> routes;
   final Map<String, int> statusCodes;
+  final Map<String, Map<String, String>> responseHeaders;
   final List<FakeRequest> requests;
 
   @override
@@ -100,11 +111,13 @@ class FakeHttpClient implements HttpClient {
     // returns a list of messages and a POST returns the one that was created.
     final String? canned = routes["$method $path"] ?? routes[path];
     if (canned != null) {
+      final page = _pageFor(method, path, url, canned);
       return FakeHttpClientRequest(
         method,
-        _encodeBody(canned),
+        page?.$1 ?? _encodeBody(canned),
         record,
         statusCodes["$method $path"] ?? statusCodes[path] ?? 200,
+        responseHeaders: _headersFor(method, path, page?.$2),
       );
     }
 
@@ -137,8 +150,21 @@ class FakeHttpClient implements HttpClient {
       utf8.encode(jsonEncode(fallback)),
       record,
       statusCodes["$method $path"] ?? statusCodes[path] ?? 200,
+      responseHeaders: _headersFor(method, path),
     );
   }
+
+  /// The response headers for one request: path-wide, then method-qualified,
+  /// then anything the paging helper derived.
+  Map<String, String> _headersFor(
+    String method,
+    String path, [
+    Map<String, String>? extra,
+  ]) => <String, String>{
+    ...?responseHeaders[path],
+    ...?responseHeaders["$method $path"],
+    ...?extra,
+  };
 
   /// Decodes a `b64:` body to raw bytes, and otherwise encodes as UTF-8.
   static List<int> _encodeBody(String body) {
@@ -146,6 +172,44 @@ class FakeHttpClient implements HttpClient {
       return base64Decode(body.substring(4));
     }
     return utf8.encode(body);
+  }
+
+  /// Applies the backend's message paging to a canned message list.
+  ///
+  /// The real endpoint takes `limit` and `before_id`, returns the newest page
+  /// in ascending order, and advertises how many messages matched in
+  /// `X-Total-Count`. Honouring that here lets a widget test exercise scrolling
+  /// back through history with the same fake as every other request.
+  static (List<int>, Map<String, String>)? _pageFor(
+    String method,
+    String path,
+    Uri url,
+    String canned,
+  ) {
+    if (method != 'GET' ||
+        !RegExp(r'^/v1/chats/\d+/messages$').hasMatch(path)) {
+      return null;
+    }
+    final dynamic decoded;
+    try {
+      decoded = jsonDecode(canned);
+    } catch (_) {
+      return null;
+    }
+    if (decoded is! List) return null;
+    final before = int.tryParse(url.queryParameters['before_id'] ?? '');
+    final limit = int.tryParse(url.queryParameters['limit'] ?? '') ?? 50;
+    final filtered = decoded.where((item) {
+      if (before == null) return true;
+      final id = item is Map ? (item['id'] as num?)?.toInt() ?? 0 : 0;
+      return id < before;
+    }).toList();
+    final start = filtered.length > limit ? filtered.length - limit : 0;
+    final page = filtered.sublist(start);
+    return (
+      utf8.encode(jsonEncode(page)),
+      {'x-total-count': '${filtered.length}'},
+    );
   }
 
   /// One canned GIF, shaped like the backend's item but with no file
@@ -208,12 +272,16 @@ class FakeHttpClientRequest implements HttpClientRequest {
     this.method,
     this.bodyBytes,
     this.record,
-    this.statusCode,
-  );
+    this.statusCode, {
+    this.responseHeaders = const {},
+  });
 
   @override
   final String method;
   final List<int> bodyBytes;
+
+  /// Headers the canned response should carry, such as `X-Total-Count`.
+  final Map<String, String> responseHeaders;
 
   /// The entry this request will fill its headers into.
   final FakeRequest record;
@@ -250,7 +318,11 @@ class FakeHttpClientRequest implements HttpClientRequest {
       }
     });
     record.body = utf8.decode(_requestBody, allowMalformed: true);
-    return FakeHttpClientResponse(statusCode, bodyBytes);
+    return FakeHttpClientResponse(
+      statusCode,
+      bodyBytes,
+      responseHeaders: responseHeaders,
+    );
   }
 
   @override
@@ -271,17 +343,27 @@ class FakeHttpClientRequest implements HttpClientRequest {
 }
 
 class FakeHttpClientResponse implements HttpClientResponse {
-  FakeHttpClientResponse(this._statusCode, this._body);
+  FakeHttpClientResponse(
+    this._statusCode,
+    this._body, {
+    this.responseHeaders = const {},
+  });
 
   final int _statusCode;
   final List<int> _body;
+  final Map<String, String> responseHeaders;
 
   @override
   int get statusCode => _statusCode;
   @override
   String get reasonPhrase => _statusCode == 200 ? 'OK' : 'Error';
   @override
-  HttpHeaders get headers => FakeHttpHeaders();
+  HttpHeaders get headers {
+    final result = FakeHttpHeaders();
+    responseHeaders.forEach(result.set);
+    return result;
+  }
+
   @override
   bool get isRedirect => false;
   @override

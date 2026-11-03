@@ -5,6 +5,7 @@ import 'package:qutty/api/web_socket_service.dart';
 import 'package:qutty/l10n/l10n.dart';
 import 'package:qutty/services/background_socket_controller.dart';
 import 'package:qutty/services/notification_service.dart';
+import 'package:qutty/widgets/chat_exit_actions.dart';
 import 'package:qutty/widgets/logo/logo.dart';
 import 'package:qutty/widgets/settings_ui.dart';
 
@@ -166,6 +167,12 @@ class DebugSettings extends StatelessWidget {
                       !manager.fallbackSelectorCast,
                     ),
                   ),
+                  SettingsTile(
+                    leading: const Icon(Icons.swipe_outlined),
+                    title: l10n.debugTestSlider,
+                    subtitle: l10n.debugTestSliderSubtitle,
+                    onTap: () => _showTestSlider(context),
+                  ),
                 ],
               ),
             ],
@@ -173,6 +180,39 @@ class DebugSettings extends StatelessWidget {
         },
       ),
     );
+  }
+
+  /// Shows the destructive slide control on its own, so it can be tried without
+  /// deleting anything.
+  Future<void> _showTestSlider(BuildContext context) async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.debugTestSliderMessage),
+            const SizedBox(height: 20),
+            SlideToConfirm(
+              label: l10n.chatSlideToConfirm,
+              onConfirmed: () => Navigator.pop(dialogContext, true),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.commonCancel),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.debugTestSliderConfirmed)));
   }
 
   /// Asks the user before enabling the background keep-alive, then hands the

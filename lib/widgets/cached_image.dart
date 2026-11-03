@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -14,10 +15,11 @@ import 'package:qutty/services/media_cache.dart';
 /// conversation is a column of placeholders. The file is fetched once, kept
 /// on disk and drawn from there afterwards.
 ///
-/// Whether the picture is already stored is answered from the cache's memory,
-/// never from the disk: a drawing path that waited for the disk would freeze
-/// the frame. A picture that is not stored yet comes from the network, and is
-/// fetched in the background so the next visit does not need it.
+/// A stored picture is compared with the origin before it is drawn, so a file
+/// that changed under the same URL is not shown stale. The comparison is a
+/// HEAD request and its answer is remembered for the session; when the origin
+/// cannot be reached the stored copy is used, which is what keeps the app
+/// readable offline.
 ///
 /// When the media cache is switched off the picture comes straight from the
 /// network and nothing is written to disk.
@@ -55,27 +57,75 @@ class CachedImage extends StatefulWidget {
 }
 
 class _CachedImageState extends State<CachedImage> {
+  /// The file to draw, or null when the picture comes from the network.
+  File? _file;
+
+  /// Whether the cache comparison has finished. Until it has, the picture is
+  /// not drawn from disk.
+  bool _ready = false;
+
+  /// Bumped on every new URL, so a comparison that answers late cannot replace
+  /// the picture the widget is now showing.
+  int _generation = 0;
+
   @override
   void initState() {
     super.initState();
-    _keep();
+    _prepare();
   }
 
   @override
   void didUpdateWidget(covariant CachedImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.url != widget.url || oldWidget.baseUrl != widget.baseUrl) {
-      _keep();
+      _prepare();
     }
   }
 
-  /// Keeps the picture on the device for the next time it is shown.
-  void _keep() {
+  /// Decides whether the picture has a stored copy to compare, and starts that
+  /// comparison. A miss is fetched in the background and drawn from the
+  /// network, which is what the screen would do without a cache at all.
+  void _prepare() {
+    final generation = ++_generation;
     final url = _absoluteUrl;
-    if (url.isEmpty) return;
     final manager = AppManager.instance;
-    if (!manager.cacheMedia) return;
-    MediaCache.instance.prefetch(url, headers: manager.mediaHeadersFor(url));
+    if (url.isEmpty || !manager.cacheMedia) {
+      _file = null;
+      _ready = true;
+      return;
+    }
+    _file = null;
+    _ready = false;
+    unawaited(_resolve(url, manager, generation));
+  }
+
+  /// Waits for the cache's disk index, then either compares the stored copy or
+  /// lets the network draw it.
+  ///
+  /// The wait is shared by every picture on screen and is the same scan the app
+  /// starts at launch, so it does not add a disk read per image. It matters for
+  /// correctness: deciding from an empty index would draw from the network and
+  /// leave the picture stored but never compared.
+  Future<void> _resolve(String url, AppManager manager, int generation) async {
+    await MediaCache.instance.load();
+    if (!mounted || generation != _generation) return;
+    if (!MediaCache.instance.isCached(url)) {
+      MediaCache.instance.prefetch(url, headers: manager.mediaHeadersFor(url));
+      setState(() {
+        _file = null;
+        _ready = true;
+      });
+      return;
+    }
+    final file = await MediaCache.instance.validatedFileFor(
+      url,
+      headers: manager.mediaHeadersFor(url),
+    );
+    if (!mounted || generation != _generation) return;
+    setState(() {
+      _file = file;
+      _ready = true;
+    });
   }
 
   /// The absolute url of the picture, with the server's address filled in
@@ -99,7 +149,8 @@ class _CachedImageState extends State<CachedImage> {
   Widget build(BuildContext context) {
     final url = _absoluteUrl;
     if (url.isEmpty) return widget.placeholder ?? const SizedBox.shrink();
-    final stored = MediaCache.instance.cachedFileFor(url);
+    if (!_ready) return widget.placeholder ?? const SizedBox.shrink();
+    final stored = _file;
     if (stored != null) return _fileView(stored);
     return Image.network(
       url,

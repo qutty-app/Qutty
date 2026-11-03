@@ -5,6 +5,7 @@ import 'package:qutty/api/app_manager.dart';
 import 'package:qutty/l10n/l10n.dart';
 import 'package:qutty/widgets/avatar.dart';
 import 'package:qutty/widgets/cached_image.dart';
+import 'package:qutty/widgets/chat_exit_actions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final RegExp _linkPattern = RegExp(r'https?://[^\s<>"()]+');
@@ -32,6 +33,9 @@ class ProfileScreen extends StatelessWidget {
     String avatarUrl = "";
     String bio = profile.bio;
     bool isChatAdmin = false;
+    bool isChatMember = false;
+    String chatRole = '';
+    ChatInfo? chatInfo;
     int? chatId;
     final int? userId = type == "user" ? id : null;
 
@@ -41,18 +45,27 @@ class ProfileScreen extends StatelessWidget {
       handle = profile.handles.isNotEmpty ? profile.handles.first : missing;
     } else if (type == "chat") {
       final chat = await manager.api.chat(id);
+      chatInfo = chat;
       avatarUrl = chat.avatarUrl;
       dname = chat.displayName;
       handle = chat.handles.isNotEmpty ? chat.handles.first : missing;
       bio = chat.bio;
       try {
         final member = await manager.api.selfMember(id);
+        isChatMember = true;
+        chatRole = member.role;
         isChatAdmin =
             member.role == 'creator' ||
             member.role == 'admin' ||
             member.permissions.contains('administrator');
       } on ApiException catch (exception) {
-        if (exception.statusCode != 404) rethrow;
+        // A public chat can be viewed without joining, and a chat may be gone
+        // from the member list while its profile is still reachable.
+        final notMember =
+            exception.statusCode == 404 ||
+            exception.code == 'not_a_member' ||
+            exception.statusCode == 403;
+        if (!notMember) rethrow;
       }
     } else {
       final user = await manager.loadUserProfile(id);
@@ -88,11 +101,16 @@ class ProfileScreen extends StatelessWidget {
       'messages': messages,
       'isCurrentUser': isCurrentUser,
       'isChatAdmin': isChatAdmin,
+      'isChatMember': isChatMember,
+      'chatRole': chatRole,
+      'chat': chatInfo,
     };
   }
 
   Future<void> openUrl(BuildContext context, String url) async {
-    final uri = Uri.tryParse(url);
+    // Attachment references are /v1/file/ paths, while links are already
+    // absolute; absoluteUrl leaves the latter untouched.
+    final uri = Uri.tryParse(AppManager.instance.api.absoluteUrl(url));
     if (uri == null ||
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (context.mounted) {
@@ -120,18 +138,46 @@ class ProfileScreen extends StatelessWidget {
         final dname = data?['dname'] ?? l10n.settingsEditProfile;
         final isCurrentUser = data?['isCurrentUser'] ?? false;
         final isChatAdmin = data?['isChatAdmin'] ?? false;
+        final isChatMember = data?['isChatMember'] ?? false;
+        final chatRole = data?['chatRole'] as String? ?? '';
+        final chatInfo = data?['chat'] as ChatInfo?;
+        // Admins and the creator reach leave/delete through settings. Everyone
+        // else has no settings screen, so the action replaces that button; in a
+        // DM it removes the conversation rather than leaving a group.
+        final showsSettings = isCurrentUser || (type == "chat" && isChatAdmin);
+        final showsExit =
+            type == "chat" &&
+            !showsSettings &&
+            isChatMember &&
+            chatInfo != null;
 
         return Scaffold(
           appBar: AppBar(
             title: Text(dname),
             actions: [
-              if (isCurrentUser || (type == "chat" && isChatAdmin))
+              if (showsSettings)
                 IconButton(
                   tooltip: l10n.commonSettings,
                   onPressed: () => context.push(
                     type == "user" ? '/settings' : '/chat/$id/settings',
                   ),
                   icon: const Icon(Icons.settings_outlined),
+                )
+              else if (showsExit)
+                IconButton(
+                  tooltip: chatInfo.chatType == 'dm'
+                      ? l10n.chatSettingsDeleteTile
+                      : l10n.chatSettingsLeaveTile,
+                  onPressed: () => ChatExitActions.leaveOrDelete(
+                    context,
+                    chat: chatInfo,
+                    role: chatRole,
+                  ),
+                  icon: Icon(
+                    chatInfo.chatType == 'dm'
+                        ? Icons.delete_outline
+                        : Icons.logout,
+                  ),
                 ),
             ],
           ),

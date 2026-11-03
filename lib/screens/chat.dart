@@ -39,6 +39,19 @@ bool get _hasContextMenuButton =>
         defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.linux);
 
+/// Where a conversation's message list was left.
+///
+/// [offset] is the scroll offset inside the loaded history. [atBottom] records
+/// that the reader was following the newest message, which is restored to the
+/// bottom rather than to the old pixel offset: messages may have arrived since,
+/// and following the conversation means the newest one stays on screen.
+class _ChatScrollPosition {
+  final double offset;
+  final bool atBottom;
+
+  const _ChatScrollPosition({required this.offset, required this.atBottom});
+}
+
 class ChatScreen extends StatefulWidget {
   final int chatId;
 
@@ -61,9 +74,50 @@ class _ChatScreenState extends State<ChatScreen> {
   List<MessageInfo> messages = const [];
   String? error;
 
+  /// How many messages one page of history holds. The server caps a page at
+  /// 200 and defaults to 50, so this is that default written down once.
+  static const int _messagePageSize = 50;
+
+  /// How close to the end of the list counts as following the newest message.
+  /// New messages scroll into view within this distance, and a chat left this
+  /// close to the end reopens at the end rather than at the old pixel.
+  static const double _followBottomDistance = 160;
+
+  /// Whether the server may still hold messages older than the first one on
+  /// screen. Set from the page the server answered with.
+  bool _hasMoreHistory = true;
+
+  /// True while an older page is on its way, so scrolling at the top cannot
+  /// start the same request twice.
+  bool _loadingOlder = false;
+
+  /// True once the list has been placed for this visit: at the remembered
+  /// position, at the focused message, or at the newest message. Until then
+  /// scroll events are the layout settling, not the reader moving, and must not
+  /// overwrite the position that is about to be restored.
+  bool _positionRestored = false;
+
+  /// True while [_restoreScrollPosition] is walking back through history, so
+  /// its own scroll adjustments are not mistaken for the reader moving.
+  bool _restoringPosition = false;
+
+  /// Where each conversation was left. Kept outside the widget state because
+  /// the wide layout replaces the screen with a new one when another chat is
+  /// opened, and a pushed chat is rebuilt when the app returns to it.
+  static final Map<int, _ChatScrollPosition> _scrollPositions =
+      <int, _ChatScrollPosition>{};
+
   /// True when the messages on screen came from the device rather than from
   /// the server, so the screen can say that what it shows is not live.
   bool offline = false;
+
+  /// Profiles fetched for senders who are not in the chat's member list, such
+  /// as a system account. The member list itself lives in [AppManager], so a
+  /// group of senders costs one request rather than one per person.
+  final Map<int, Profile> _senderProfiles = {};
+
+  /// Senders whose profile request is already in flight.
+  final Set<int> _resolvingSenders = {};
 
   /// Counts the loads started by this screen, so a background read started by
   /// an older one does not paint over a newer answer.
@@ -94,10 +148,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   /// Tooltip state per message, for the developer info tooltip that rides on a
   /// long press. One key per message so a long conversation can hold several.
-  final Map<int, GlobalKey<TooltipState>> _messageTooltipKeys = <int, GlobalKey<TooltipState>>{};
+  final Map<int, GlobalKey<TooltipState>> _messageTooltipKeys =
+      <int, GlobalKey<TooltipState>>{};
 
   GlobalKey<TooltipState> _messageTooltipKey(int messageId) =>
-      _messageTooltipKeys.putIfAbsent(messageId, () => GlobalKey<TooltipState>());
+      _messageTooltipKeys.putIfAbsent(
+        messageId,
+        () => GlobalKey<TooltipState>(),
+      );
 
   /// The message the composer is answering, or null when it is a fresh one.
   /// While set, the composer shows a quoted preview and the next send carries
@@ -121,6 +179,9 @@ class _ChatScreenState extends State<ChatScreen> {
     // watch for: the popup closes for touch, for a keyboard shortcut that
     // focuses the field, and for the user tapping straight into the text.
     composerFocus.addListener(_closePickerOnFocus);
+    // Watches for the reader reaching the top, which is where the next page of
+    // older history is loaded, and records where the list is left.
+    scrollController.addListener(_handleScroll);
     // Tells AppManager which conversation is on screen so an incoming message
     // for this chat does not also raise a notification.
     manager.setActiveChat(widget.chatId);
@@ -132,12 +193,18 @@ class _ChatScreenState extends State<ChatScreen> {
   void didUpdateWidget(ChatScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chatId != widget.chatId) {
+      // The old chat's place in its history belongs to the old chat.
+      _saveScrollPosition(chatId: oldWidget.chatId);
       setState(() {
         messages = const [];
         _selectionMode = false;
         _selectedMessageIds.clear();
         _replyTarget = null;
         _pendingFocusId = widget.focusMessageId;
+        _hasMoreHistory = true;
+        _loadingOlder = false;
+        _positionRestored = false;
+        _restoringPosition = false;
       });
       manager.setActiveChat(widget.chatId);
       _subscribeMessages();
@@ -147,7 +214,7 @@ class _ChatScreenState extends State<ChatScreen> {
       // The same chat opened again on a different message: jump to it without
       // refetching the page.
       setState(() => _pendingFocusId = widget.focusMessageId);
-      _focusPendingMessage();
+      unawaited(_focusPendingMessage());
     }
   }
 
@@ -168,13 +235,29 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!mounted) return;
     if (message.chatId != widget.chatId) return;
     if (messages.any((existing) => existing.id == message.id)) return;
-    final wasAtBottom = _isNearBottom;
+    // Before the opening position is restored there is no meaningful viewport
+    // yet, so follow the remembered state: a chat left on its newest message
+    // keeps following it, and one left higher up does not jump.
+    final wasAtBottom = _positionRestored
+        ? _isNearBottom
+        : (_scrollPositions[widget.chatId]?.atBottom ?? true);
+    final mine = message.senderId == manager.profile?.id;
     setState(() => messages = [...messages, message]);
-    if (wasAtBottom) _scrollToBottom(animated: true);
+    if (!mine) unawaited(_loadSenderAvatars());
+    // Following the newest message means the new one comes into view. A message
+    // the reader sent does too, because it was written from the composer at the
+    // bottom even if the history above was being read.
+    if (!_positionRestored) {
+      // The first messages of a chat that had no stored history: this is what
+      // puts the list at its opening place now that there is one. A pending
+      // focus jump owns the position instead.
+      if (_pendingFocusId == null) unawaited(_restoreScrollPosition());
+    } else if (wasAtBottom || mine) {
+      _scrollToBottom(animated: true);
+    }
     // A message that lands while the view is at the bottom is being read, so
     // advance this member's cursor; one that arrives while scrolled up is left
     // for the moment it is actually seen.
-    final mine = message.senderId == manager.profile?.id;
     if (wasAtBottom || mine) {
       unawaited(manager.markRead(widget.chatId, messageId: message.id));
     }
@@ -232,58 +315,275 @@ class _ChatScreenState extends State<ChatScreen> {
     unawaited(manager.markRead(widget.chatId, messageId: messages.last.id));
   }
 
+  /// Loads the names and pictures behind the messages' sender ids.
+  ///
+  /// The member list carries both for everyone in the chat, so a page of
+  /// messages normally costs one request. Senders outside it, such as system
+  /// accounts, fall back to their public profile.
+  Future<void> _loadSenderAvatars() async {
+    final chatId = widget.chatId;
+    final generation = _loadGeneration;
+    final ids = messages.map((message) => message.senderId).toSet();
+    if (ids.isEmpty) return;
+    var membersLoaded = false;
+    try {
+      final alreadyKnown = ids.every(
+        (id) =>
+            id == manager.profile?.id ||
+            manager.memberForUser(chatId, id) != null,
+      );
+      await manager.loadMembers(chatId);
+      membersLoaded = true;
+      if (!mounted ||
+          generation != _loadGeneration ||
+          widget.chatId != chatId) {
+        return;
+      }
+      // The member list now has pictures for senders it did not know before.
+      if (!alreadyKnown) setState(() {});
+    } catch (_) {
+      // Members may be hidden from this account. The bubbles keep their
+      // fallback avatars, and the rest of the chat still works.
+    }
+    if (!membersLoaded) return;
+    final missing = ids.where(
+      (id) =>
+          id != manager.profile?.id &&
+          manager.memberForUser(chatId, id) == null &&
+          !_senderProfiles.containsKey(id) &&
+          !_resolvingSenders.contains(id),
+    );
+    for (final id in missing) {
+      _resolvingSenders.add(id);
+      try {
+        final profile = await manager.loadUserProfile(id);
+        if (!mounted ||
+            generation != _loadGeneration ||
+            widget.chatId != chatId) {
+          return;
+        }
+        setState(() => _senderProfiles[id] = profile);
+      } catch (_) {
+        // A profile that cannot be read leaves the generic icon in place.
+      } finally {
+        _resolvingSenders.remove(id);
+      }
+    }
+  }
+
   bool get _isNearBottom {
     if (!scrollController.hasClients) return true;
     final position = scrollController.position;
-    return position.maxScrollExtent - position.pixels < 160;
+    return position.maxScrollExtent - position.pixels < _followBottomDistance;
   }
 
+  /// Keeps the newest message in view after the list has taken the new content
+  /// into account. Waiting for the next frame matters: right after setState the
+  /// extent still describes the old list, so scrolling now would stop short.
   void _scrollToBottom({required bool animated}) {
-    if (!scrollController.hasClients) return;
-    if (animated) {
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !scrollController.hasClients) return;
+      final target = scrollController.position.maxScrollExtent;
+      if (animated) {
+        scrollController.animateTo(
+          target,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      } else {
+        scrollController.jumpTo(target);
+      }
+    });
+  }
+
+  /// Watches the list for the reader reaching the top, and remembers where the
+  /// list is whenever it moves after the opening position has been restored.
+  void _handleScroll() {
+    if (!scrollController.hasClients || !_positionRestored) return;
+    if (!_restoringPosition) _saveScrollPosition();
+    if (scrollController.position.pixels <= 120) {
+      unawaited(_loadOlderMessages());
+    }
+  }
+
+  void _saveScrollPosition({int? chatId}) {
+    if (!_positionRestored || !scrollController.hasClients) return;
+    final position = scrollController.position;
+    _scrollPositions[chatId ?? widget.chatId] = _ChatScrollPosition(
+      offset: position.pixels,
+      atBottom:
+          position.maxScrollExtent - position.pixels < _followBottomDistance,
+    );
+  }
+
+  /// Loads the page before the oldest message on screen.
+  ///
+  /// With [keepPosition] the pixels are shifted by the height the prepended
+  /// page added, so the message the reader was looking at stays where it was
+  /// instead of the view jumping to the newly inserted history.
+  Future<bool> _loadOlderMessages({bool keepPosition = true}) async {
+    if (_loadingOlder || !_hasMoreHistory || messages.isEmpty) return false;
+    final generation = _loadGeneration;
+    final chatId = widget.chatId;
+    final oldest = messages.first.id;
+    final previousMax = scrollController.hasClients
+        ? scrollController.position.maxScrollExtent
+        : 0.0;
+    final previousPixels = scrollController.hasClients
+        ? scrollController.position.pixels
+        : 0.0;
+    setState(() => _loadingOlder = true);
+    try {
+      final page = await manager.loadMessagePage(
+        chatId,
+        beforeId: oldest,
+        limit: _messagePageSize,
       );
+      if (!mounted ||
+          generation != _loadGeneration ||
+          widget.chatId != chatId) {
+        return false;
+      }
+      final previousCount = messages.length;
+      final merged = _mergeMessages(page.messages);
+      setState(() {
+        messages = merged;
+        // A page that brought nothing new means the server has no history
+        // left, even if its total said otherwise (a server that ignores the
+        // cursor would otherwise keep handing back the same page forever).
+        _hasMoreHistory = page.hasMore && merged.length > previousCount;
+        _loadingOlder = false;
+      });
+      if (keepPosition && scrollController.hasClients) {
+        await WidgetsBinding.instance.endOfFrame;
+        if (!mounted ||
+            generation != _loadGeneration ||
+            widget.chatId != chatId) {
+          return false;
+        }
+        if (scrollController.hasClients) {
+          final added = scrollController.position.maxScrollExtent - previousMax;
+          scrollController.jumpTo(previousPixels + added);
+        }
+      }
+      return true;
+    } on ApiException catch (exception) {
+      if (!mounted || generation != _loadGeneration) return false;
+      setState(() {
+        _loadingOlder = false;
+        error = exception.message;
+      });
+      return false;
+    } catch (_) {
+      if (!mounted || generation != _loadGeneration) return false;
+      setState(() {
+        _loadingOlder = false;
+        error = L10n.current.requestFailed;
+      });
+      return false;
+    }
+  }
+
+  /// Puts the list back where it was left, or on the newest message when this
+  /// chat has no remembered position.
+  Future<void> _restoreScrollPosition() async {
+    if (!mounted || _positionRestored || _restoringPosition) return;
+    final saved = _scrollPositions[widget.chatId];
+    _restoringPosition = true;
+    try {
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted || !scrollController.hasClients) return;
+      if (saved == null || saved.atBottom) {
+        // No position was stored, or the reader was following the newest
+        // message: open at the bottom, which is the newest one.
+        scrollController.jumpTo(scrollController.position.maxScrollExtent);
+        return;
+      }
+      // A remembered offset can sit above the first page, because history is
+      // fetched a page at a time. Walk back until that point exists.
+      var guard = 0;
+      while (mounted &&
+          _hasMoreHistory &&
+          !_loadingOlder &&
+          scrollController.hasClients &&
+          scrollController.position.maxScrollExtent < saved.offset &&
+          guard++ < 100) {
+        final loaded = await _loadOlderMessages(keepPosition: false);
+        if (!loaded) break;
+        await WidgetsBinding.instance.endOfFrame;
+      }
+      if (!mounted || !scrollController.hasClients) return;
+      scrollController.jumpTo(
+        saved.offset.clamp(0.0, scrollController.position.maxScrollExtent),
+      );
+    } finally {
+      if (mounted) {
+        _restoringPosition = false;
+        _positionRestored = true;
+        _saveScrollPosition();
+        if (_hasMoreHistory && scrollController.hasClients) {
+          // Restoring to the very top of the loaded history is the same as
+          // scrolling there: the page before it is what comes next.
+          if (scrollController.position.pixels <= 120) {
+            unawaited(_loadOlderMessages());
+          }
+        }
+      }
+    }
+  }
+
+  /// Runs after a load: an explicit focus wins, otherwise the remembered
+  /// position (or the newest message) is restored.
+  void _placeAfterLoad() {
+    if (_pendingFocusId != null) {
+      unawaited(_focusPendingMessage());
     } else {
-      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      unawaited(_restoreScrollPosition());
     }
   }
 
   /// Scrolls to the message [ChatScreen.focusMessageId] names, once it exists.
   ///
-  /// The jump is best effort: a message older than the loaded page has nothing
-  /// to scroll to and the chat simply opens where it otherwise would. Between
-  /// the load and the jump the list builds every message, so a target above or
-  /// below the viewport is present and can be reached.
-  void _focusPendingMessage() {
+  /// A target older than the first page is fetched page by page. If it cannot
+  /// be found the list falls back to the remembered position, or to the newest
+  /// message when there is none. While a jump is owed the list builds every
+  /// message, so a target outside the viewport is present to scroll to.
+  Future<void> _focusPendingMessage() async {
     final id = _pendingFocusId;
     if (id == null) return;
+    var guard = 0;
+    while (mounted &&
+        _pendingFocusId == id &&
+        !messages.any((message) => message.id == id) &&
+        _hasMoreHistory &&
+        guard++ < 100) {
+      final loaded = await _loadOlderMessages(keepPosition: false);
+      if (!loaded) break;
+    }
+    if (!mounted || _pendingFocusId != id) return;
     if (!messages.any((message) => message.id == id)) {
       setState(() => _pendingFocusId = null);
+      await _restoreScrollPosition();
       return;
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || _pendingFocusId != id) return;
-      final targetContext = _focusKey.currentContext;
-      if (targetContext == null) {
-        setState(() => _pendingFocusId = null);
-        return;
-      }
-      unawaited(
-        Scrollable.ensureVisible(
-          targetContext,
-          alignment: 0.5,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
-        ).whenComplete(() {
-          if (mounted && _pendingFocusId == id) {
-            setState(() => _pendingFocusId = null);
-          }
-        }),
-      );
-    });
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted || _pendingFocusId != id) return;
+    final targetContext = _focusKey.currentContext;
+    if (targetContext == null || !targetContext.mounted) {
+      setState(() => _pendingFocusId = null);
+      await _restoreScrollPosition();
+      return;
+    }
+    await Scrollable.ensureVisible(
+      targetContext,
+      alignment: 0.5,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+    if (!mounted || _pendingFocusId != id) return;
+    setState(() => _pendingFocusId = null);
+    _positionRestored = true;
+    _saveScrollPosition();
   }
 
   Future<void> load() async {
@@ -310,14 +610,30 @@ class _ChatScreenState extends State<ChatScreen> {
       member = await manager.api.selfMember(widget.chatId);
       memberKnown = true;
     } on ApiException catch (exception) {
-      if (exception.statusCode != 404) failure ??= exception.message;
+      // A public chat is readable without joining, so "not a member" is an
+      // answer about this reader rather than a failure of the chat: the slot
+      // where the composer goes can offer Join instead.
+      final publicChat = loadedChat != null && loadedChat.handles.isNotEmpty;
+      if (publicChat &&
+          (exception.code == 'not_a_member' || exception.statusCode == 403)) {
+        member = null;
+        memberKnown = true;
+      } else if (exception.statusCode != 404) {
+        failure ??= exception.message;
+      }
     } catch (_) {
       failure ??= L10n.current.requestFailed;
     }
     var loadedMessages = const <MessageInfo>[];
+    var hasMoreHistory = false;
     var live = false;
     try {
-      loadedMessages = await manager.loadMessages(widget.chatId);
+      final page = await manager.loadMessagePage(
+        widget.chatId,
+        limit: _messagePageSize,
+      );
+      loadedMessages = page.messages;
+      hasMoreHistory = page.hasMore;
       live = true;
     } on ApiException catch (exception) {
       failure ??= exception.message;
@@ -347,14 +663,23 @@ class _ChatScreenState extends State<ChatScreen> {
       }
       // A conversation the server answered for is live again, so the banner
       // that says otherwise comes down.
-      if (live) offline = false;
+      if (live) {
+        offline = false;
+        _hasMoreHistory = hasMoreHistory;
+        _loadingOlder = false;
+      }
       error = failure;
     });
     // Opening the conversation is reading it, so report the newest message
     // as read and seed the member cursors that drive the reader counts.
     _markReadUpToLatest();
     unawaited(manager.refreshReadCursors(widget.chatId));
-    _focusPendingMessage();
+    // The stored copy has its own path to the first paint, so only a live
+    // answer places the list here.
+    if (live) {
+      _placeAfterLoad();
+      unawaited(_loadSenderAvatars());
+    }
   }
 
   /// Fills the conversation from the copy stored on the device.
@@ -366,9 +691,14 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!mounted || stored.isEmpty || generation != _loadGeneration) return;
     setState(() {
       messages = _mergeMessages(stored);
+      // The stored copy is not paged, and there is no connection to fetch an
+      // older page with, so the top of the history is the end of it.
+      _hasMoreHistory = false;
       offline = true;
       error = null;
     });
+    _placeAfterLoad();
+    unawaited(_loadSenderAvatars());
   }
 
   /// Folds any realtime messages that arrived while the history request was in
@@ -551,7 +881,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> openAttachment(String url) async {
-    final uri = Uri.tryParse(url);
+    // Attachments are stable /v1/file/ references now, so the server address
+    // has to be filled in before handing the link to the browser.
+    final uri = Uri.tryParse(manager.api.absoluteUrl(url));
     if (uri == null ||
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
@@ -712,7 +1044,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 return;
               }
               _menuAnchor = details.globalPosition;
-              _messageTooltipKey(message.id).currentState?.ensureTooltipVisible();
+              _messageTooltipKey(
+                message.id,
+              ).currentState?.ensureTooltipVisible();
               unawaited(_showMessageMenu(message, details.globalPosition));
             },
       child: UgcView(id: id, size: size),
@@ -883,6 +1217,44 @@ class _ChatScreenState extends State<ChatScreen> {
       .where((message) => _selectedMessageIds.contains(message.id))
       .toList();
 
+  /// Asks before removing messages, because there is no undo.
+  ///
+  /// One dialog covers both paths: a single message from the action menu and a
+  /// multi-select batch. The wording changes with the count so the user knows
+  /// how much is about to disappear.
+  Future<bool> _confirmDeleteMessages(int count) async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          count == 1
+              ? l10n.chatDeleteMessageTitle
+              : l10n.chatDeleteMessagesTitle,
+        ),
+        content: Text(
+          count == 1
+              ? l10n.chatDeleteMessageBody
+              : l10n.chatDeleteMessagesBody(count),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.commonDelete),
+          ),
+        ],
+      ),
+    );
+    return confirmed == true;
+  }
+
   /// Deletes every selected message and leaves multi-select.
   ///
   /// The bubbles drop from the list immediately; the requests go through
@@ -890,6 +1262,9 @@ class _ChatScreenState extends State<ChatScreen> {
   /// and the cached chat preview stops showing a message that is gone.
   Future<void> _deleteSelected() async {
     final ids = _selectedMessageIds.toList();
+    if (ids.isEmpty) return;
+    if (!await _confirmDeleteMessages(ids.length)) return;
+    if (!mounted) return;
     _stopSelection();
     setState(() {
       messages = messages
@@ -1043,6 +1418,10 @@ class _ChatScreenState extends State<ChatScreen> {
       case _MessageAction.forward:
         await _forwardMessages([message]);
       case _MessageAction.delete:
+        // Confirm first: deleting a message is permanent and applies to every
+        // member, not only this device.
+        if (!await _confirmDeleteMessages(1)) return;
+        if (!mounted) return;
         // Through the manager so the removal is echoed to the on-screen list
         // and the cached chat preview, the same way multi-select delete does.
         unawaited(manager.deleteMessage(message.chatId, message.id));
@@ -1396,170 +1775,226 @@ class _ChatScreenState extends State<ChatScreen> {
                             ? const Icon(Icons.chat_bubble_outline, size: 48)
                             : Text(l10n.chatSendFirstMessage),
                       )
-                    : ListView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.all(16),
-                        // While a jump is owed the whole page is built, so a
-                        // target outside the viewport is present to scroll to.
-                        scrollCacheExtent: _pendingFocusId != null
-                            ? const ScrollCacheExtent.pixels(100000)
-                            : null,
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) {
-                          final message = messages[index];
-                          final mine = message.senderId == manager.profile?.id;
-                          // A sticker-only message drops its bubble: no reply
-                          // quote, forward header or attachment means the UGCs
-                          // are the whole message, so the coloured background
-                          // would only frame a sticker that is meant to float.
-                          final ugcOnly =
-                              isUgcOnly(message.text) &&
-                              message.attachmentName.isEmpty &&
-                              !message.isReply &&
-                              !message.isForward;
-                          // The message body: the quoted parent and the forward
-                          // attribution, then the attachment, then the text,
-                          // all sized to their content.
-                          final body = Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (message.isReply) _replyQuote(message),
-                              if (message.isForward) _forwardedHeader(message),
-                              if (message.attachmentName.isNotEmpty)
-                                attachmentView(
-                                  message.attachmentName,
-                                  message.attachmentSize,
-                                  message.attachmentUrl,
-                                  message.attachmentType,
-                                ),
-                              if (message.text.isNotEmpty)
-                                messageText(
-                                  message,
-                                  message.text,
-                                  DefaultTextStyle.of(context).style,
-                                  standalone: ugcOnly,
-                                ),
-                            ],
-                          );
-                          final selected = _selectedMessageIds.contains(
-                            message.id,
-                          );
-                          final bubble = Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: ugcOnly
-                                ? EdgeInsets.zero
-                                : const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 10,
-                                  ),
-                            constraints: const BoxConstraints(maxWidth: 560),
-                            decoration: BoxDecoration(
-                              color: ugcOnly
-                                  ? Colors.transparent
-                                  : mine
-                                  ? colors.primaryContainer
-                                  : colors.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(16),
-                              border: selected
-                                  ? Border.all(color: colors.primary, width: 2)
-                                  : null,
-                            ),
-                            // The read indicator belongs to the message it
-                            // describes, so it sits inside the bubble. Laying it
-                            // beside a Flexible body keeps a short bubble short
-                            // while pinning the indicator to the bottom-right.
-                            // On a sticker-only bubble the background is gone,
-                            // so the tick keeps its own little bubble of colour
-                            // to stay legible over the chat wallpaper.
-                            child: mine
-                                ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Flexible(child: body),
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                          left: 6,
-                                          bottom: ugcOnly ? 6 : 2,
-                                        ),
-                                        child: ugcOnly
-                                            ? DecoratedBox(
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      colors.primaryContainer,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 2,
-                                                      ),
-                                                  child: _readStatus(message),
-                                                ),
-                                              )
-                                            : _readStatus(message),
-                                      ),
-                                    ],
-                                  )
-                                : body,
-                          );
-                          final messageContent = Tooltip(
-                            key: _messageTooltipKey(message.id),
-                            message: l10n.chatMessageId(message.id),
-                            // The bubble's own long press owns the press: a tooltip
-                            // that declares its own long-press trigger races it in
-                            // the gesture arena and takes it, so the press would
-                            // only ever surface the tooltip.
-                            triggerMode: TooltipTriggerMode.manual,
-                            child: bubble,
-                          );
-                          final content = _messageGestures(
-                            message,
-                            manager.developerInfo ? messageContent : bubble,
-                          );
-                          final Widget item = mine
-                              ? Align(
-                                  alignment: Alignment.centerRight,
-                                  child: content,
-                                )
-                              : Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        right: 8,
-                                        bottom: 8,
-                                      ),
-                                      child: GestureDetector(
-                                        onTap: () => _selectionMode
-                                            ? _toggleSelected(message.id)
-                                            : context.push(
-                                                '/user/${message.senderId}',
-                                              ),
-                                        child: const CircleAvatar(
-                                          radius: 16,
-                                          child: Icon(
-                                            Icons.person_outline,
-                                            size: 18,
-                                          ),
-                                        ),
-                                      ),
+                    : Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ListView.builder(
+                            controller: scrollController,
+                            padding: const EdgeInsets.all(16),
+                            // While a jump is owed the whole page is built, so a
+                            // target outside the viewport is present to scroll
+                            // to.
+                            scrollCacheExtent: _pendingFocusId != null
+                                ? const ScrollCacheExtent.pixels(100000)
+                                : null,
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              final message = messages[index];
+                              final mine =
+                                  message.senderId == manager.profile?.id;
+                              final senderMember = mine
+                                  ? null
+                                  : manager.memberForUser(
+                                      widget.chatId,
+                                      message.senderId,
+                                    );
+                              final senderProfile =
+                                  _senderProfiles[message.senderId];
+                              // A sticker-only message drops its bubble: no reply
+                              // quote, forward header or attachment means the UGCs
+                              // are the whole message, so the coloured background
+                              // would only frame a sticker that is meant to float.
+                              final ugcOnly =
+                                  isUgcOnly(message.text) &&
+                                  message.attachmentName.isEmpty &&
+                                  !message.isReply &&
+                                  !message.isForward;
+                              // The message body: the quoted parent and the forward
+                              // attribution, then the attachment, then the text,
+                              // all sized to their content.
+                              final body = Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (message.isReply) _replyQuote(message),
+                                  if (message.isForward)
+                                    _forwardedHeader(message),
+                                  if (message.attachmentName.isNotEmpty)
+                                    attachmentView(
+                                      message.attachmentName,
+                                      message.attachmentSize,
+                                      message.attachmentUrl,
+                                      message.attachmentType,
                                     ),
-                                    Flexible(child: content),
-                                  ],
-                                );
-                          // The bubble a pending jump targets carries the key
-                          // `_focusPendingMessage` scrolls to.
-                          return message.id == _pendingFocusId
-                              ? KeyedSubtree(key: _focusKey, child: item)
-                              : item;
-                        },
+                                  if (message.text.isNotEmpty)
+                                    messageText(
+                                      message,
+                                      message.text,
+                                      DefaultTextStyle.of(context).style,
+                                      standalone: ugcOnly,
+                                    ),
+                                ],
+                              );
+                              final selected = _selectedMessageIds.contains(
+                                message.id,
+                              );
+                              final bubble = Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: ugcOnly
+                                    ? EdgeInsets.zero
+                                    : const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 10,
+                                      ),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 560,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: ugcOnly
+                                      ? Colors.transparent
+                                      : mine
+                                      ? colors.primaryContainer
+                                      : colors.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: selected
+                                      ? Border.all(
+                                          color: colors.primary,
+                                          width: 2,
+                                        )
+                                      : null,
+                                ),
+                                // The read indicator belongs to the message it
+                                // describes, so it sits inside the bubble. Laying it
+                                // beside a Flexible body keeps a short bubble short
+                                // while pinning the indicator to the bottom-right.
+                                // On a sticker-only bubble the background is gone,
+                                // so the tick keeps its own little bubble of colour
+                                // to stay legible over the chat wallpaper.
+                                child: mine
+                                    ? Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Flexible(child: body),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              left: 6,
+                                              bottom: ugcOnly ? 6 : 2,
+                                            ),
+                                            child: ugcOnly
+                                                ? DecoratedBox(
+                                                    decoration: BoxDecoration(
+                                                      color: colors
+                                                          .primaryContainer,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
+                                                          ),
+                                                    ),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 6,
+                                                            vertical: 2,
+                                                          ),
+                                                      child: _readStatus(
+                                                        message,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : _readStatus(message),
+                                          ),
+                                        ],
+                                      )
+                                    : body,
+                              );
+                              final messageContent = Tooltip(
+                                key: _messageTooltipKey(message.id),
+                                message: l10n.chatMessageId(message.id),
+                                // The bubble's own long press owns the press: a tooltip
+                                // that declares its own long-press trigger races it in
+                                // the gesture arena and takes it, so the press would
+                                // only ever surface the tooltip.
+                                triggerMode: TooltipTriggerMode.manual,
+                                child: bubble,
+                              );
+                              final content = _messageGestures(
+                                message,
+                                manager.developerInfo ? messageContent : bubble,
+                              );
+                              final Widget item = mine
+                                  ? Align(
+                                      alignment: Alignment.centerRight,
+                                      child: content,
+                                    )
+                                  : Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: chat?.chatType != "dm"
+                                          ? [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  right: 8,
+                                                  bottom: 8,
+                                                ),
+                                                child: GestureDetector(
+                                                  onTap: () => _selectionMode
+                                                      ? _toggleSelected(
+                                                          message.id,
+                                                        )
+                                                      : context.push(
+                                                          '/user/${message.senderId}',
+                                                        ),
+                                                  child: Avatar(
+                                                    displayName:
+                                                        senderMember
+                                                            ?.displayName ??
+                                                        senderProfile
+                                                            ?.displayName ??
+                                                        '',
+                                                    imageUrl:
+                                                        senderMember
+                                                            ?.avatarUrl ??
+                                                        senderProfile
+                                                            ?.avatarUrl ??
+                                                        '',
+                                                    baseUrl:
+                                                        manager.api.baseUrl,
+                                                    radius: 16,
+                                                    fallbackIcon:
+                                                        Icons.person_outline,
+                                                  ),
+                                                ),
+                                              ),
+                                              Flexible(child: content),
+                                            ]
+                                          : [Flexible(child: content)],
+                                    );
+                              // The bubble a pending jump targets carries the key
+                              // `_focusPendingMessage` scrolls to.
+                              return message.id == _pendingFocusId
+                                  ? KeyedSubtree(key: _focusKey, child: item)
+                                  : item;
+                            },
+                          ),
+                          // A thin bar rather than a list item: it must not add
+                          // height to the history, or prepending a page would shift
+                          // the message the reader is looking at.
+                          if (_loadingOlder)
+                            const Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              child: LinearProgressIndicator(minHeight: 2),
+                            ),
+                        ],
                       ),
               ),
-              if (isMember == false)
+              // A non-member of a public chat gets the join action where the
+              // composer would be, instead of the error the member lookup
+              // would otherwise surface.
+              if (isMember == false && chat?.handles.isNotEmpty == true)
                 SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
@@ -1716,7 +2151,12 @@ class _ChatScreenState extends State<ChatScreen> {
       ..removeListener(_closePickerOnFocus)
       ..dispose();
     composer.dispose();
-    scrollController.dispose();
+    // Remember where this conversation was left before the controller goes
+    // away, so the next visit opens on the same messages.
+    _saveScrollPosition();
+    scrollController
+      ..removeListener(_handleScroll)
+      ..dispose();
     super.dispose();
   }
 }

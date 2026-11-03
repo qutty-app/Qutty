@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qutty/api/api_service.dart';
+import 'package:qutty/api/app_manager.dart';
 import 'package:qutty/l10n/l10n.dart';
 import 'package:qutty/main.dart';
 import 'package:qutty/screens/chat.dart';
 import 'package:qutty/screens/chats.dart';
+import 'package:qutty/widgets/adaptive.dart';
+import 'package:qutty/widgets/avatar.dart';
 import 'package:qutty/widgets/home_layout_sync.dart';
 
 /// Drains every exception the test binding recorded, ignoring the debug-only
@@ -143,5 +147,69 @@ void main() {
       findsOneWidget,
       reason: 'the wide layout must end up with a single two-pane shell',
     );
+  });
+
+  testWidgets('wide layout drags the chat list down to an avatar rail', (
+    tester,
+  ) async {
+    await pumpRouter(tester);
+    router.go('/');
+    await tester.pump();
+
+    final handle = find.byKey(const ValueKey('chat-list-resize-handle'));
+    expect(handle, findsOneWidget);
+    expect(
+      tester.getSize(find.byType(ChatsScreen)).width,
+      kChatListDefaultWidth,
+    );
+
+    await tester.drag(handle, const Offset(-600, 0));
+    // The handle also recognises double-taps, so let its tap timer expire
+    // before the test ends.
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getSize(find.byType(ChatsScreen)).width,
+      kChatListMinWidth,
+      reason: 'the list must be allowed to collapse to the avatar rail',
+    );
+  });
+
+  testWidgets('chat list hides its text when the pane is narrow', (
+    tester,
+  ) async {
+    final manager = AppManager.instance;
+    final previousChats = manager.chats;
+    manager.chats = [
+      ChatInfo(
+        id: 1,
+        chatType: 'chat',
+        displayName: 'Chat One',
+        bio: '',
+        handles: const [],
+        createdAt: DateTime.utc(2026, 1, 1),
+        lastMessageForDumbAssChatList: 'Hello there',
+      ),
+    ];
+    addTearDown(() => manager.chats = previousChats);
+
+    Widget build(double width) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Center(
+        child: SizedBox(width: width, height: 600, child: const ChatsScreen()),
+      ),
+    );
+
+    await tester.pumpWidget(build(kChatListDefaultWidth));
+    await tester.pump();
+    expect(find.text('Chat One'), findsOneWidget);
+    expect(find.text('Hello there'), findsOneWidget);
+
+    await tester.pumpWidget(build(kChatListMinWidth));
+    await tester.pump();
+    expect(find.text('Chat One'), findsNothing);
+    expect(find.text('Hello there'), findsNothing);
+    expect(find.byType(Avatar), findsOneWidget);
   });
 }

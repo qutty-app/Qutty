@@ -78,14 +78,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (name.text.trim().isEmpty) {
         throw ApiException(0, l10n.editProfileNameEmpty);
       }
-      String hdl;
-      if (handle.text.trim() == "_") {
-        throw ApiException(0, l10n.editProfileHandleReserved);
-      } else if (handle.text.trim().isEmpty) {
-        hdl = "_";
-      } else {
-        hdl = handle.text.trim();
-      }
+      // An empty handle removes the current handle entirely; the backend
+      // treats an empty string as a request to clear it.
+      final hdl = handle.text.trim();
       if (ischat) {
         await manager.api.updateChat(
           chatid,

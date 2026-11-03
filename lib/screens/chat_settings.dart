@@ -6,6 +6,7 @@ import 'package:qutty/api/api_service.dart';
 import 'package:qutty/api/app_manager.dart';
 import 'package:qutty/l10n/l10n.dart';
 import 'package:qutty/widgets/avatar.dart';
+import 'package:qutty/widgets/chat_exit_actions.dart';
 import 'package:qutty/widgets/settings_ui.dart';
 
 import 'chat_members_screen.dart';
@@ -77,73 +78,16 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
     }
   }
 
-  Future<void> _confirmLeave() async {
-    final l10n = context.l10n;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.chatSettingsLeaveTitle),
-        content: Text(l10n.chatSettingsLeaveBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.commonCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.chatSettingsLeave),
-          ),
-        ],
-      ),
+  Future<void> _confirmLeave(_ChatSettingsData data) async {
+    await ChatExitActions.leaveOrDelete(
+      context,
+      chat: data.chat,
+      role: data.me.role,
     );
-    if (confirmed != true || !mounted) return;
-    try {
-      await AppManager.instance.api.leaveChat(widget.chatId);
-      await AppManager.instance.refreshChats();
-      if (!mounted) return;
-      context.go('/');
-    } on ApiException catch (exception) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(exception.message)));
-    }
   }
 
   Future<void> _confirmDelete(_ChatSettingsData data) async {
-    final l10n = context.l10n;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.chatSettingsDeleteTitle(data.chat.displayName)),
-        content: Text(l10n.chatSettingsDeleteBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.commonCancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.commonDelete),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-    try {
-      await AppManager.instance.api.deleteChat(widget.chatId);
-      await AppManager.instance.refreshChats();
-      if (!mounted) return;
-      context.go('/');
-    } on ApiException catch (exception) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(exception.message)));
-    }
+    await ChatExitActions.deleteChat(context, data.chat);
   }
 
   @override
@@ -191,9 +135,12 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                   )
                   .then((_) => _refresh()),
               onInvite: _createInviteLink,
-              onLeave: data.chat.chatType == 'dm' || data.me.role == 'creator'
+              // DMs use the delete-style action on their profile instead: they
+              // have no admin menu to open, and "delete for both/me" is the
+              // scope choice a leave button cannot express.
+              onLeave: data.chat.chatType == 'dm'
                   ? null
-                  : _confirmLeave,
+                  : () => _confirmLeave(data),
               onDelete: data.me.role == 'creator'
                   ? () => _confirmDelete(data)
                   : null,

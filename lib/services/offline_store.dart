@@ -181,6 +181,10 @@ class OfflineStore {
     return messages;
   }
 
+  /// The stored messages currently held in memory, or null when this
+  /// conversation has not been read from the disk yet.
+  List<MessageInfo>? cachedMessages(int chatId) => _histories[chatId];
+
   /// Stores the messages of one conversation.
   Future<void> saveMessages(int chatId, List<MessageInfo> messages) async {
     _histories[chatId] = List<MessageInfo>.unmodifiable(messages);

@@ -99,6 +99,99 @@ void main() {
     expect(overrides.requests, hasLength(1));
   });
 
+  test('compares a stored picture with the origin before serving it', () async {
+    final url = 'https://cdn.example/media/a.png';
+    final overrides = FakeApiHttpOverrides(
+      routes: {
+        '/media/a.png': 'b64:${base64Encode([1, 2, 3, 4])}',
+      },
+      responseHeaders: {
+        'GET /media/a.png': {'etag': '"v1"'},
+        'HEAD /media/a.png': {'etag': '"v1"'},
+      },
+    );
+    Future<T> zone<T>(Future<T> Function() body) => HttpOverrides.runZoned(
+      body,
+      createHttpClient: overrides.createHttpClient,
+    );
+
+    final file = await zone(() => cache.download(url));
+    expect(file, isNotNull);
+    // The validators are kept next to the file for the next launch.
+    expect(File('${file!.path}.meta.json').existsSync(), isTrue);
+
+    final validated = await zone(() => cache.validatedFileFor(url));
+    expect(validated?.path, file.path);
+    expect(overrides.requests.map((request) => request.method), [
+      'GET',
+      'HEAD',
+    ]);
+
+    // The answer is remembered for the session, so drawing it again is free.
+    await zone(() => cache.validatedFileFor(url));
+    expect(overrides.requests, hasLength(2));
+  });
+
+  test('replaces a stored picture when the origin changed', () async {
+    final url = 'https://cdn.example/media/a.png';
+    final overrides = FakeApiHttpOverrides(
+      routes: {
+        '/media/a.png': 'b64:${base64Encode([1, 2, 3])}',
+      },
+      responseHeaders: {
+        'GET /media/a.png': {'etag': '"v1"'},
+        'HEAD /media/a.png': {'etag': '"v1"'},
+      },
+    );
+    Future<T> zone<T>(Future<T> Function() body) => HttpOverrides.runZoned(
+      body,
+      createHttpClient: overrides.createHttpClient,
+    );
+
+    await zone(() => cache.download(url));
+
+    // The same URL now serves different bytes under a new ETag.
+    overrides.routes['/media/a.png'] = 'b64:${base64Encode([4, 5, 6])}';
+    overrides.responseHeaders['GET /media/a.png'] = {'etag': '"v2"'};
+    overrides.responseHeaders['HEAD /media/a.png'] = {'etag': '"v2"'};
+
+    final replaced = await zone(() => cache.validatedFileFor(url));
+    expect(await replaced!.readAsBytes(), [4, 5, 6]);
+    expect(overrides.requests.map((request) => request.method), [
+      'GET',
+      'HEAD',
+      'GET',
+    ]);
+
+    // The replacement is what later draws see.
+    await zone(() => cache.validatedFileFor(url));
+    expect(overrides.requests, hasLength(3));
+  });
+
+  test('forgets a stored picture the origin no longer has', () async {
+    final url = 'https://cdn.example/media/a.png';
+    final overrides = FakeApiHttpOverrides(
+      routes: {
+        '/media/a.png': 'b64:${base64Encode([1, 2, 3])}',
+      },
+      responseHeaders: {
+        'GET /media/a.png': {'etag': '"v1"'},
+        'HEAD /media/a.png': {'etag': '"v1"'},
+      },
+    );
+    Future<T> zone<T>(Future<T> Function() body) => HttpOverrides.runZoned(
+      body,
+      createHttpClient: overrides.createHttpClient,
+    );
+
+    final file = await zone(() => cache.download(url));
+    overrides.statusCodes['HEAD /media/a.png'] = 404;
+
+    expect(await zone(() => cache.validatedFileFor(url)), isNull);
+    expect(file!.existsSync(), isFalse);
+    expect(cache.cachedFileFor(url), isNull);
+  });
+
   test('reads what is already on disk into the cache', () async {
     final file = storeFile(
       'https://cdn.example/a.png',

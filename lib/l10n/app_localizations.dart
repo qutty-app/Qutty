@@ -1774,6 +1774,84 @@ abstract class AppLocalizations {
   /// **'Chat settings'**
   String get chatSettingsTitle;
 
+  /// No description provided for @commonStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get commonStay;
+
+  /// No description provided for @chatLeaveConfirmChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure to leave this chat?'**
+  String get chatLeaveConfirmChat;
+
+  /// No description provided for @chatLeaveConfirmChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure to leave this channel?'**
+  String get chatLeaveConfirmChannel;
+
+  /// No description provided for @chatLeaveOwnerWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'You have to pass ownership before you leave!'**
+  String get chatLeaveOwnerWarning;
+
+  /// No description provided for @chatDmDeleteForTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this chat for:'**
+  String get chatDmDeleteForTitle;
+
+  /// No description provided for @chatDmDeleteForBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get chatDmDeleteForBoth;
+
+  /// No description provided for @chatDmDeleteForMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Me'**
+  String get chatDmDeleteForMe;
+
+  /// No description provided for @chatDmDeleteSelfConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this chat for yourself?'**
+  String get chatDmDeleteSelfConfirm;
+
+  /// No description provided for @chatDmDeleteBothConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this chat for both users?'**
+  String get chatDmDeleteBothConfirm;
+
+  /// No description provided for @chatDeleteConfirmNoHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete {name}?'**
+  String chatDeleteConfirmNoHandle(String name);
+
+  /// No description provided for @chatDeleteConfirmWithHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete {name} (@{handle})?'**
+  String chatDeleteConfirmWithHandle(String name, String handle);
+
+  /// No description provided for @chatSlideToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide to confirm'**
+  String get chatSlideToConfirm;
+
+  /// No description provided for @chatSlideToDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide to DELETE'**
+  String get chatSlideToDelete;
+
   /// No description provided for @chatSettingsLeaveTitle.
   ///
   /// In en, this message translates to:
@@ -1803,6 +1881,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All messages and members will be permanently removed. This cannot be undone.'**
   String get chatSettingsDeleteBody;
+
+  /// No description provided for @chatDeleteMessageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete message?'**
+  String get chatDeleteMessageTitle;
+
+  /// No description provided for @chatDeleteMessageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This message will be deleted for everyone. This cannot be undone.'**
+  String get chatDeleteMessageBody;
+
+  /// No description provided for @chatDeleteMessagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete messages?'**
+  String get chatDeleteMessagesTitle;
+
+  /// No description provided for @chatDeleteMessagesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count} messages? This cannot be undone.'**
+  String chatDeleteMessagesBody(int count);
 
   /// No description provided for @chatSettingsLoadFailed.
   ///
@@ -2236,12 +2338,6 @@ abstract class AppLocalizations {
   /// **'Display name cannot be empty'**
   String get editProfileNameEmpty;
 
-  /// No description provided for @editProfileHandleReserved.
-  ///
-  /// In en, this message translates to:
-  /// **'Handle cannot be _, this exact handle reserved to reset handle'**
-  String get editProfileHandleReserved;
-
   /// No description provided for @editChatChannelSettings.
   ///
   /// In en, this message translates to:
@@ -2391,6 +2487,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deveelopment/Debug settings a.k.a Quttycaka'**
   String get debugSubtitle;
+
+  /// No description provided for @debugTestSlider.
+  ///
+  /// In en, this message translates to:
+  /// **'Test slider'**
+  String get debugTestSlider;
+
+  /// No description provided for @debugTestSliderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview the slide-to-confirm control'**
+  String get debugTestSliderSubtitle;
+
+  /// No description provided for @debugTestSliderMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag the slider to the end to confirm.'**
+  String get debugTestSliderMessage;
+
+  /// No description provided for @debugTestSliderConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Slider confirmed'**
+  String get debugTestSliderConfirmed;
 
   /// No description provided for @debugApiEndpoint.
   ///
@@ -3165,6 +3285,540 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Push unregistered'**
   String get debugPushUnregistered;
+
+  /// No description provided for @errorBadRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'The request could not be processed.'**
+  String get errorBadRequest;
+
+  /// No description provided for @errorInvalidRequestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The request body is malformed.'**
+  String get errorInvalidRequestBody;
+
+  /// No description provided for @errorInvalidUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'That user id is not valid.'**
+  String get errorInvalidUserId;
+
+  /// No description provided for @errorInvalidChatId.
+  ///
+  /// In en, this message translates to:
+  /// **'That chat id is not valid.'**
+  String get errorInvalidChatId;
+
+  /// No description provided for @errorInvalidMessageId.
+  ///
+  /// In en, this message translates to:
+  /// **'That message id is not valid.'**
+  String get errorInvalidMessageId;
+
+  /// No description provided for @errorInvalidSessionId.
+  ///
+  /// In en, this message translates to:
+  /// **'That session id is not valid.'**
+  String get errorInvalidSessionId;
+
+  /// No description provided for @errorInvalidBotId.
+  ///
+  /// In en, this message translates to:
+  /// **'That bot id is not valid.'**
+  String get errorInvalidBotId;
+
+  /// No description provided for @errorInvalidDeviceId.
+  ///
+  /// In en, this message translates to:
+  /// **'That device id is not valid.'**
+  String get errorInvalidDeviceId;
+
+  /// No description provided for @errorInvalidProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'That push provider is not supported.'**
+  String get errorInvalidProvider;
+
+  /// No description provided for @errorInvalidMemberRole.
+  ///
+  /// In en, this message translates to:
+  /// **'That member role is not valid.'**
+  String get errorInvalidMemberRole;
+
+  /// No description provided for @errorInvalidInviteCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That invite code is not valid.'**
+  String get errorInvalidInviteCode;
+
+  /// No description provided for @errorInvalidJoinLink.
+  ///
+  /// In en, this message translates to:
+  /// **'That join link is not valid.'**
+  String get errorInvalidJoinLink;
+
+  /// No description provided for @errorInvalidForm.
+  ///
+  /// In en, this message translates to:
+  /// **'The form is malformed.'**
+  String get errorInvalidForm;
+
+  /// No description provided for @errorInvalidToken.
+  ///
+  /// In en, this message translates to:
+  /// **'That token is not valid.'**
+  String get errorInvalidToken;
+
+  /// No description provided for @errorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect username or password.'**
+  String get errorInvalidCredentials;
+
+  /// No description provided for @errorInvalidPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'That password is not valid.'**
+  String get errorInvalidPassword;
+
+  /// No description provided for @errorEncInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The encrypted payload is not valid.'**
+  String get errorEncInvalid;
+
+  /// No description provided for @errorEncTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'The encrypted payload is too long.'**
+  String get errorEncTooLong;
+
+  /// No description provided for @errorTokenRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A token is required.'**
+  String get errorTokenRequired;
+
+  /// No description provided for @errorTokenTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'That token is too long.'**
+  String get errorTokenTooLong;
+
+  /// No description provided for @errorProviderRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A push provider is required.'**
+  String get errorProviderRequired;
+
+  /// No description provided for @errorProviderTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'That push provider name is too long.'**
+  String get errorProviderTooLong;
+
+  /// No description provided for @errorUrlRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A URL is required.'**
+  String get errorUrlRequired;
+
+  /// No description provided for @errorUrlNotUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'The file has not finished uploading yet.'**
+  String get errorUrlNotUploaded;
+
+  /// No description provided for @errorNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A name is required.'**
+  String get errorNameRequired;
+
+  /// No description provided for @errorHandleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A username is required.'**
+  String get errorHandleRequired;
+
+  /// No description provided for @errorHandleTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'That username is too short.'**
+  String get errorHandleTooShort;
+
+  /// No description provided for @errorHandleInvalidChars.
+  ///
+  /// In en, this message translates to:
+  /// **'That username contains characters that are not allowed.'**
+  String get errorHandleInvalidChars;
+
+  /// No description provided for @errorDisplayNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A display name is required.'**
+  String get errorDisplayNameRequired;
+
+  /// No description provided for @errorDisplayNameInvalidLength.
+  ///
+  /// In en, this message translates to:
+  /// **'That display name has the wrong length.'**
+  String get errorDisplayNameInvalidLength;
+
+  /// No description provided for @errorBioTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'That bio is too long.'**
+  String get errorBioTooLong;
+
+  /// No description provided for @errorMessageEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The message is empty.'**
+  String get errorMessageEmpty;
+
+  /// No description provided for @errorUserIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A user id is required.'**
+  String get errorUserIdRequired;
+
+  /// No description provided for @errorUserIdAndPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A user id and password are required.'**
+  String get errorUserIdAndPasswordRequired;
+
+  /// No description provided for @errorUsernameAndPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A username and password are required.'**
+  String get errorUsernameAndPasswordRequired;
+
+  /// No description provided for @errorPackIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A sticker pack id is required.'**
+  String get errorPackIdRequired;
+
+  /// No description provided for @errorItemIdRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A sticker id is required.'**
+  String get errorItemIdRequired;
+
+  /// No description provided for @errorFilenameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A file name is required.'**
+  String get errorFilenameRequired;
+
+  /// No description provided for @errorDmAvatarForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct messages cannot have an avatar.'**
+  String get errorDmAvatarForbidden;
+
+  /// No description provided for @errorCannotUpdateDm.
+  ///
+  /// In en, this message translates to:
+  /// **'A direct message cannot be updated.'**
+  String get errorCannotUpdateDm;
+
+  /// No description provided for @errorSelfDmForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot open a direct message with yourself.'**
+  String get errorSelfDmForbidden;
+
+  /// No description provided for @errorDmInviteForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot invite people to a direct message.'**
+  String get errorDmInviteForbidden;
+
+  /// No description provided for @errorDmHandleForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'A direct message cannot have a username.'**
+  String get errorDmHandleForbidden;
+
+  /// No description provided for @errorDmTransferForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'A direct message cannot be transferred.'**
+  String get errorDmTransferForbidden;
+
+  /// No description provided for @errorTargetNotAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'That member is not an admin.'**
+  String get errorTargetNotAdmin;
+
+  /// No description provided for @errorTargetNotMember.
+  ///
+  /// In en, this message translates to:
+  /// **'That user is not a member of this chat.'**
+  String get errorTargetNotMember;
+
+  /// No description provided for @errorChatAlreadyOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'This chat already has an owner.'**
+  String get errorChatAlreadyOwned;
+
+  /// No description provided for @errorAddAdminsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The chat needs at least one admin.'**
+  String get errorAddAdminsRequired;
+
+  /// No description provided for @errorCannotKickCreator.
+  ///
+  /// In en, this message translates to:
+  /// **'The creator cannot be removed.'**
+  String get errorCannotKickCreator;
+
+  /// No description provided for @errorCannotKickSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot remove yourself.'**
+  String get errorCannotKickSelf;
+
+  /// No description provided for @errorCannotModifyCreator.
+  ///
+  /// In en, this message translates to:
+  /// **'The creator cannot be modified.'**
+  String get errorCannotModifyCreator;
+
+  /// No description provided for @errorCreatorOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the creator can do that.'**
+  String get errorCreatorOnly;
+
+  /// No description provided for @errorCreatorMustDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'The creator must delete the chat instead.'**
+  String get errorCreatorMustDelete;
+
+  /// No description provided for @errorForwardedNotEditable.
+  ///
+  /// In en, this message translates to:
+  /// **'Forwarded messages cannot be edited.'**
+  String get errorForwardedNotEditable;
+
+  /// No description provided for @errorBotsCannotHaveBots.
+  ///
+  /// In en, this message translates to:
+  /// **'Bots cannot create bots.'**
+  String get errorBotsCannotHaveBots;
+
+  /// No description provided for @errorVoiceControlRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'You need control of the voice chat to do that.'**
+  String get errorVoiceControlRequired;
+
+  /// No description provided for @errorVoiceNotActive.
+  ///
+  /// In en, this message translates to:
+  /// **'The voice session is not active.'**
+  String get errorVoiceNotActive;
+
+  /// No description provided for @errorMissingToken.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not signed in.'**
+  String get errorMissingToken;
+
+  /// No description provided for @errorMissingSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Sign in again.'**
+  String get errorMissingSession;
+
+  /// No description provided for @errorMissingAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'That account does not exist.'**
+  String get errorMissingAccount;
+
+  /// No description provided for @errorSessionNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That session no longer exists.'**
+  String get errorSessionNotFound;
+
+  /// No description provided for @errorSessionTooNew.
+  ///
+  /// In en, this message translates to:
+  /// **'That session is too new for this action.'**
+  String get errorSessionTooNew;
+
+  /// No description provided for @errorForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not allowed to do that.'**
+  String get errorForbidden;
+
+  /// No description provided for @errorNotAMember.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not a member of this chat.'**
+  String get errorNotAMember;
+
+  /// No description provided for @errorNoPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to do that.'**
+  String get errorNoPermission;
+
+  /// No description provided for @errorNotAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Only admins can do that.'**
+  String get errorNotAdmin;
+
+  /// No description provided for @errorAccountNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That account does not exist.'**
+  String get errorAccountNotFound;
+
+  /// No description provided for @errorChatNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That chat does not exist.'**
+  String get errorChatNotFound;
+
+  /// No description provided for @errorUserNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That user does not exist.'**
+  String get errorUserNotFound;
+
+  /// No description provided for @errorMemberNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That user is not a member of this chat.'**
+  String get errorMemberNotFound;
+
+  /// No description provided for @errorMessageNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That message does not exist.'**
+  String get errorMessageNotFound;
+
+  /// No description provided for @errorPackNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That sticker pack does not exist.'**
+  String get errorPackNotFound;
+
+  /// No description provided for @errorItemNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That sticker does not exist.'**
+  String get errorItemNotFound;
+
+  /// No description provided for @errorBotNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That bot does not exist.'**
+  String get errorBotNotFound;
+
+  /// No description provided for @errorDeviceNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That device is not registered.'**
+  String get errorDeviceNotFound;
+
+  /// No description provided for @errorInviteLinkNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That invite link does not exist.'**
+  String get errorInviteLinkNotFound;
+
+  /// No description provided for @errorInviteLinkInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That invite link is not valid.'**
+  String get errorInviteLinkInvalid;
+
+  /// No description provided for @errorUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That username is already taken.'**
+  String get errorUsernameTaken;
+
+  /// No description provided for @errorEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That email is already in use.'**
+  String get errorEmailTaken;
+
+  /// No description provided for @errorChatCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The chat could not be created.'**
+  String get errorChatCreateFailed;
+
+  /// No description provided for @errorBotCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The bot could not be created.'**
+  String get errorBotCreateFailed;
+
+  /// No description provided for @errorInviteLinkExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'That invite link has expired.'**
+  String get errorInviteLinkExpired;
+
+  /// No description provided for @errorRateLimitExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Try again later.'**
+  String get errorRateLimitExceeded;
+
+  /// No description provided for @errorInternal.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on the server.'**
+  String get errorInternal;
+
+  /// No description provided for @errorServer.
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not complete the request.'**
+  String get errorServer;
+
+  /// No description provided for @errorRegistrationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration failed. Try again.'**
+  String get errorRegistrationFailed;
+
+  /// No description provided for @errorStorageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'File storage is unavailable right now.'**
+  String get errorStorageFailed;
+
+  /// No description provided for @errorPresignFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The upload could not be started.'**
+  String get errorPresignFailed;
+
+  /// No description provided for @errorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That item could not be found.'**
+  String get errorNotFound;
 }
 
 class _AppLocalizationsDelegate

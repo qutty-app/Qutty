@@ -42,11 +42,16 @@ class _ApiErrorFooterState extends State<ApiErrorFooter> {
 
   @override
   Widget build(BuildContext context) {
+    final exception = widget.exception;
     final textTheme = Theme.of(context).textTheme;
     final l10n = context.l10n;
     final detail = [
-      l10n.errorHttpStatus(widget.exception.statusCode),
-      widget.exception.message,
+      if (exception.request.isNotEmpty) exception.request,
+      l10n.errorHttpStatus(exception.statusCode),
+      if (exception.hasCode) exception.code,
+      exception.message,
+      if (exception.detail != null && exception.detail != exception.message)
+        exception.detail!,
       if (widget.stackTrace != null) widget.stackTrace.toString(),
     ].join('\n');
 
